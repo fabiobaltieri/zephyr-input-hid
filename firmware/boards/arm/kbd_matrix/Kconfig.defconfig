@@ -1,0 +1,12 @@
+if BOARD_KBD_MATRIX
+
+config BOARD
+	default "kbd-matrix"
+
+config BT_CTLR
+	default BT
+
+config SOC_DCDC_NRF52X
+	default y
+
+endif

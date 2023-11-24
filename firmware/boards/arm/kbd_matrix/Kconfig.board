@@ -1,0 +1,3 @@
+config BOARD_KBD_MATRIX
+	bool "kbd-matrix"
+	depends on SOC_NRF52832_QFAA
