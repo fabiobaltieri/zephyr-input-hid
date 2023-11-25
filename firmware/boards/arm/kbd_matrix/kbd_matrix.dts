@@ -49,9 +49,9 @@
 			    <&gpio0 12 GPIO_ACTIVE_LOW>,
 			    <&gpio0 10 GPIO_ACTIVE_LOW>;
 		//col-drive-inactive;
-		//no-interrupt;
+		//idle-mode = "scan";
+		//poll-timeout-ms = <0>;
 	};
-
 };
 
 &uicr {
