@@ -1,0 +1,82 @@
+(kicad_sch (version 20230121) (generator eeschema)
+
+  (uuid dd617cfa-077f-4213-8312-37c56fdc813c)
+
+  (paper "A4")
+
+  (lib_symbols
+  )
+
+
+  (sheet (at 38.1 82.55) (size 21.59 6.35) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 078e6c74-893d-4fff-b4a1-8fef218c6ba7)
+    (property "Sheetname" "no-sw4" (at 38.1 81.8384 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "no-sw4.kicad_sch" (at 38.1 89.4846 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "keyboard-matrix-testboard"
+        (path "/dd617cfa-077f-4213-8312-37c56fdc813c" (page "3"))
+      )
+    )
+  )
+
+  (sheet (at 38.1 107.95) (size 20.32 6.35) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 2c38201f-5c25-4652-8eeb-9a33b33d119e)
+    (property "Sheetname" "diodes-rc" (at 38.1 107.2384 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "diodes-rc.kicad_sch" (at 38.1 114.8846 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "keyboard-matrix-testboard"
+        (path "/dd617cfa-077f-4213-8312-37c56fdc813c" (page "5"))
+      )
+    )
+  )
+
+  (sheet (at 38.1 69.85) (size 21.59 6.35) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 59390943-a318-4b3d-ab0a-e3cbd28cc0e5)
+    (property "Sheetname" "no-diodes" (at 38.1 69.1384 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "no-diodes.kicad_sch" (at 38.1 76.7846 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "keyboard-matrix-testboard"
+        (path "/dd617cfa-077f-4213-8312-37c56fdc813c" (page "2"))
+      )
+    )
+  )
+
+  (sheet (at 38.1 95.25) (size 20.32 6.35) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid ab28d65d-bd68-44ce-bfdb-45024bdb3dd6)
+    (property "Sheetname" "diodes-cr" (at 38.1 94.5384 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "diodes-cr.kicad_sch" (at 38.1 102.1846 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "keyboard-matrix-testboard"
+        (path "/dd617cfa-077f-4213-8312-37c56fdc813c" (page "4"))
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/" (page "1"))
+  )
+)

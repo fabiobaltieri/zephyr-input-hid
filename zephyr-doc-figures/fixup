@@ -1,0 +1,17 @@
+#!/bin/sh
+
+PREFIX="keyboard-matrix-testboard-"
+
+mkdir -p out
+
+for f in $PREFIX*.svg; do
+	out="out/$( sed "s/$PREFIX//" <<< $f )"
+
+	echo $out
+
+	inkscape $f \
+		--export-area-drawing \
+		--export-plain-svg \
+		--export-type=svg \
+		--export-filename=$out
+done
