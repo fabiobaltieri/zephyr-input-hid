@@ -25,7 +25,7 @@
 
 	vbatt: vbatt {
 		compatible = "voltage-divider";
-		io-channels = <&adc 2>;
+		io-channels = <&adc 0>;
 		output-ohms = <(560 * 1000)>;
 		full-ohms = <(560 * 1000 * 2)>;
 	};
