@@ -306,7 +306,7 @@
           (reference "SW6") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW20") (unit 1)
+          (reference "SW7") (unit 1)
         )
       )
       (project "nrf-display"
@@ -350,7 +350,7 @@
           (reference "SW7") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW22") (unit 1)
+          (reference "SW8") (unit 1)
         )
       )
       (project "nrf-display"
@@ -394,7 +394,7 @@
           (reference "SW5") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW24") (unit 1)
+          (reference "SW6") (unit 1)
         )
       )
       (project "nrf-display"
@@ -438,7 +438,7 @@
           (reference "SW0") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW18") (unit 1)
+          (reference "SW1") (unit 1)
         )
       )
       (project "nrf-display"
@@ -482,7 +482,7 @@
           (reference "SW3") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW19") (unit 1)
+          (reference "SW4") (unit 1)
         )
       )
       (project "nrf-display"
@@ -526,7 +526,7 @@
           (reference "SW2") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW23") (unit 1)
+          (reference "SW3") (unit 1)
         )
       )
       (project "nrf-display"
@@ -570,7 +570,7 @@
           (reference "SW1") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW21") (unit 1)
+          (reference "SW2") (unit 1)
         )
       )
       (project "nrf-display"
@@ -614,7 +614,7 @@
           (reference "SW8") (unit 1)
         )
         (path "/dd617cfa-077f-4213-8312-37c56fdc813c/078e6c74-893d-4fff-b4a1-8fef218c6ba7"
-          (reference "SW25") (unit 1)
+          (reference "SW9") (unit 1)
         )
       )
       (project "nrf-display"
