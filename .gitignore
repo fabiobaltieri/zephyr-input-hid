@@ -1,6 +1,9 @@
 *.swp
 build/
 
+*.svg
+zephyr-doc-figures/out/
+
 *-backups/
 *.kicad_prl
 *-bak
