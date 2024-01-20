@@ -2,6 +2,7 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/input/input.h>
+#include <zephyr/input/input_hid.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
@@ -130,19 +131,6 @@ BT_GATT_SERVICE_DEFINE(hog_svc,
 			       NULL, write_ctrl_point, &ctrl_point),
 );
 
-static int code_to_bit(const struct code_to_bit_map *map, int map_size,
-		       uint16_t code)
-{
-	int i;
-
-	for (i = 0; i < map_size; i++) {
-		if (map[i].code == code) {
-			return map[i].bit;
-		}
-	}
-	return -1;
-}
-
 #define KEYS_REPORT_SIZE 6
 static struct {
 	uint8_t modifiers;
@@ -150,39 +138,23 @@ static struct {
 	uint8_t keys[KEYS_REPORT_SIZE];
 } __packed report_keyboard, report_keyboard_last;
 
-static const struct code_to_bit_map button_map_keyboard[] = {
-	{INPUT_KEY_A, 0x04},
-	{INPUT_KEY_B, 0x05},
-	{INPUT_KEY_C, 0x06},
-	{INPUT_KEY_D, 0x07},
-	{INPUT_KEY_E, 0x08},
-	{INPUT_KEY_F, 0x09},
-	{INPUT_KEY_G, 0x0a},
-	{INPUT_KEY_H, 0x0b},
-	{INPUT_KEY_I, 0x0c},
-};
-
 static void ble_hog_set_key_keyboard(uint16_t code, uint32_t value)
 {
 	int i;
 	int hid_code;
+	uint8_t modifier;
 
-	/* modifiers */
-	if (code == INPUT_KEY_LEFTALT) {
-		WRITE_BIT(report_keyboard.modifiers, 5, value);
-		return;
-	} else if (code == INPUT_KEY_LEFTSHIFT) {
-		WRITE_BIT(report_keyboard.modifiers, 6, value);
-		return;
-	} else if (code == INPUT_KEY_LEFTCTRL) {
-		WRITE_BIT(report_keyboard.modifiers, 7, value);
-		return;
+	modifier = input_to_hid_modifier(code);
+	if (modifier != 0) {
+		if (value) {
+			report_keyboard.modifiers |= modifier;
+		} else {
+			report_keyboard.modifiers &= ~modifier;
+		}
 	}
 
 	/* normal keys */
-	hid_code = code_to_bit(button_map_keyboard,
-			       ARRAY_SIZE(button_map_keyboard),
-			       code);
+	hid_code = input_to_hid_code(code);
 	if (hid_code < 0) {
 		return;
 	}
