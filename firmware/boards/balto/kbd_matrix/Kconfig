@@ -1,8 +1,5 @@
 if BOARD_KBD_MATRIX
 
-config BOARD
-	default "kbd-matrix"
-
 config BT_CTLR
 	default BT
 

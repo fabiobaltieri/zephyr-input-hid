@@ -1,0 +1,2 @@
+config BOARD_KBD_MATRIX
+	select SOC_NRF52832_QFAA
