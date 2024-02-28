@@ -26,23 +26,23 @@
 
 	kbd-matrix {
 		compatible = "gpio-kbd-matrix";
+		/*
 		row-gpios = <&gpio0 14 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&gpio0  9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-		/*
+		*/
 		row-gpios = <&pcal6408a 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&pcal6408a 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&pcal6408a 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&pcal6408a 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
 			    <&pcal6408a 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-		*/
 		col-gpios = <&gpio0 16 GPIO_ACTIVE_LOW>,
 			    <&gpio0 13 GPIO_ACTIVE_LOW>,
 			    <&gpio0 12 GPIO_ACTIVE_LOW>,
 			    <&gpio0 10 GPIO_ACTIVE_LOW>;
-		//col-drive-inactive;
+		col-drive-inactive;
 		//idle-mode = "poll";
 		//idle-mode = "scan";
 		//poll-timeout-ms = <0>;
