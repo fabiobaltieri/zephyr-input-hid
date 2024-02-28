@@ -3473,7 +3473,7 @@
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid a4377324-31b9-4818-be8e-1b68d9003ba8)
   )
-  (text "<- should have been batt" (at 175.26 20.32 0)
+  (text "<- should have\nbeen batt" (at 175.26 22.86 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid abbbbc4a-a022-4f81-becb-dadab4d1151f)
   )
