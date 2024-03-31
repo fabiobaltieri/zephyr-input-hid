@@ -2,12 +2,12 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/input/input.h>
-#include <zephyr/input/input_hid.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <zephyr/sys/util.h>
 
 #include "ble_hog.h"
+#include "hid_kbd.h"
+#include "hid_report_map.h"
 
 LOG_MODULE_REGISTER(ble_hog, LOG_LEVEL_INF);
 
@@ -18,38 +18,12 @@ static struct hids_info info = {
 };
 
 static struct hids_report input_keyboard = {
-	.id = 0x01,
+	.id = HID_REPORT_ID_KBD,
 	.type = HIDS_INPUT,
 };
 
 static bool notify_enabled;
 static uint8_t ctrl_point;
-static uint8_t report_map[] = {
-	0x05, 0x01,                    // Usage Page (Generic Desktop)
-	0x09, 0x06,                    // Usage (Keyboard)
-	0xa1, 0x01,                    // Collection (Application)
-	0x85, 0x01,                    //  Report ID (1)
-	0x05, 0x07,                    //  Usage Page (Keyboard)
-	0x19, 0xe0,                    //  Usage Minimum (224)
-	0x29, 0xe7,                    //  Usage Maximum (231)
-	0x15, 0x00,                    //  Logical Minimum (0)
-	0x25, 0x01,                    //  Logical Maximum (1)
-	0x95, 0x08,                    //  Report Count (8)
-	0x75, 0x01,                    //  Report Size (1)
-	0x81, 0x02,                    //  Input (Data,Var,Abs)
-	0x95, 0x01,                    //  Report Count (1)
-	0x75, 0x08,                    //  Report Size (8)
-	0x81, 0x01,                    //  Input (Cnst,Arr,Abs)
-	0x05, 0x07,                    //  Usage Page (Keyboard)
-	0x19, 0x00,                    //  Usage Minimum (0)
-	0x2a, 0xff, 0x00,              //  Usage Maximum (255)
-	0x15, 0x00,                    //  Logical Minimum (0)
-	0x26, 0xff, 0x00,              //  Logical Maximum (255)
-	0x95, 0x06,                    //  Report Count (6)
-	0x75, 0x08,                    //  Report Size (8)
-	0x81, 0x00,                    //  Input (Data,Arr,Abs)
-	0xc0,                          // End Collection
-};
 
 static ssize_t read_info(struct bt_conn *conn,
 			  const struct bt_gatt_attr *attr, void *buf,
@@ -63,8 +37,8 @@ static ssize_t read_report_map(struct bt_conn *conn,
 			       const struct bt_gatt_attr *attr, void *buf,
 			       uint16_t len, uint16_t offset)
 {
-	return bt_gatt_attr_read(conn, attr, buf, len, offset, report_map,
-				 sizeof(report_map));
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, hid_report_map,
+				 hid_report_map_len);
 }
 
 static ssize_t read_report(struct bt_conn *conn,
@@ -131,58 +105,11 @@ BT_GATT_SERVICE_DEFINE(hog_svc,
 			       NULL, write_ctrl_point, &ctrl_point),
 );
 
-#define KEYS_REPORT_SIZE 6
-static struct {
-	uint8_t modifiers;
-	uint8_t _reserved;
-	uint8_t keys[KEYS_REPORT_SIZE];
-} __packed report_keyboard, report_keyboard_last;
-
-static void ble_hog_set_key_keyboard(uint16_t code, uint32_t value)
-{
-	int i;
-	int hid_code;
-	uint8_t modifier;
-
-	modifier = input_to_hid_modifier(code);
-	if (modifier != 0) {
-		if (value) {
-			report_keyboard.modifiers |= modifier;
-		} else {
-			report_keyboard.modifiers &= ~modifier;
-		}
-	}
-
-	/* normal keys */
-	hid_code = input_to_hid_code(code);
-	if (hid_code < 0) {
-		return;
-	}
-
-	if (value) {
-		for (i = 0; i < KEYS_REPORT_SIZE; i++) {
-			if (report_keyboard.keys[i] == 0x00) {
-				report_keyboard.keys[i] = hid_code;
-				return;
-			}
-		}
-	} else {
-		for (i = 0; i < KEYS_REPORT_SIZE; i++) {
-			if (report_keyboard.keys[i] == hid_code) {
-				report_keyboard.keys[i] = 0x00;
-				return;
-			}
-		}
-	}
-}
+static struct hid_kbd_report report_keyboard, report_keyboard_last;
 
 static void input_cb(struct input_event *evt)
 {
-	if (evt->type == INPUT_EV_KEY) {
-		ble_hog_set_key_keyboard(evt->code, evt->value);
-	} else {
-		LOG_ERR("unrecognized event type: %x", evt->type);
-	}
+	hid_kbd_input_process(&report_keyboard, evt);
 
 	if (!notify_enabled) {
 		return;
