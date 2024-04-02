@@ -22,9 +22,9 @@
 	0x81, 0x01,			/*  Input (Cnst,Arr,Abs) */		\
 	0x05, 0x07,			/*  Usage Page (Keyboard) */		\
 	0x19, 0x00,			/*  Usage Minimum (0) */		\
-	0x2a, 0xff, 0x00,		/*  Usage Maximum (255) */		\
+	0x29, 0xff,			/*  Usage Maximum (255) */		\
 	0x15, 0x00,			/*  Logical Minimum (0) */		\
-	0x26, 0xff, 0x00,		/*  Logical Maximum (255) */		\
+	0x25, 0xff,			/*  Logical Maximum (255) */		\
 	0x95, HID_KBD_KEYS_REPORT_SIZE,	/*  Report Count () */			\
 	0x75, 0x08,			/*  Report Size (8) */			\
 	0x81, 0x00,			/*  Input (Data,Arr,Abs) */		\
