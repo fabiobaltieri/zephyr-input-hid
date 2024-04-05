@@ -105,24 +105,41 @@ BT_GATT_SERVICE_DEFINE(hog_svc,
 			       NULL, write_ctrl_point, &ctrl_point),
 );
 
-static struct hid_kbd_report report_keyboard, report_keyboard_last;
+static struct {
+	struct hid_kbd_report curr;
+	struct hid_kbd_report last;
+	struct k_mutex lock;
+} report;
+
+static int ble_hog_init(void)
+{
+	k_mutex_init(&report.lock);
+
+	return 0;
+}
+SYS_INIT(ble_hog_init, APPLICATION, 0);
 
 static void input_cb(struct input_event *evt)
 {
-	hid_kbd_input_process(&report_keyboard, evt);
+	k_mutex_lock(&report.lock, K_FOREVER);
+
+	hid_kbd_input_process(&report.curr, evt);
 
 	if (!notify_enabled) {
-		return;
+		goto out;
 	}
 
 	if (!input_queue_empty()) {
-		return;
+		goto out;
 	}
 
-	if (memcmp(&report_keyboard_last, &report_keyboard, sizeof(report_keyboard))) {
+	if (memcmp(&report.last, &report.curr, sizeof(report.curr))) {
 		bt_gatt_notify(NULL, &hog_svc.attrs[5],
-			       &report_keyboard, sizeof(report_keyboard));
-		memcpy(&report_keyboard_last, &report_keyboard, sizeof(report_keyboard));
+			       &report.curr, sizeof(report.curr));
+		memcpy(&report.last, &report.curr, sizeof(report.curr));
 	}
+
+out:
+	k_mutex_unlock(&report.lock);
 }
 INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_NODELABEL(keymap)), input_cb);
