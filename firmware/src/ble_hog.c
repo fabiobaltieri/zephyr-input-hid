@@ -105,6 +105,8 @@ BT_GATT_SERVICE_DEFINE(hog_svc,
 			       NULL, write_ctrl_point, &ctrl_point),
 );
 
+static const struct bt_gatt_attr *kbd_report_attr = &hog_svc.attrs[5];
+
 static struct {
 	struct hid_kbd_report curr;
 	struct hid_kbd_report last;
@@ -134,7 +136,7 @@ static void input_cb(struct input_event *evt)
 	}
 
 	if (memcmp(&report.last, &report.curr, sizeof(report.curr))) {
-		bt_gatt_notify(NULL, &hog_svc.attrs[5],
+		bt_gatt_notify(NULL, kbd_report_attr,
 			       &report.curr, sizeof(report.curr));
 		memcpy(&report.last, &report.curr, sizeof(report.curr));
 	}
