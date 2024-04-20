@@ -1,0 +1,15 @@
+&button0 {
+	zephyr,code = <INPUT_KEY_A>;
+};
+
+&button1 {
+	zephyr,code = <INPUT_KEY_B>;
+};
+
+&button2 {
+	zephyr,code = <INPUT_KEY_C>;
+};
+
+&button3 {
+	zephyr,code = <INPUT_KEY_D>;
+};
