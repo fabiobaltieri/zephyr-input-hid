@@ -107,10 +107,9 @@ BT_GATT_SERVICE_DEFINE(hog_svc,
 
 static const struct bt_gatt_attr *kbd_report_attr = &hog_svc.attrs[5];
 
-//#define NKRO
 
 static struct {
-#ifdef NKRO
+#if CONFIG_KBD_HID_NKRO
 	struct hid_kbd_report_nkro curr;
 	struct hid_kbd_report_nkro last;
 #else
@@ -133,7 +132,7 @@ static void input_cb(struct input_event *evt)
 {
 	k_mutex_lock(&report.lock, K_FOREVER);
 
-#ifdef NKRO
+#ifdef CONFIG_KBD_HID_NKRO
 	hid_kbd_input_process_nkro(&report.curr, evt);
 #else
 	hid_kbd_input_process(&report.curr, &report.data, evt);

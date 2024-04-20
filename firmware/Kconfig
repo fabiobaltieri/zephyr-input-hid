@@ -1,0 +1,4 @@
+config KBD_HID_NKRO
+	bool "Use NKRO HID protocol"
+
+source "Kconfig.zephyr"
