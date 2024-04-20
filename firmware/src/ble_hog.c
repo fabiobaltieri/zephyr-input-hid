@@ -156,4 +156,11 @@ static void input_cb(struct input_event *evt)
 out:
 	k_mutex_unlock(&report.lock);
 }
-INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_NODELABEL(keymap)), input_cb);
+
+#define KEYMAP_NODE DT_NODELABEL(keymap)
+
+#if DT_NODE_EXISTS(KEYMAP_NODE)
+INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(KEYMAP_NODE), input_cb);
+#else
+INPUT_CALLBACK_DEFINE(NULL, input_cb);
+#endif
