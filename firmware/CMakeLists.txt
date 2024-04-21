@@ -19,3 +19,7 @@ target_sources_ifdef(CONFIG_BT app PRIVATE
 	src/ble_hog.c
 	src/ble_hog.h
 )
+
+target_sources_ifdef(CONFIG_USB_DEVICE_HID app PRIVATE
+	src/usb_hid.c
+)
