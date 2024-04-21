@@ -13,8 +13,12 @@ static const struct device *hid_dev;
 
 static bool connected;
 
+#if CONFIG_KBD_HID_NKRO
+static struct hid_kbd_report_nkro_id report_kbd;
+#else
 static struct hid_kbd_report_id report_kbd;
 struct hid_kbd_report_data data;
+#endif
 
 static void int_in_ready_cb(const struct device *dev)
 {
@@ -25,7 +29,11 @@ static void usb_hid_input_cb(struct input_event *evt)
 {
 	int ret;
 
+#if CONFIG_KBD_HID_NKRO
+	hid_kbd_input_process_nkro(&report_kbd.report, evt);
+#else
 	hid_kbd_input_process(&report_kbd.report, &data, evt);
+#endif
 
 	if (!connected) {
 		return;
