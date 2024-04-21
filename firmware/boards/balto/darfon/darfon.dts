@@ -76,12 +76,14 @@
 		keymap: keymap {
 			compatible = "input-keymap";
 			keymap = <
-				/* MATRIX_KEY(7, 16, media1) SLEEP */
-				/* MATRIX_KEY(7, 1, media2)
-				/* MATRIX_KEY(7, 17, media3)
-				/* MATRIX_KEY(7, 14, media4)
-				/* MATRIX_KEY(4, 16, media5)
-				/* MATRIX_KEY(5, 0, media6) RESET */
+				/*
+				MATRIX_KEY(7, 16, media1) -- sleep
+				MATRIX_KEY(7, 1, media2)
+				MATRIX_KEY(7, 17, media3)
+				MATRIX_KEY(7, 14, media4)
+				MATRIX_KEY(4, 16, media5) -- clicker
+				MATRIX_KEY(5, 0, media6) -- reset
+				*/
 
 				MATRIX_KEY(0, 1,  INPUT_KEY_ESC)
 				MATRIX_KEY(2, 2,  INPUT_KEY_F1)
