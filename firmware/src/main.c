@@ -25,7 +25,6 @@ static void input_cb(struct input_event *evt)
 	}
 
 	k_sem_give(&blink_sem);
-
 }
 INPUT_CALLBACK_DEFINE(NULL, input_cb);
 
