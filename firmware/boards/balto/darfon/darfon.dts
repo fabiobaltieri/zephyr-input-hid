@@ -1,0 +1,342 @@
+/dts-v1/;
+#include <st/f1/stm32f103Xc.dtsi>
+#include <st/f1/stm32f103r(c-d-e)tx-pinctrl.dtsi>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/input/keymap.h>
+
+/ {
+	model = "Darfon";
+	compatible = "balto,darfon";
+
+	chosen {
+		zephyr,code-partition = &slot0_partition;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,console = &usart3;
+		zephyr,display = &oled;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_c {
+			gpios = <&gpiob 2 GPIO_ACTIVE_LOW>;
+		};
+		led_a {
+			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
+		};
+		led_b {
+			gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led_0 {
+			pwms = <&pwm0 3 5000000 PWM_POLARITY_NORMAL>;
+		};
+	};
+
+	clicker {
+		compatible = "pwm-leds";
+		clicker: clicker {
+			pwms = <&pwm0 4 5000000 PWM_POLARITY_NORMAL>;
+		};
+	};
+
+	kbd-matrix {
+		compatible = "gpio-kbd-matrix";
+		row-gpios = <&gpiob 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* x1 */
+			    <&gpioc  8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* x2 */
+			    <&gpioc  9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* x3 */
+			    <&gpioa  8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* x4 */
+			    <&gpioc  5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* x5 */
+			    <&gpiob  0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* x6 */
+			    <&gpioa  9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* x7 */
+			    <&gpiob  1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* x8 */
+		col-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>, /* y1 */
+			    <&gpioc 14 GPIO_ACTIVE_LOW>, /* y2 */
+			    <&gpioc 15 GPIO_ACTIVE_LOW>, /* y3 */
+			    <&gpioc  1 GPIO_ACTIVE_LOW>, /* y4 */
+			    <&gpioc  2 GPIO_ACTIVE_LOW>, /* y5 */
+			    <&gpioa  0 GPIO_ACTIVE_LOW>, /* y6 */
+			    <&gpioa  2 GPIO_ACTIVE_LOW>, /* y7 */
+			    <&gpioa  1 GPIO_ACTIVE_LOW>, /* y8 */
+			    <&gpioc  3 GPIO_ACTIVE_LOW>, /* y9 */
+			    <&gpioa  3 GPIO_ACTIVE_LOW>, /* y10 */
+			    <&gpioa  4 GPIO_ACTIVE_LOW>, /* y11 */
+			    <&gpioa  5 GPIO_ACTIVE_LOW>, /* y12 */
+			    <&gpioa  6 GPIO_ACTIVE_LOW>, /* y13 */
+			    <&gpioa  7 GPIO_ACTIVE_LOW>, /* y14 */
+			    <&gpioc  4 GPIO_ACTIVE_LOW>, /* y15 */
+			    <&gpioc  7 GPIO_ACTIVE_LOW>, /* y16 */
+			    <&gpioc  6 GPIO_ACTIVE_LOW>, /* y17 */
+			    <&gpiob 15 GPIO_ACTIVE_LOW>; /* y18 */
+		idle-mode = "poll";
+
+		keymap: keymap {
+			compatible = "input-keymap";
+			keymap = <
+				/* MATRIX_KEY(7, 16, media1) SLEEP */
+				/* MATRIX_KEY(7, 1, media2)
+				/* MATRIX_KEY(7, 17, media3)
+				/* MATRIX_KEY(7, 14, media4)
+				/* MATRIX_KEY(4, 16, media5)
+				/* MATRIX_KEY(5, 0, media6) RESET */
+
+				MATRIX_KEY(0, 1,  INPUT_KEY_ESC)
+				MATRIX_KEY(2, 2,  INPUT_KEY_F1)
+				MATRIX_KEY(2, 3,  INPUT_KEY_F2)
+				MATRIX_KEY(1, 3,  INPUT_KEY_F3)
+				MATRIX_KEY(0, 10, INPUT_KEY_F4)
+				MATRIX_KEY(0, 9,  INPUT_KEY_F5)
+				MATRIX_KEY(0, 5,  INPUT_KEY_F6)
+				MATRIX_KEY(1, 5,  INPUT_KEY_F7)
+				MATRIX_KEY(2, 5,  INPUT_KEY_F8)
+				MATRIX_KEY(2, 4,  INPUT_KEY_F9)
+				MATRIX_KEY(3, 4,  INPUT_KEY_F10)
+				MATRIX_KEY(3, 2,  INPUT_KEY_F11)
+				MATRIX_KEY(0, 2,  INPUT_KEY_F12)
+				MATRIX_KEY(3, 3,  INPUT_KEY_SYSRQ)
+				MATRIX_KEY(4, 3,  INPUT_KEY_SCROLLLOCK)
+				MATRIX_KEY(0, 3,  INPUT_KEY_PAUSE)
+
+				MATRIX_KEY(2, 1,  INPUT_KEY_GRAVE)
+				MATRIX_KEY(3, 1,  INPUT_KEY_1)
+				MATRIX_KEY(3, 10, INPUT_KEY_2)
+				MATRIX_KEY(3, 11, INPUT_KEY_3)
+				MATRIX_KEY(3, 6,  INPUT_KEY_4)
+				MATRIX_KEY(2, 6,  INPUT_KEY_5)
+				MATRIX_KEY(2, 9,  INPUT_KEY_6)
+				MATRIX_KEY(3, 9,  INPUT_KEY_7)
+				MATRIX_KEY(3, 7,  INPUT_KEY_8)
+				MATRIX_KEY(3, 5,  INPUT_KEY_9)
+				MATRIX_KEY(3, 8,  INPUT_KEY_0)
+				MATRIX_KEY(2, 8,  INPUT_KEY_MINUS)
+				MATRIX_KEY(2, 7,  INPUT_KEY_EQUAL)
+				MATRIX_KEY(1, 9,  INPUT_KEY_BACKSPACE)
+				MATRIX_KEY(2, 10, INPUT_KEY_INSERT)
+				MATRIX_KEY(2, 13, INPUT_KEY_HOME)
+				MATRIX_KEY(2, 12, INPUT_KEY_PAGEUP)
+				MATRIX_KEY(6, 10, INPUT_KEY_NUMLOCK)
+				MATRIX_KEY(7, 10, INPUT_KEY_KPSLASH)
+				MATRIX_KEY(6, 12, INPUT_KEY_KPASTERISK)
+				MATRIX_KEY(7, 12, INPUT_KEY_KPMINUS)
+
+				MATRIX_KEY(1, 1,  INPUT_KEY_TAB)
+				MATRIX_KEY(4, 1,  INPUT_KEY_Q)
+				MATRIX_KEY(4, 2,  INPUT_KEY_W)
+				MATRIX_KEY(4, 13, INPUT_KEY_E)
+				MATRIX_KEY(4, 6,  INPUT_KEY_R)
+				MATRIX_KEY(1, 6,  INPUT_KEY_T)
+				MATRIX_KEY(1, 4,  INPUT_KEY_Y)
+				MATRIX_KEY(4, 4,  INPUT_KEY_U)
+				MATRIX_KEY(4, 7,  INPUT_KEY_I)
+				MATRIX_KEY(4, 5,  INPUT_KEY_O)
+				MATRIX_KEY(4, 8,  INPUT_KEY_P)
+				MATRIX_KEY(1, 8,  INPUT_KEY_LEFTBRACE)
+				MATRIX_KEY(1, 7,  INPUT_KEY_RIGHTBRACE)
+				MATRIX_KEY(6, 9,  INPUT_KEY_ENTER)
+				MATRIX_KEY(2, 11, INPUT_KEY_DELETE)
+				MATRIX_KEY(3, 13, INPUT_KEY_END)
+				MATRIX_KEY(3, 12, INPUT_KEY_PAGEDOWN)
+				MATRIX_KEY(4, 10, INPUT_KEY_KP7)
+				MATRIX_KEY(4, 11, INPUT_KEY_KP8)
+				MATRIX_KEY(4, 12, INPUT_KEY_KP9)
+
+				MATRIX_KEY(1, 2,  INPUT_KEY_CAPSLOCK)
+				MATRIX_KEY(5, 1,  INPUT_KEY_A)
+				MATRIX_KEY(5, 2,  INPUT_KEY_S)
+				MATRIX_KEY(5, 3,  INPUT_KEY_D)
+				MATRIX_KEY(5, 6,  INPUT_KEY_F)
+				MATRIX_KEY(0, 6,  INPUT_KEY_G)
+				MATRIX_KEY(0, 4,  INPUT_KEY_H)
+				MATRIX_KEY(5, 4,  INPUT_KEY_J)
+				MATRIX_KEY(5, 7,  INPUT_KEY_K)
+				MATRIX_KEY(5, 5,  INPUT_KEY_L)
+				MATRIX_KEY(5, 8,  INPUT_KEY_SEMICOLON)
+				MATRIX_KEY(0, 8,  INPUT_KEY_APOSTROPHE)
+				MATRIX_KEY(6, 8,  INPUT_KEY_BACKSLASH)
+				MATRIX_KEY(1, 10, INPUT_KEY_KP4)
+				MATRIX_KEY(1, 11, INPUT_KEY_KP5)
+				MATRIX_KEY(1, 12, INPUT_KEY_KP6)
+				MATRIX_KEY(1, 13, INPUT_KEY_KPPLUS)
+
+				MATRIX_KEY(1, 0,  INPUT_KEY_LEFTSHIFT)
+				MATRIX_KEY(0, 13, INPUT_KEY_COMMA)
+				MATRIX_KEY(6, 1,  INPUT_KEY_Z)
+				MATRIX_KEY(6, 2,  INPUT_KEY_X)
+				MATRIX_KEY(6, 3,  INPUT_KEY_C)
+				MATRIX_KEY(6, 6,  INPUT_KEY_V)
+				MATRIX_KEY(7, 6,  INPUT_KEY_B)
+				MATRIX_KEY(7, 4,  INPUT_KEY_N)
+				MATRIX_KEY(6, 4,  INPUT_KEY_M)
+				MATRIX_KEY(6, 7,  INPUT_KEY_COMMA)
+				MATRIX_KEY(6, 5,  INPUT_KEY_DOT)
+				MATRIX_KEY(7, 8,  INPUT_KEY_SLASH)
+				MATRIX_KEY(4, 0,  INPUT_KEY_RIGHTSHIFT)
+				MATRIX_KEY(7, 9,  INPUT_KEY_UP)
+				MATRIX_KEY(5, 10, INPUT_KEY_KP1)
+				MATRIX_KEY(5, 11, INPUT_KEY_KP2)
+				MATRIX_KEY(5, 12, INPUT_KEY_KP3)
+
+				MATRIX_KEY(2, 16, INPUT_KEY_LEFTCTRL)
+				MATRIX_KEY(3, 17, INPUT_KEY_LEFTMETA)
+				MATRIX_KEY(0, 15, INPUT_KEY_LEFTALT)
+				MATRIX_KEY(7, 3,  INPUT_KEY_SPACE)
+				MATRIX_KEY(7, 15, INPUT_KEY_RIGHTALT)
+				MATRIX_KEY(5, 14, INPUT_KEY_RIGHTMETA)
+				MATRIX_KEY(7, 13, INPUT_KEY_SYSRQ)
+				MATRIX_KEY(6, 16, INPUT_KEY_RIGHTCTRL)
+				MATRIX_KEY(6, 13, INPUT_KEY_LEFT)
+				MATRIX_KEY(7, 11, INPUT_KEY_DOWN)
+				MATRIX_KEY(6, 11, INPUT_KEY_RIGHT)
+				MATRIX_KEY(0, 11, INPUT_KEY_KP0)
+				MATRIX_KEY(0, 12, INPUT_KEY_DOT) /* should be KP_DOT */
+				MATRIX_KEY(5, 13, INPUT_KEY_KPENTER)
+			>;
+			row-size = <8>;
+			col-size = <18>;
+		};
+	};
+};
+
+&pinctrl {
+	swj-cfg = "disable";
+};
+
+&clk_lsi {
+	status = "okay";
+};
+
+&clk_hse {
+	clock-frequency = <DT_FREQ_M(8)>;
+	status = "okay";
+};
+
+&pll {
+	mul = <9>;
+	clocks = <&clk_hse>;
+	status = "okay";
+};
+
+&rcc {
+	clocks = <&pll>;
+	clock-frequency = <DT_FREQ_M(72)>;
+	ahb-prescaler = <1>;
+	apb1-prescaler = <2>;
+	apb2-prescaler = <1>;
+	/* usbpre not set: USB clock = 72 / 1.5: 48MHz */
+};
+
+&usart3 {
+	pinctrl-0 = <&usart3_tx_pb10 &usart3_rx_pb11>;
+	pinctrl-names = "default";
+	current-speed = <115200>;
+	status = "okay";
+};
+
+&i2c1 {
+	pinctrl-0 = <&i2c1_scl_pb6 &i2c1_sda_pb7>;
+	pinctrl-names = "default";
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+
+	oled: ssd1306@3c {
+		compatible = "solomon,ssd1306fb";
+		label = "display";
+		reg = <0x3c>;
+		reset-gpios = <&gpioc 10 GPIO_ACTIVE_LOW>;
+		width = <128>;
+		height = <32>;
+		segment-offset = <0>;
+		page-offset = <0>;
+		display-offset = <0>;
+		multiplex-ratio = <31>;
+		segment-remap;
+		com-invdir;
+		com-sequential;
+		prechargep = <0x22>;
+	};
+};
+
+&spi3 {
+	pinctrl-0 = <&spi3_sck_master_pb3 &spi3_miso_master_pb4
+		     &spi3_mosi_master_pb5>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	cs-gpios = <&gpiod 2 GPIO_ACTIVE_LOW>;
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		label = "MX25L3233F";
+		reg = <0>;
+		spi-max-frequency = <80000000>;
+		size = <0x2000000>;
+		has-dpd;
+		t-enter-dpd = <10000>;
+		t-exit-dpd = <100000>;
+		jedec-id = [c2 20 16];
+		sfdp-bfp = [
+			e5 20 f1 ff  ff ff ff 01  44 eb 08 6b  08 3b 04 bb
+			ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
+			10 d8 00 ff
+		];
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			storage_partition: partition@33000 {
+				label = "storage";
+				reg = <0x00033000 0x10000>;
+			};
+		};
+	};
+};
+
+&timers4 {
+	st,prescaler = <10000>;
+	status = "okay";
+
+	pwm0: pwm {
+		status = "okay";
+		pinctrl-0 = <&tim4_ch3_pwm_out_pb8 &tim4_ch4_pwm_out_pb9>;
+		pinctrl-names = "default";
+	};
+};
+
+zephyr_udc0: &usb {
+	pinctrl-0 = <&usb_dm_pa11 &usb_dp_pa12>;
+	pinctrl-names = "default";
+	status = "okay";
+	disconnect-gpios = <&gpioa 10 GPIO_ACTIVE_HIGH>;
+};
+
+&iwdg {
+	status = "okay";
+};
+
+&rtc {
+	clocks = <&rcc STM32_CLOCK_BUS_APB1 0x10000000>,
+		 <&rcc STM32_SRC_LSI RTC_SEL(2)>;
+	status = "okay";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "bootloader";
+			reg = <0x00000000 0x2000>;
+		};
+		slot0_partition: partition@2000 {
+			label = "image-0";
+			reg = <0x00002000 0x3e000>;
+		};
+	};
+};
