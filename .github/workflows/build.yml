@@ -32,3 +32,13 @@ jobs:
       - name: Build
         run: |
           west build -b ${{ matrix.board }} firmware
+          echo "BOARD=$(sed 's/\//_/' <<< ${{ matrix.board }})" >> $GITHUB_ENV
+
+      - name: Firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware_${{ env.BOARD }}
+          path: |
+            build/zephyr/zephyr.elf
+            build/zephyr/zephyr.hex
+            build/zephyr/zephyr.bin
