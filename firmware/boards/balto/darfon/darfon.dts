@@ -13,6 +13,7 @@
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,console = &usart3;
+		zephyr,shell-uart = &cdc_acm_uart;
 		zephyr,display = &oled;
 	};
 
@@ -315,6 +316,10 @@ zephyr_udc0: &usb {
 	pinctrl-names = "default";
 	status = "okay";
 	disconnect-gpios = <&gpioa 10 GPIO_ACTIVE_HIGH>;
+
+	cdc_acm_uart: cdc_acm_uart {
+		compatible = "zephyr,cdc-acm-uart";
+	};
 };
 
 &iwdg {
