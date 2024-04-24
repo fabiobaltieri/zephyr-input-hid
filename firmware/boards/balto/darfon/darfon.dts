@@ -250,7 +250,6 @@
 
 	oled: ssd1306@3c {
 		compatible = "solomon,ssd1306fb";
-		label = "display";
 		reg = <0x3c>;
 		reset-gpios = <&gpioc 10 GPIO_ACTIVE_LOW>;
 		width = <128>;
@@ -276,7 +275,6 @@
 
 	flash@0 {
 		compatible = "jedec,spi-nor";
-		label = "MX25L3233F";
 		reg = <0>;
 		spi-max-frequency = <80000000>;
 		size = <0x2000000>;
