@@ -117,12 +117,12 @@ static struct {
 	struct hid_kbd_report last;
 	struct hid_kbd_report_data data;
 #endif
-	struct k_mutex lock;
+	struct k_sem lock;
 } report;
 
 static int ble_hog_init(void)
 {
-	k_mutex_init(&report.lock);
+	k_sem_init(&report.lock, 1, 1);
 
 	return 0;
 }
@@ -130,7 +130,7 @@ SYS_INIT(ble_hog_init, APPLICATION, 0);
 
 static void input_cb(struct input_event *evt)
 {
-	k_mutex_lock(&report.lock, K_FOREVER);
+	k_sem_take(&report.lock, K_FOREVER);
 
 #ifdef CONFIG_KBD_HID_NKRO
 	hid_kbd_input_process_nkro(&report.curr, evt);
@@ -153,6 +153,6 @@ static void input_cb(struct input_event *evt)
 	}
 
 out:
-	k_mutex_unlock(&report.lock);
+	k_sem_give(&report.lock);
 }
 INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_NODELABEL(keymap)), input_cb);
