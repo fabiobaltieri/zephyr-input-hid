@@ -12,6 +12,7 @@ LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
 static const struct device *hid_dev;
 
 static bool connected;
+static bool suspended;
 
 #if CONFIG_KBD_HID_NKRO
 static struct hid_kbd_report_nkro_id report_kbd;
@@ -35,6 +36,10 @@ static void usb_hid_input_cb(struct input_event *evt)
 	hid_kbd_input_process(&report_kbd.report, &data, evt);
 #endif
 
+	if (suspended) {
+		usb_wakeup_request();
+	}
+
 	if (!connected) {
 		return;
 	}
@@ -56,6 +61,7 @@ static void status_cb(enum usb_dc_status_code status, const uint8_t *param)
 	LOG_DBG("usb hid status cb: %d", status);
 
 	connected = (status == USB_DC_CONFIGURED);
+	suspended = (status == USB_DC_SUSPEND);
 }
 
 static const struct hid_ops ops = {
