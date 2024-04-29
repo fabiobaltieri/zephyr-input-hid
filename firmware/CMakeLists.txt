@@ -23,7 +23,3 @@ target_sources_ifdef(CONFIG_BT app PRIVATE
 target_sources_ifdef(CONFIG_USB_DEVICE_HID app PRIVATE
 	src/usb_hid.c
 )
-
-target_sources_ifdef(CONFIG_BOARD_DARFON app PRIVATE
-	src/darfon.c
-)
