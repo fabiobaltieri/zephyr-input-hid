@@ -1,25 +1,14 @@
-#include <zephyr/kernel.h>
-#include <zephyr/input/input.h>
 #include <zephyr/drivers/led.h>
+#include <zephyr/input/input.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 static struct k_sem blink_sem = Z_SEM_INITIALIZER(blink_sem, 0, 10);
 
 static void input_cb(struct input_event *evt)
 {
-	static int col, row, val;
-
-	switch (evt->code) {
-	case INPUT_ABS_X:
-		col = evt->value;
-		break;
-	case INPUT_ABS_Y:
-		row = evt->value;
-		break;
-	case INPUT_BTN_TOUCH:
-		val = evt->value;
-		break;
-	}
-
 	if (!evt->sync) {
 		return;
 	}
