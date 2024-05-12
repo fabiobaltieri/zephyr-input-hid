@@ -45,4 +45,23 @@ config BT_MAX_PAIRED
 
 endif # BT
 
+if USB_DEVICE_STACK
+
+config USB_DEVICE_HID
+	default y
+
+config USB_DEVICE_PRODUCT
+	default "zephyr-keyboard"
+
+config USB_DEVICE_PID
+	default 0x0007
+
+configdefault USB_DEVICE_INITIALIZE_AT_BOOT
+	default n
+
+config USB_HID_POLL_INTERVAL_MS
+	default 2
+
+endif # USB_DEVICE_STACK
+
 source "Kconfig.zephyr"
