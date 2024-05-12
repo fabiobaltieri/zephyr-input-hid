@@ -21,6 +21,10 @@ static const struct bt_data ad[] = {
 	BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN),
 };
 
+static struct bt_le_adv_param ad_param = BT_LE_ADV_PARAM_INIT(
+		BT_LE_ADV_OPT_CONNECTABLE,
+		BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX, NULL);
+
 #if CONFIG_SHELL
 
 static int cmd_ble_unpair(const struct shell *sh, size_t argc, char **argv)
@@ -58,7 +62,7 @@ static int ble_setup(void)
 		settings_load();
 	}
 
-	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), NULL, 0);
+	err = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
 	if (err) {
 		LOG_ERR("Advertising failed to start (err %d)", err);
 		return -EIO;
