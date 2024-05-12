@@ -7,7 +7,7 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 static struct k_sem blink_sem = Z_SEM_INITIALIZER(blink_sem, 0, 10);
 
-static void input_cb(struct input_event *evt)
+static void blink_input_cb(struct input_event *evt)
 {
 	if (!evt->sync) {
 		return;
@@ -15,7 +15,7 @@ static void input_cb(struct input_event *evt)
 
 	k_sem_give(&blink_sem);
 }
-INPUT_CALLBACK_DEFINE(NULL, input_cb);
+INPUT_CALLBACK_DEFINE(NULL, blink_input_cb);
 
 int main(void)
 {
