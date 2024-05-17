@@ -21,8 +21,3 @@ enum {
 	HIDS_OUTPUT = 0x02,
 	HIDS_FEATURE = 0x03,
 };
-
-struct code_to_bit_map {
-	uint16_t code;
-	uint8_t bit;
-};
