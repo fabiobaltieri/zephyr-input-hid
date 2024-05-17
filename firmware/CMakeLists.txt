@@ -6,6 +6,8 @@ set(BOARD kbd_matrix)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(keyboard-matrix-testboard)
 
+target_include_directories(app PRIVATE include)
+
 target_sources(app PRIVATE
 	src/hid_kbd.c
 	src/hid_report_map.c

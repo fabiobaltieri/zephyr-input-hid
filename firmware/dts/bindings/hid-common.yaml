@@ -1,0 +1,19 @@
+description: Common hid device binding
+
+include: base.yaml
+
+on-bus: hid
+
+properties:
+  report:
+    type: array
+    required: true
+
+  input-id:
+    type: array
+
+  output-id:
+    type: array
+
+  input:
+    type: phandles

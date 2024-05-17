@@ -1,0 +1,9 @@
+description: HID Keyboard node
+
+compatible: "hid-kbd"
+
+include: hid-common.yaml
+
+properties:
+  nkro:
+    type: boolean

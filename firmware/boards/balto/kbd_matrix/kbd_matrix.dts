@@ -2,6 +2,7 @@
 #include <nordic/nrf52832_qfaa.dtsi>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
 #include <zephyr/dt-bindings/input/keymap.h>
+#include <dt-bindings/hid.h>
 #include "kbd_matrix-pinctrl.dtsi"
 
 / {
@@ -78,6 +79,16 @@
 			>;
 			row-size = <5>;
 			col-size = <4>;
+		};
+	};
+
+	hid {
+		compatible = "hid";
+		keyboard {
+			compatible = "hid-kbd";
+			input = <&keymap>;
+			input-id = <1>;
+			report = <HID_KBD_REPORT(1)>;
 		};
 	};
 };

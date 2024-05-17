@@ -1,0 +1,7 @@
+description: Root HID node
+
+compatible: "hid"
+
+bus: hid
+
+include: base.yaml

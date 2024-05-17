@@ -1,3 +1,16 @@
+#include <dt-bindings/hid.h>
+
+/ {
+	hid {
+		compatible = "hid";
+		keyboard {
+			compatible = "hid-kbd";
+			input-id = <1>;
+			report = <HID_KBD_REPORT(1)>;
+		};
+	};
+};
+
 &button0 {
 	zephyr,code = <INPUT_KEY_A>;
 };
