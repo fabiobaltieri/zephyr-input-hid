@@ -8,7 +8,6 @@ project(keyboard-matrix-testboard)
 
 target_sources(app PRIVATE
 	src/hid_kbd.c
-	src/hid_kbd.h
 	src/hid_report_map.c
 	src/hid_report_map.h
 	src/main.c
@@ -17,7 +16,6 @@ target_sources(app PRIVATE
 target_sources_ifdef(CONFIG_BT app PRIVATE
 	src/ble.c
 	src/ble_hog.c
-	src/ble_hog.h
 )
 
 target_sources_ifdef(CONFIG_USB_DEVICE_HID app PRIVATE
