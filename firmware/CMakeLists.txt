@@ -10,8 +10,7 @@ target_include_directories(app PRIVATE include)
 
 target_sources(app PRIVATE
 	src/hid_kbd.c
-	src/hid_report_map.c
-	src/hid_report_map.h
+	src/hid.c
 	src/main.c
 )
 

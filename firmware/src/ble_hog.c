@@ -6,8 +6,8 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
 
+#include "hid.h"
 #include "hid_kbd.h"
-#include "hid_report_map.h"
 
 LOG_MODULE_REGISTER(ble_hog, LOG_LEVEL_INF);
 

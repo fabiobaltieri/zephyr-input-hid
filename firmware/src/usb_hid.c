@@ -4,8 +4,8 @@
 #include <zephyr/usb/class/usb_hid.h>
 #include <zephyr/usb/usb_device.h>
 
+#include "hid.h"
 #include "hid_kbd.h"
-#include "hid_report_map.h"
 
 LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
 

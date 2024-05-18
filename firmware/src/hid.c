@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <zephyr/devicetree.h>
 
-#include "hid_report_map.h"
+#include "hid.h"
 
 #define DT_DRV_COMPAT hid
 
