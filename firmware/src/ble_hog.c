@@ -17,8 +17,8 @@ enum {
 };
 
 struct hids_info {
-	uint16_t version; /* version number of base USB HID Specification */
-	uint8_t code; /* country HID Device hardware is localized for. */
+	uint16_t version;
+	uint8_t code;
 	uint8_t flags;
 } __packed;
 
