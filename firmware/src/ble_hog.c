@@ -33,7 +33,6 @@ enum {
 	HIDS_FEATURE = 0x03,
 };
 
-
 static struct hids_info info = {
 	.version = 0x0000,
 	.code = 0x00,
@@ -133,7 +132,6 @@ BT_GATT_SERVICE_DEFINE(hog_svc,
 );
 
 static const struct bt_gatt_attr *kbd_report_attr = &hog_svc.attrs[5];
-
 
 static struct {
 #if CONFIG_KBD_HID_NKRO
