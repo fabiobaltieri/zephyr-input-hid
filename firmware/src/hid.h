@@ -18,5 +18,3 @@ static inline uint16_t hid_dev_report_len(const struct device *dev)
 
 	return cfg->report_map_len;
 }
-
-#define HID_REPORT_ID_KBD 1

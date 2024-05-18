@@ -68,7 +68,11 @@ static const struct hid_ops ops = {
         .int_in_ready = int_in_ready_cb,
 };
 
-static const struct device *hid_dev = DEVICE_DT_GET_ONE(hid);
+#define HID_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(hid)
+#define HID_KBD_NODE DT_CHILD(HID_NODE, keyboard)
+#define HID_KBD_INPUT_ID DT_PROP_BY_IDX(HID_KBD_NODE, input_id, 0)
+
+static const struct device *hid_dev = DEVICE_DT_GET(HID_NODE);
 
 static int usb_hid_setup(void)
 {
@@ -76,7 +80,7 @@ static int usb_hid_setup(void)
 	const uint8_t *report = hid_dev_report(hid_dev);
 	uint16_t report_len = hid_dev_report_len(hid_dev);
 
-	report_kbd.id = HID_REPORT_ID_KBD;
+	report_kbd.id = HID_KBD_INPUT_ID;
 
 	usb_hid_dev = device_get_binding("HID_0");
 	if (usb_hid_dev == NULL) {
