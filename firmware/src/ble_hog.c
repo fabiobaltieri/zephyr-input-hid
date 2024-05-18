@@ -39,11 +39,6 @@ static struct hids_info info = {
 	.flags = HIDS_NORMALLY_CONNECTABLE,
 };
 
-static struct hids_report input_keyboard = {
-	.id = HID_REPORT_ID_KBD,
-	.type = HIDS_INPUT,
-};
-
 static bool notify_enabled;
 static uint8_t ctrl_point;
 
@@ -90,6 +85,15 @@ static ssize_t read_input_report(struct bt_conn *conn,
 	return bt_gatt_attr_read(conn, attr, buf, len, offset, NULL, 0);
 }
 
+static __maybe_unused ssize_t write_output_report(
+		struct bt_conn *conn,
+		const struct bt_gatt_attr *attr,
+		const void *buf,
+		uint16_t len, uint16_t offset, uint8_t flags)
+{
+	return len;
+}
+
 static ssize_t write_ctrl_point(struct bt_conn *conn,
 				const struct bt_gatt_attr *attr,
 				const void *buf, uint16_t len, uint16_t offset,
@@ -106,24 +110,57 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 	return len;
 }
 
-/* HID Service Declaration */
+#define HID_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(hid)
+
+#define HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx)	\
+	(&(const struct hids_report){			\
+	 .id = DT_PROP_BY_IDX(node_id, prop, idx),	\
+	 .type = HIDS_INPUT,				\
+	 })
+
+#define HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx)	\
+	(&(const struct hids_report){			\
+	 .id = DT_PROP_BY_IDX(node_id, prop, idx),	\
+	 .type = HIDS_INPUT,				\
+	 })
+
+#define HOG_DEVICE_DEFINE_INPUT(node_id, prop, idx)					\
+	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,					\
+			       BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,			\
+			       BT_GATT_PERM_READ_ENCRYPT,				\
+			       read_input_report, NULL, NULL),				\
+	BT_GATT_CCC(input_ccc_changed,							\
+		    BT_GATT_PERM_READ_ENCRYPT | BT_GATT_PERM_WRITE_ENCRYPT),		\
+	BT_GATT_DESCRIPTOR(BT_UUID_HIDS_REPORT_REF, BT_GATT_PERM_READ,			\
+			   read_report, NULL,						\
+			   (void *)HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx)),
+
+#define HOG_DEVICE_DEFINE_OUTPUT(node_id, prop, idx)					\
+	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,					\
+			       BT_GATT_CHRC_WRITE,					\
+			       BT_GATT_PERM_WRITE_ENCRYPT,				\
+			       NULL, write_output_report, NULL),			\
+	BT_GATT_DESCRIPTOR(BT_UUID_HIDS_REPORT_REF, BT_GATT_PERM_READ,			\
+			   read_report, NULL,						\
+			   (void *)HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx)),
+
+#define HOG_DEVICE_DEFINE(node_id)						\
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, input_id), (			\
+	DT_FOREACH_PROP_ELEM(node_id, input_id, HOG_DEVICE_DEFINE_INPUT)	\
+	))									\
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, output_id), (			\
+	DT_FOREACH_PROP_ELEM(node_id, output_id, HOG_DEVICE_DEFINE_OUTPUT)	\
+	))
+
 BT_GATT_SERVICE_DEFINE(hog_svc,
 	BT_GATT_PRIMARY_SERVICE(BT_UUID_HIDS),
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_INFO, BT_GATT_CHRC_READ,
 			       BT_GATT_PERM_READ, read_info, NULL, &info),
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT_MAP, BT_GATT_CHRC_READ,
 			       BT_GATT_PERM_READ, read_report_map, NULL,
-			       (void *)DEVICE_DT_GET_ONE(hid)),
+			       (void *)DEVICE_DT_GET(HID_NODE)),
 
-	/* Report 1: keyboard */
-	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,
-			       BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-			       BT_GATT_PERM_READ_ENCRYPT,
-			       read_input_report, NULL, NULL),
-	BT_GATT_CCC(input_ccc_changed,
-		    BT_GATT_PERM_READ_ENCRYPT | BT_GATT_PERM_WRITE_ENCRYPT),
-	BT_GATT_DESCRIPTOR(BT_UUID_HIDS_REPORT_REF, BT_GATT_PERM_READ,
-			   read_report, NULL, &input_keyboard),
+	DT_FOREACH_CHILD(HID_NODE, HOG_DEVICE_DEFINE)
 
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_CTRL_POINT,
 			       BT_GATT_CHRC_WRITE_WITHOUT_RESP,
