@@ -110,8 +110,6 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 	return len;
 }
 
-#define HID_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(hid)
-
 #define HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx)	\
 	(&(const struct hids_report){			\
 	 .id = DT_PROP_BY_IDX(node_id, prop, idx),	\
@@ -152,23 +150,29 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 	DT_FOREACH_PROP_ELEM(node_id, output_id, HOG_DEVICE_DEFINE_OUTPUT)	\
 	))
 
-BT_GATT_SERVICE_DEFINE(hog_svc,
-	BT_GATT_PRIMARY_SERVICE(BT_UUID_HIDS),
-	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_INFO, BT_GATT_CHRC_READ,
-			       BT_GATT_PERM_READ, read_info, NULL, &info),
-	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT_MAP, BT_GATT_CHRC_READ,
-			       BT_GATT_PERM_READ, read_report_map, NULL,
-			       (void *)DEVICE_DT_GET(HID_NODE)),
+#define HOG_SVC_DEFINE(node_id)								\
+	BT_GATT_SERVICE_DEFINE(hog_svc_##node_id,					\
+		BT_GATT_PRIMARY_SERVICE(BT_UUID_HIDS),					\
+		BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_INFO, BT_GATT_CHRC_READ,		\
+				       BT_GATT_PERM_READ, read_info, NULL, &info),	\
+		BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT_MAP, BT_GATT_CHRC_READ,	\
+				       BT_GATT_PERM_READ, read_report_map, NULL,	\
+				       (void *)DEVICE_DT_GET(node_id)),			\
+											\
+		DT_FOREACH_CHILD(node_id, HOG_DEVICE_DEFINE)				\
+											\
+		BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_CTRL_POINT,				\
+				       BT_GATT_CHRC_WRITE_WITHOUT_RESP,			\
+				       BT_GATT_PERM_WRITE,				\
+				       NULL, write_ctrl_point, &ctrl_point),		\
+	);
 
-	DT_FOREACH_CHILD(HID_NODE, HOG_DEVICE_DEFINE)
+DT_FOREACH_STATUS_OKAY(hid, HOG_SVC_DEFINE)
 
-	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_CTRL_POINT,
-			       BT_GATT_CHRC_WRITE_WITHOUT_RESP,
-			       BT_GATT_PERM_WRITE,
-			       NULL, write_ctrl_point, &ctrl_point),
-);
+#define HID_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(hid)
+#define SVC_NAME _CONCAT(hog_svc_, HID_NODE)
 
-static const struct bt_gatt_attr *kbd_report_attr = &hog_svc.attrs[5];
+static const struct bt_gatt_attr *kbd_report_attr = &SVC_NAME.attrs[5];
 
 static struct {
 #if CONFIG_KBD_HID_NKRO
