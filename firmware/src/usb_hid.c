@@ -9,7 +9,7 @@
 
 LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
 
-static const struct device *hid_dev;
+static const struct device *usb_hid_dev;
 
 static bool connected;
 static bool suspended;
@@ -48,7 +48,7 @@ static void usb_hid_input_cb(struct input_event *evt)
 		return;
 	}
 
-	ret = hid_int_ep_write(hid_dev, (uint8_t *)&report_kbd, sizeof(report_kbd), NULL);
+	ret = hid_int_ep_write(usb_hid_dev, (uint8_t *)&report_kbd, sizeof(report_kbd), NULL);
 	if (ret) {
 		LOG_ERR("HID write error, %d", ret);
 		return;
@@ -68,23 +68,25 @@ static const struct hid_ops ops = {
         .int_in_ready = int_in_ready_cb,
 };
 
+static const struct device *hid_dev = DEVICE_DT_GET_ONE(hid);
+
 static int usb_hid_setup(void)
 {
 	int ret;
+	const uint8_t *report = hid_dev_report(hid_dev);
+	uint16_t report_len = hid_dev_report_len(hid_dev);
 
 	report_kbd.id = HID_REPORT_ID_KBD;
 
-	hid_dev = device_get_binding("HID_0");
-	if (hid_dev == NULL) {
+	usb_hid_dev = device_get_binding("HID_0");
+	if (usb_hid_dev == NULL) {
 		LOG_ERR("Cannot get USB HID Device");
 		return 0;
 	}
 
-	usb_hid_register_device(hid_dev,
-				hid_report_map, hid_report_map_len,
-				&ops);
+	usb_hid_register_device(usb_hid_dev, report, report_len, &ops);
 
-	usb_hid_init(hid_dev);
+	usb_hid_init(usb_hid_dev);
 
 	ret = usb_enable(status_cb);
 	if (ret != 0) {

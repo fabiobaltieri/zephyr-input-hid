@@ -60,8 +60,11 @@ static ssize_t read_report_map(struct bt_conn *conn,
 			       const struct bt_gatt_attr *attr, void *buf,
 			       uint16_t len, uint16_t offset)
 {
-	return bt_gatt_attr_read(conn, attr, buf, len, offset, hid_report_map,
-				 hid_report_map_len);
+	const struct device *dev = attr->user_data;
+	const uint8_t *data = hid_dev_report(dev);
+	uint16_t data_len = hid_dev_report_len(dev);
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, data, data_len);
 }
 
 static ssize_t read_report(struct bt_conn *conn,
@@ -110,7 +113,8 @@ BT_GATT_SERVICE_DEFINE(hog_svc,
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_INFO, BT_GATT_CHRC_READ,
 			       BT_GATT_PERM_READ, read_info, NULL, &info),
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT_MAP, BT_GATT_CHRC_READ,
-			       BT_GATT_PERM_READ, read_report_map, NULL, NULL),
+			       BT_GATT_PERM_READ, read_report_map, NULL,
+			       (void *)DEVICE_DT_GET_ONE(hid)),
 
 	/* Report 1: keyboard */
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,
