@@ -6,6 +6,26 @@
 
 #include "hid.h"
 
+struct hid_config {
+	const uint8_t *report_map;
+	uint16_t report_map_len;
+};
+
+
+const uint8_t *hid_dev_report(const struct device *dev)
+{
+	const struct hid_config *cfg = dev->config;
+
+	return cfg->report_map;
+}
+
+uint16_t hid_dev_report_len(const struct device *dev)
+{
+	const struct hid_config *cfg = dev->config;
+
+	return cfg->report_map_len;
+}
+
 #define HID_REPORT_BYTE(node_id, prop, idx) \
 	DT_PROP_BY_IDX(node_id, prop, idx),
 
