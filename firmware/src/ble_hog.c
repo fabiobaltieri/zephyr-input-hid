@@ -144,6 +144,7 @@ static struct {
 	struct hid_kbd_report last;
 	struct hid_kbd_report_data data;
 #endif
+	bool pending;
 	struct k_sem lock;
 } report;
 
@@ -155,31 +156,71 @@ static int ble_hog_init(void)
 }
 SYS_INIT(ble_hog_init, APPLICATION, 0);
 
-static void input_cb(struct input_event *evt)
+static void ble_hog_notify_cb(struct bt_conn *conn, void *user_data)
 {
+	void (*cb)(void) = user_data;
+
+	k_sem_take(&report.lock, K_FOREVER);
+	report.pending = false;
+	k_sem_give(&report.lock);
+
+	cb();
+}
+
+static void hog_send_report(void)
+{
+	struct bt_gatt_notify_params params;
+	int ret;
+
 	k_sem_take(&report.lock, K_FOREVER);
 
+	if (memcmp(&report.last, &report.curr, sizeof(report.curr)) == 0) {
+		goto out;
+	}
+
+	if (report.pending) {
+		goto out;
+	}
+
+	report.pending = true;
+
+	memset(&params, 0, sizeof(params));
+	params.attr = kbd_report_attr;
+	params.data = &report.curr;
+	params.len = sizeof(report.curr);
+	params.func = ble_hog_notify_cb;
+	params.user_data = hog_send_report;
+
+	ret = bt_gatt_notify_cb(NULL, &params);
+	if (ret) {
+		LOG_WRN("bt_gatt_notify_cb failed: %d", ret);
+		report.pending = false;
+	}
+
+	memcpy(&report.last, &report.curr, sizeof(report.curr));
+
+out:
+	k_sem_give(&report.lock);
+}
+
+static void hog_input_cb(struct input_event *evt)
+{
+	k_sem_take(&report.lock, K_FOREVER);
 #ifdef CONFIG_KBD_HID_NKRO
 	hid_kbd_input_process_nkro(&report.curr, evt);
 #else
 	hid_kbd_input_process(&report.curr, &report.data, evt);
 #endif
+	k_sem_give(&report.lock);
 
 	if (!notify_enabled) {
-		goto out;
+		return;
 	}
 
 	if (!input_queue_empty()) {
-		goto out;
+		return;
 	}
 
-	if (memcmp(&report.last, &report.curr, sizeof(report.curr))) {
-		bt_gatt_notify(NULL, kbd_report_attr,
-			       &report.curr, sizeof(report.curr));
-		memcpy(&report.last, &report.curr, sizeof(report.curr));
-	}
-
-out:
-	k_sem_give(&report.lock);
+	hog_send_report();
 }
-INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_NODELABEL(keymap)), input_cb);
+INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_NODELABEL(keymap)), hog_input_cb);
