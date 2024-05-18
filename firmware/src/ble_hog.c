@@ -4,12 +4,35 @@
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/util.h>
 
-#include "ble_hog.h"
 #include "hid_kbd.h"
 #include "hid_report_map.h"
 
 LOG_MODULE_REGISTER(ble_hog, LOG_LEVEL_INF);
+
+enum {
+	HIDS_REMOTE_WAKE = BIT(0),
+	HIDS_NORMALLY_CONNECTABLE = BIT(1),
+};
+
+struct hids_info {
+	uint16_t version; /* version number of base USB HID Specification */
+	uint8_t code; /* country HID Device hardware is localized for. */
+	uint8_t flags;
+} __packed;
+
+struct hids_report {
+	uint8_t id; /* report id */
+	uint8_t type; /* report type */
+} __packed;
+
+enum {
+	HIDS_INPUT = 0x01,
+	HIDS_OUTPUT = 0x02,
+	HIDS_FEATURE = 0x03,
+};
+
 
 static struct hids_info info = {
 	.version = 0x0000,
