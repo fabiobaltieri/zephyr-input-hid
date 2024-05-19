@@ -1,3 +1,6 @@
+#define DT_DRV_COMPAT usb_hid
+
+#include <zephyr/device.h>
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
@@ -5,56 +8,29 @@
 #include <zephyr/usb/usb_device.h>
 
 #include "hid.h"
-#include "hid_kbd.h"
 
 LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
 
-static const struct device *usb_hid_dev;
+#define HID_DEV_ENTRY_DEFINE(node_id) { \
+	.hid_dev = DEVICE_DT_GET(node_id),  \
+},
+
+static struct {
+        const struct device *hid_dev;
+	const struct device *usb_hid_dev;
+} hid_devs[] = {
+	DT_FOREACH_STATUS_OKAY(hid, HID_DEV_ENTRY_DEFINE)
+};
+
+static const uint8_t hid_devs_count = ARRAY_SIZE(hid_devs);
 
 static bool connected;
 static bool suspended;
-
-#if CONFIG_KBD_HID_NKRO
-static struct hid_kbd_report_nkro_id report_kbd;
-#else
-static struct hid_kbd_report_id report_kbd;
-struct hid_kbd_report_data data;
-#endif
 
 static void int_in_ready_cb(const struct device *dev)
 {
 	/* TODO: ep busy handling */
 }
-
-static void usb_hid_input_cb(struct input_event *evt)
-{
-	int ret;
-
-#if CONFIG_KBD_HID_NKRO
-	hid_kbd_input_process_nkro(&report_kbd.report, evt);
-#else
-	hid_kbd_input_process(&report_kbd.report, &data, evt);
-#endif
-
-	if (suspended) {
-		usb_wakeup_request();
-	}
-
-	if (!connected) {
-		return;
-	}
-
-	if (!input_queue_empty()) {
-		return;
-	}
-
-	ret = hid_int_ep_write(usb_hid_dev, (uint8_t *)&report_kbd, sizeof(report_kbd), NULL);
-	if (ret) {
-		LOG_ERR("HID write error, %d", ret);
-		return;
-	}
-}
-INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_NODELABEL(keymap)), usb_hid_input_cb);
 
 static void status_cb(enum usb_dc_status_code status, const uint8_t *param)
 {
@@ -65,32 +41,71 @@ static void status_cb(enum usb_dc_status_code status, const uint8_t *param)
 }
 
 static const struct hid_ops ops = {
-        .int_in_ready = int_in_ready_cb,
+	.int_in_ready = int_in_ready_cb,
 };
 
-#define HID_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(hid)
-#define HID_KBD_NODE DT_CHILD(HID_NODE, keyboard)
-#define HID_KBD_INPUT_ID DT_PROP_BY_IDX(HID_KBD_NODE, input_id, 0)
+#define USB_HID_REPORT_BUF_SIZE 32
 
-static const struct device *hid_dev = DEVICE_DT_GET(HID_NODE);
-
-static int usb_hid_setup(void)
+static void usb_hid_notify(const struct device *dev)
 {
+	int size;
+	uint8_t buf[USB_HID_REPORT_BUF_SIZE + 1];
 	int ret;
-	const uint8_t *report = hid_dev_report(hid_dev);
-	uint16_t report_len = hid_dev_report_len(hid_dev);
 
-	report_kbd.id = HID_KBD_INPUT_ID;
-
-	usb_hid_dev = device_get_binding("HID_0");
-	if (usb_hid_dev == NULL) {
-		LOG_ERR("Cannot get USB HID Device");
-		return 0;
+	if (suspended) {
+		usb_wakeup_request();
 	}
 
-	usb_hid_register_device(usb_hid_dev, report, report_len, &ops);
+	if (!connected) {
+		return;
+	}
 
-	usb_hid_init(usb_hid_dev);
+	for (uint8_t i = 0; i < hid_devs_count; i++) {
+		const struct device *hid_dev = hid_devs[i].hid_dev;
+
+		if (!hid_has_updates(hid_dev, dev)) {
+			continue;
+		}
+
+		size = hid_get_report(hid_dev, dev, &buf[0], &buf[1], USB_HID_REPORT_BUF_SIZE);
+		if (size < 0) {
+			LOG_ERR("get_report error: %d", size);
+			continue;
+		}
+
+		ret = hid_int_ep_write(hid_devs[i].usb_hid_dev, buf, size + 1, NULL);
+		if (ret) {
+			LOG_ERR("HID write error, %d", ret);
+			return;
+		}
+	}
+}
+
+static int usb_hid_out_init(const struct device *dev)
+{
+	int ret;
+
+	for (uint8_t i = 0; i < hid_devs_count; i++) {
+		const struct device *hid_dev = hid_devs[i].hid_dev;
+		const struct device *usb_hid_dev;
+		const uint8_t *report = hid_report(hid_dev);
+		uint16_t report_len = hid_report_len(hid_dev);
+		char dev_name[8];
+
+		snprintf(dev_name, sizeof(dev_name), "HID_%d", i);
+
+		usb_hid_dev = device_get_binding(dev_name);
+		if (usb_hid_dev == NULL) {
+			LOG_ERR("Cannot get USB HID Device");
+			return 0;
+		}
+
+		usb_hid_register_device(usb_hid_dev, report, report_len, &ops);
+
+		usb_hid_init(usb_hid_dev);
+
+		hid_devs[i].usb_hid_dev = usb_hid_dev;
+	}
 
 	ret = usb_enable(status_cb);
 	if (ret != 0) {
@@ -100,4 +115,10 @@ static int usb_hid_setup(void)
 
 	return 0;
 }
-SYS_INIT(usb_hid_setup, APPLICATION, 99);
+
+static const struct hid_output_api usb_hid_api = {
+        .notify = usb_hid_notify,
+};
+
+DEVICE_DT_INST_DEFINE(0, usb_hid_out_init, NULL, NULL, NULL,
+		      POST_KERNEL, 55, &usb_hid_api);

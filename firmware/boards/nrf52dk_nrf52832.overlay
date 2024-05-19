@@ -1,13 +1,20 @@
 #include <dt-bindings/hid.h>
 
 / {
+	buttons: buttons {};
 	hid {
 		compatible = "hid";
-		keyboard {
+		hid-kbd {
+			input = <&buttons>;
 			compatible = "hid-kbd";
 			input-id = <1>;
 			report = <HID_KBD_REPORT(1)>;
 		};
+		output = <&hid_hog>;
+	};
+
+	hid_hog: hid-hog {
+		compatible = "hid-hog";
 	};
 };
 

@@ -209,12 +209,17 @@
 
 	hid {
 		compatible = "hid";
-		keyboard {
+		hid-kbd {
 			compatible = "hid-kbd";
 			input = <&keymap>;
 			input-id = <1>;
 			report = <HID_KBD_REPORT(1)>;
 		};
+		output = <&usb_hid>;
+	};
+
+	usb_hid: usb-hid {
+		compatible = "usb-hid";
 	};
 };
 

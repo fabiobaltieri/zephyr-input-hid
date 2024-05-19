@@ -84,12 +84,17 @@
 
 	hid {
 		compatible = "hid";
-		keyboard {
+		hid-kbd {
 			compatible = "hid-kbd";
 			input = <&keymap>;
 			input-id = <1>;
 			report = <HID_KBD_REPORT(1)>;
 		};
+		output = <&hid_hog>;
+	};
+
+	hid_hog: hid-hog {
+		compatible = "hid-hog";
 	};
 };
 

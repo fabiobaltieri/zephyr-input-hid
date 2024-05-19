@@ -1,3 +1,5 @@
+#define DT_DRV_COMPAT hid_hog
+
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
@@ -7,9 +9,10 @@
 #include <zephyr/sys/util.h>
 
 #include "hid.h"
-#include "hid_kbd.h"
 
 LOG_MODULE_REGISTER(ble_hog, LOG_LEVEL_INF);
+
+#define HOG_REPORT_BUF_SIZE 32
 
 enum {
 	HIDS_REMOTE_WAKE = BIT(0),
@@ -55,8 +58,8 @@ static ssize_t read_report_map(struct bt_conn *conn,
 			       uint16_t len, uint16_t offset)
 {
 	const struct device *dev = attr->user_data;
-	const uint8_t *data = hid_dev_report(dev);
-	uint16_t data_len = hid_dev_report_len(dev);
+	const uint8_t *data = hid_report(dev);
+	uint16_t data_len = hid_report_len(dev);
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset, data, data_len);
 }
@@ -169,97 +172,122 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 
 DT_FOREACH_STATUS_OKAY(hid, HOG_SVC_DEFINE)
 
+#define HOG_SVC_ENTRY_DEFINE(node_id) {	\
+	.dev = DEVICE_DT_GET(node_id),	\
+	.svc = &hog_svc_##node_id,	\
+},
+
+static const struct {
+	const struct device *dev;
+	const struct bt_gatt_service_static *svc;
+} hog_svc[] = {
+	DT_FOREACH_STATUS_OKAY(hid, HOG_SVC_ENTRY_DEFINE)
+};
+
+static const uint8_t hog_svc_count = ARRAY_SIZE(hog_svc);
+
 #define HID_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(hid)
 #define SVC_NAME _CONCAT(hog_svc_, HID_NODE)
 
-static const struct bt_gatt_attr *kbd_report_attr = &SVC_NAME.attrs[5];
+static const struct device *ble_hog_dev = DEVICE_DT_INST_GET(0);
 
-static struct {
-#if CONFIG_KBD_HID_NKRO
-	struct hid_kbd_report_nkro curr;
-	struct hid_kbd_report_nkro last;
-#else
-	struct hid_kbd_report curr;
-	struct hid_kbd_report last;
-	struct hid_kbd_report_data data;
-#endif
-	bool pending;
-	struct k_sem lock;
-} report;
-
-static int ble_hog_init(void)
-{
-	k_sem_init(&report.lock, 1, 1);
-
-	return 0;
-}
-SYS_INIT(ble_hog_init, APPLICATION, 0);
+static bool hog_busy;
 
 static void ble_hog_notify_cb(struct bt_conn *conn, void *user_data)
 {
 	void (*cb)(void) = user_data;
 
-	k_sem_take(&report.lock, K_FOREVER);
-	report.pending = false;
-	k_sem_give(&report.lock);
+	hog_busy = false;
 
 	cb();
+}
+
+static const struct bt_gatt_attr *hog_find_attr(const struct bt_gatt_service_static *svc,
+						uint8_t report_id)
+{
+	const struct bt_gatt_attr *out = NULL;
+
+	for (size_t i = 0; i < svc->attr_count; i++) {
+		const struct bt_gatt_attr *attr = &svc->attrs[i];
+
+		if (attr->read == bt_gatt_attr_read_chrc) {
+			out = attr;
+		} else if (attr->read == read_report) {
+			struct hids_report *data = attr->user_data;
+
+			if (data->id == report_id && data->type == HIDS_INPUT) {
+				return out;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 static void hog_send_report(void)
 {
 	struct bt_gatt_notify_params params;
+	const struct bt_gatt_attr *attr;
 	int ret;
+	uint8_t report_id;
+	uint8_t buf[HOG_REPORT_BUF_SIZE];
+	int size;
 
-	k_sem_take(&report.lock, K_FOREVER);
-
-	if (memcmp(&report.last, &report.curr, sizeof(report.curr)) == 0) {
-		goto out;
-	}
-
-	if (report.pending) {
-		goto out;
-	}
-
-	report.pending = true;
-
-	memset(&params, 0, sizeof(params));
-	params.attr = kbd_report_attr;
-	params.data = &report.curr;
-	params.len = sizeof(report.curr);
-	params.func = ble_hog_notify_cb;
-	params.user_data = hog_send_report;
-
-	ret = bt_gatt_notify_cb(NULL, &params);
-	if (ret) {
-		LOG_WRN("bt_gatt_notify_cb failed: %d", ret);
-		report.pending = false;
-	}
-
-	memcpy(&report.last, &report.curr, sizeof(report.curr));
-
-out:
-	k_sem_give(&report.lock);
-}
-
-static void hog_input_cb(struct input_event *evt)
-{
-	k_sem_take(&report.lock, K_FOREVER);
-#ifdef CONFIG_KBD_HID_NKRO
-	hid_kbd_input_process_nkro(&report.curr, evt);
-#else
-	hid_kbd_input_process(&report.curr, &report.data, evt);
-#endif
-	k_sem_give(&report.lock);
-
-	if (!notify_enabled) {
+	if (hog_busy) {
 		return;
 	}
 
-	if (!input_queue_empty()) {
+	for (uint8_t i = 0; i < hog_svc_count; i++) {
+		const struct device *hid_dev = hog_svc[i].dev;
+
+		if (!hid_has_updates(hid_dev, ble_hog_dev)) {
+			continue;
+		}
+
+		size = hid_get_report(hid_dev, ble_hog_dev, &report_id, buf, sizeof(buf));
+		if (size < 0) {
+			LOG_ERR("get_report error: %d", size);
+			continue;
+		}
+
+		hog_busy = true;
+
+		attr = hog_find_attr(hog_svc[i].svc, report_id);
+		if (attr == NULL) {
+			LOG_ERR("hog_find_attr error: %d", size);
+			continue;
+		}
+
+		memset(&params, 0, sizeof(params));
+		params.attr = attr;
+		params.data = buf;
+		params.len = size;
+		params.func = ble_hog_notify_cb;
+		params.user_data = hog_send_report;
+
+		ret = bt_gatt_notify_cb(NULL, &params);
+		if (ret) {
+			LOG_WRN("bt_gatt_notify_cb failed: %d", ret);
+			hog_busy = false;
+		}
+
+		return;
+	}
+}
+
+static void ble_hog_notify(const struct device *dev)
+{
+	if (!notify_enabled) {
 		return;
 	}
 
 	hog_send_report();
 }
-INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_NODELABEL(keymap)), hog_input_cb);
+
+static const struct hid_output_api ble_hog_api = {
+	.notify = ble_hog_notify,
+};
+
+DEVICE_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL,
+		      POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,
+		      &ble_hog_api);
