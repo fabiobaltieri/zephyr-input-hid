@@ -122,7 +122,7 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 #define HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx)	\
 	(&(const struct hids_report){			\
 	 .id = DT_PROP_BY_IDX(node_id, prop, idx),	\
-	 .type = HIDS_INPUT,				\
+	 .type = HIDS_OUTPUT,				\
 	 })
 
 #define HOG_DEVICE_DEFINE_INPUT(node_id, prop, idx)					\
