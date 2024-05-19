@@ -26,8 +26,8 @@ struct hids_info {
 } __packed;
 
 struct hids_report {
-	uint8_t id; /* report id */
-	uint8_t type; /* report type */
+	uint8_t id;
+	uint8_t type;
 } __packed;
 
 enum {
