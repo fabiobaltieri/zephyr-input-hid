@@ -26,10 +26,12 @@ static const uint8_t hid_devs_count = ARRAY_SIZE(hid_devs);
 
 static bool connected;
 static bool suspended;
+static bool busy;
 
 static void int_in_ready_cb(const struct device *dev)
 {
-	/* TODO: ep busy handling */
+	busy = false;
+	hid_output_notify(DEVICE_DT_INST_GET(0));
 }
 
 static void status_cb(enum usb_dc_status_code status, const uint8_t *param)
@@ -52,6 +54,10 @@ static void usb_hid_notify(const struct device *dev)
 	uint8_t buf[USB_HID_REPORT_BUF_SIZE + 1];
 	int ret;
 
+	if (busy) {
+		return;
+	}
+
 	if (suspended) {
 		usb_wakeup_request();
 	}
@@ -72,6 +78,8 @@ static void usb_hid_notify(const struct device *dev)
 			LOG_ERR("get_report error: %d", size);
 			continue;
 		}
+
+		busy = true;
 
 		ret = hid_int_ep_write(hid_devs[i].usb_hid_dev, buf, size + 1, NULL);
 		if (ret) {
