@@ -5,8 +5,3 @@ compatible: "hid"
 bus: hid
 
 include: base.yaml
-
-properties:
-  output:
-    type: phandles
-    required: true

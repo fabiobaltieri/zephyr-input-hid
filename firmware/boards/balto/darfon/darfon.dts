@@ -217,11 +217,11 @@
 				report = <HID_KBD_REPORT(1)>;
 			};
 		};
-		output = <&usb_hid>;
-	};
-
-	usb_hid: usb-hid {
-		compatible = "usb-hid";
+		output {
+			usb-hid {
+				compatible = "usb-hid";
+			};
+		};
 	};
 };
 

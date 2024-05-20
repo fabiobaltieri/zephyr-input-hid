@@ -221,30 +221,27 @@ static const struct hid_api hid_api = {
 #define HID_REPORT_DEVICE(node_id) \
 	DT_FOREACH_PROP_ELEM(node_id, report, HID_REPORT_BYTE)
 
-#define OUPUT_DEVICE_GET(node_id, prop, idx) \
-	DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),
-
-#define HID_INIT(n)								\
-	static const uint8_t hid_report_map_##n[] = {				\
-		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), HID_REPORT_DEVICE)	\
-	};									\
-										\
-	static const struct device *hid_output_dev_##n[] = {			\
-		DT_INST_FOREACH_PROP_ELEM(n, output, OUPUT_DEVICE_GET)		\
-	};									\
-										\
-	static const struct hid_config hid_cfg_##n = {				\
-		.report_map = hid_report_map_##n,				\
-		.report_map_len = sizeof(hid_report_map_##n),			\
-		.output_dev = hid_output_dev_##n,				\
-		.output_dev_count = ARRAY_SIZE(hid_output_dev_##n),		\
-	};									\
-										\
-	static struct hid_data hid_data_##n;					\
-										\
-	DEVICE_DT_INST_DEFINE(n, hid_init, NULL,				\
-			      &hid_data_##n, &hid_cfg_##n,			\
-			      POST_KERNEL, 55,					\
+#define HID_INIT(n)									\
+	static const uint8_t hid_report_map_##n[] = {					\
+		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), HID_REPORT_DEVICE)		\
+	};										\
+											\
+	static const struct device *hid_output_dev_##n[] = {				\
+		DT_FOREACH_CHILD_SEP(DT_INST_CHILD(n, output), DEVICE_DT_GET, (,))	\
+	};										\
+											\
+	static const struct hid_config hid_cfg_##n = {					\
+		.report_map = hid_report_map_##n,					\
+		.report_map_len = sizeof(hid_report_map_##n),				\
+		.output_dev = hid_output_dev_##n,					\
+		.output_dev_count = ARRAY_SIZE(hid_output_dev_##n),			\
+	};										\
+											\
+	static struct hid_data hid_data_##n;						\
+											\
+	DEVICE_DT_INST_DEFINE(n, hid_init, NULL,					\
+			      &hid_data_##n, &hid_cfg_##n,				\
+			      POST_KERNEL, 55,						\
 			      &hid_api);
 
 DT_INST_FOREACH_STATUS_OKAY(HID_INIT)

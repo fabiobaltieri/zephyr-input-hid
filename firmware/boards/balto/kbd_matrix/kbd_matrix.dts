@@ -92,11 +92,11 @@
 				report = <HID_KBD_REPORT(1)>;
 			};
 		};
-		output = <&hid_hog>;
-	};
-
-	hid_hog: hid-hog {
-		compatible = "hid-hog";
+		output {
+			hid-hog {
+				compatible = "hid-hog";
+			};
+		};
 	};
 };
 
