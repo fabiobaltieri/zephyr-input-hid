@@ -128,7 +128,6 @@ static void update_buffers(const struct device *dev,
 
 		entry->size = size;
 
-		// TODO: only update on changes
 		entry->updated = true;
 
 		k_sem_give(&data->lock);
