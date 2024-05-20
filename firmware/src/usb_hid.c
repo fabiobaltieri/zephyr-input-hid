@@ -11,18 +11,15 @@
 
 LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
 
-#define HID_DEV_ENTRY_DEFINE(node_id) { \
-	.hid_dev = DEVICE_DT_GET(node_id),  \
-},
+#define DEVICE_DT_GET_COMMA(node_id) DEVICE_DT_GET(node_id),
 
-static struct {
-        const struct device *hid_dev;
-	const struct device *usb_hid_dev;
-} hid_devs[] = {
-	DT_FOREACH_STATUS_OKAY(hid, HID_DEV_ENTRY_DEFINE)
+static const struct device *hid_devs[] = {
+	DT_FOREACH_STATUS_OKAY(hid, DEVICE_DT_GET_COMMA)
 };
 
-static const uint8_t hid_devs_count = ARRAY_SIZE(hid_devs);
+#define HID_DEVS_COUNT ARRAY_SIZE(hid_devs)
+
+static const struct device *usb_hid_devs[HID_DEVS_COUNT];
 
 static bool connected;
 static bool suspended;
@@ -66,8 +63,8 @@ static void usb_hid_notify(const struct device *dev)
 		return;
 	}
 
-	for (uint8_t i = 0; i < hid_devs_count; i++) {
-		const struct device *hid_dev = hid_devs[i].hid_dev;
+	for (uint8_t i = 0; i < HID_DEVS_COUNT; i++) {
+		const struct device *hid_dev = hid_devs[i];
 
 		if (!hid_has_updates(hid_dev, dev)) {
 			continue;
@@ -81,7 +78,7 @@ static void usb_hid_notify(const struct device *dev)
 
 		busy = true;
 
-		ret = hid_int_ep_write(hid_devs[i].usb_hid_dev, buf, size + 1, NULL);
+		ret = hid_int_ep_write(usb_hid_devs[i], buf, size + 1, NULL);
 		if (ret) {
 			LOG_ERR("HID write error, %d", ret);
 			return;
@@ -93,8 +90,8 @@ static int usb_hid_out_init(const struct device *dev)
 {
 	int ret;
 
-	for (uint8_t i = 0; i < hid_devs_count; i++) {
-		const struct device *hid_dev = hid_devs[i].hid_dev;
+	for (uint8_t i = 0; i < HID_DEVS_COUNT; i++) {
+		const struct device *hid_dev = hid_devs[i];
 		const struct device *usb_hid_dev;
 		const uint8_t *report = hid_report(hid_dev);
 		uint16_t report_len = hid_report_len(hid_dev);
@@ -112,7 +109,7 @@ static int usb_hid_out_init(const struct device *dev)
 
 		usb_hid_init(usb_hid_dev);
 
-		hid_devs[i].usb_hid_dev = usb_hid_dev;
+		usb_hid_devs[i] = usb_hid_dev;
 	}
 
 	ret = usb_enable(status_cb);
