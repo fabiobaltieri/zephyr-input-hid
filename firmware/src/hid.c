@@ -30,8 +30,10 @@ struct hid_config {
 };
 
 struct hid_data {
+	const struct device *dev;
 	struct hid_report_cache cache[CACHE_ENTRIES];
 	struct k_sem lock;
+	struct k_work_delayable notify_dwork;
 };
 
 const uint8_t *hid_report(const struct device *dev)
@@ -84,6 +86,20 @@ static struct hid_report_cache *find_cache_idx(const struct device *dev,
 	return NULL;
 }
 
+static void hid_notify_worker(struct k_work *work)
+{
+	struct k_work_delayable *dwork = k_work_delayable_from_work(work);
+	struct hid_data *data = CONTAINER_OF(dwork, struct hid_data, notify_dwork);
+	const struct device *dev = data->dev;
+	const struct hid_config *cfg = dev->config;
+
+	for (uint8_t i = 0; i < cfg->output_dev_count; i++) {
+		const struct device *output_dev = cfg->output_dev[i];
+
+		hid_output_notify(output_dev);
+	}
+}
+
 static void update_buffers(const struct device *dev,
 			   const struct device *input_dev,
 			   uint8_t input_id,
@@ -116,9 +132,9 @@ static void update_buffers(const struct device *dev,
 		entry->updated = true;
 
 		k_sem_give(&data->lock);
-
-		hid_output_notify(output_dev);
 	}
+
+	k_work_schedule(&data->notify_dwork, K_USEC(100));
 }
 
 static bool has_updates(const struct device *dev,
@@ -186,7 +202,10 @@ static int hid_init(const struct device *dev)
 {
 	struct hid_data *data = dev->data;
 
+	data->dev = dev;
+
 	k_sem_init(&data->lock, 1, 1);
+	k_work_init_delayable(&data->notify_dwork, hid_notify_worker);
 
 	return 0;
 }
