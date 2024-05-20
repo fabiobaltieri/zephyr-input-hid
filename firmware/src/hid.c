@@ -226,7 +226,7 @@ static const struct hid_api hid_api = {
 
 #define HID_INIT(n)								\
 	static const uint8_t hid_report_map_##n[] = {				\
-		DT_INST_FOREACH_CHILD(n, HID_REPORT_DEVICE)			\
+		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), HID_REPORT_DEVICE)	\
 	};									\
 										\
 	static const struct device *hid_output_dev_##n[] = {			\

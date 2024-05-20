@@ -4,11 +4,13 @@
 	buttons: buttons {};
 	hid {
 		compatible = "hid";
-		hid-kbd {
-			input = <&buttons>;
-			compatible = "hid-kbd";
-			input-id = <1>;
-			report = <HID_KBD_REPORT(1)>;
+		input {
+			hid-kbd {
+				compatible = "hid-kbd";
+				input = <&buttons>;
+				input-id = <1>;
+				report = <HID_KBD_REPORT(1)>;
+			};
 		};
 		output = <&hid_hog>;
 	};

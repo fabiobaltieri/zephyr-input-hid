@@ -162,7 +162,7 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 				       BT_GATT_PERM_READ, read_report_map, NULL,	\
 				       (void *)DEVICE_DT_GET(node_id)),			\
 											\
-		DT_FOREACH_CHILD(node_id, HOG_DEVICE_DEFINE)				\
+		DT_FOREACH_CHILD(DT_CHILD(node_id, input), HOG_DEVICE_DEFINE)				\
 											\
 		BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_CTRL_POINT,				\
 				       BT_GATT_CHRC_WRITE_WITHOUT_RESP,			\

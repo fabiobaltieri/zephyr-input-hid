@@ -174,7 +174,7 @@ static void hid_kbd_cb(const struct device *dev, struct input_event *evt)
 	))										\
 											\
 	static const struct hid_kbd_config hid_kbd_config_##inst = {			\
-		.hid_dev = DEVICE_DT_GET(DT_INST_PARENT(inst)),				\
+		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(inst)),			\
 		.input_id = DT_INST_PROP_BY_IDX(inst, input_id, 0),			\
 		COND_CODE_1(DT_INST_PROP(inst, nkro), (), (				\
 		.report_data = &hid_kbd_report_data_##inst,				\
