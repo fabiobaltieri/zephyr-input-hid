@@ -67,10 +67,8 @@ static struct hid_report_cache *find_cache_idx(const struct device *dev,
 			   entry->output_dev == NULL &&
 			   entry->report_id == 0) {
 			LOG_INF("report cache init: %s %s %d: %d",
-				input_dev->name,
-				output_dev->name,
-				input_id,
-				i);
+				input_dev->name, output_dev->name,
+				input_id, i);
 			entry->input_dev = input_dev;
 			entry->output_dev = output_dev;
 			entry->report_id = input_id;
