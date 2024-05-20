@@ -122,7 +122,7 @@ static int usb_hid_out_init(const struct device *dev)
 }
 
 static const struct hid_output_api usb_hid_api = {
-        .notify = usb_hid_notify,
+	.notify = usb_hid_notify,
 };
 
 DEVICE_DT_INST_DEFINE(0, usb_hid_out_init, NULL, NULL, NULL,
