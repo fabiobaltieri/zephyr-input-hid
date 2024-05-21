@@ -18,6 +18,7 @@ struct ble_hog_config {
 };
 
 struct ble_hog_data {
+	uint32_t notify_mask;
 	bool hog_busy;
 };
 
@@ -35,6 +36,7 @@ struct hids_info {
 } __packed;
 
 struct hids_report {
+	const struct device *dev;
 	uint8_t id;
 	uint8_t type;
 } __packed;
@@ -51,7 +53,6 @@ static struct hids_info info = {
 	.flags = HIDS_NORMALLY_CONNECTABLE,
 };
 
-static bool notify_enabled;
 static uint8_t ctrl_point;
 
 static ssize_t read_info(struct bt_conn *conn,
@@ -83,11 +84,21 @@ static ssize_t read_report(struct bt_conn *conn,
 
 static void input_ccc_changed(const struct bt_gatt_attr *attr, uint16_t value)
 {
-	ARG_UNUSED(attr);
+	const struct bt_gatt_attr *next_attr = attr + 1;
 
-	notify_enabled = (value == BT_GATT_CCC_NOTIFY);
+	if (next_attr->read != read_report) {
+		LOG_ERR("invalid next_attr: %p", next_attr);
+		return;
+	}
 
-	LOG_INF("notify_enabled: %d", notify_enabled);
+	const struct hids_report *hids_report = next_attr->user_data;
+	const struct device *dev = hids_report->dev;
+	struct ble_hog_data *data = dev->data;
+	bool enabled = value == BT_GATT_CCC_NOTIFY;
+
+	WRITE_BIT(data->notify_mask, hids_report->id, enabled);
+
+	LOG_INF("notify_enabled: %s %d %d", dev->name, hids_report->id, enabled);
 }
 
 static ssize_t read_input_report(struct bt_conn *conn,
@@ -122,19 +133,21 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 	return len;
 }
 
-#define HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx)	\
-	(&(const struct hids_report){			\
-	 .id = DT_PROP_BY_IDX(node_id, prop, idx),	\
-	 .type = HIDS_INPUT,				\
+#define HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx, self)	\
+	(&(const struct hids_report){				\
+	 .dev = self,						\
+	 .id = DT_PROP_BY_IDX(node_id, prop, idx),		\
+	 .type = HIDS_INPUT,					\
 	 })
 
-#define HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx)	\
-	(&(const struct hids_report){			\
-	 .id = DT_PROP_BY_IDX(node_id, prop, idx),	\
-	 .type = HIDS_OUTPUT,				\
+#define HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx, self)	\
+	(&(const struct hids_report){				\
+	 .dev = self,						\
+	 .id = DT_PROP_BY_IDX(node_id, prop, idx),		\
+	 .type = HIDS_OUTPUT,					\
 	 })
 
-#define HOG_DEVICE_DEFINE_INPUT(node_id, prop, idx)					\
+#define HOG_DEVICE_DEFINE_INPUT(node_id, prop, idx, self)				\
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,					\
 			       BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,			\
 			       BT_GATT_PERM_READ_ENCRYPT,				\
@@ -143,23 +156,23 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 		    BT_GATT_PERM_READ_ENCRYPT | BT_GATT_PERM_WRITE_ENCRYPT),		\
 	BT_GATT_DESCRIPTOR(BT_UUID_HIDS_REPORT_REF, BT_GATT_PERM_READ,			\
 			   read_report, NULL,						\
-			   (void *)HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx)),
+			   (void *)HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx, self)),
 
-#define HOG_DEVICE_DEFINE_OUTPUT(node_id, prop, idx)					\
+#define HOG_DEVICE_DEFINE_OUTPUT(node_id, prop, idx, self)				\
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,					\
 			       BT_GATT_CHRC_WRITE,					\
 			       BT_GATT_PERM_WRITE_ENCRYPT,				\
 			       NULL, write_output_report, NULL),			\
 	BT_GATT_DESCRIPTOR(BT_UUID_HIDS_REPORT_REF, BT_GATT_PERM_READ,			\
 			   read_report, NULL,						\
-			   (void *)HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx)),
+			   (void *)HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx, self)),
 
-#define HOG_DEVICE_DEFINE(node_id)						\
-	IF_ENABLED(DT_NODE_HAS_PROP(node_id, input_id), (			\
-	DT_FOREACH_PROP_ELEM(node_id, input_id, HOG_DEVICE_DEFINE_INPUT)	\
-	))									\
-	IF_ENABLED(DT_NODE_HAS_PROP(node_id, output_id), (			\
-	DT_FOREACH_PROP_ELEM(node_id, output_id, HOG_DEVICE_DEFINE_OUTPUT)	\
+#define HOG_DEVICE_DEFINE(node_id, self)						\
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, input_id), (				\
+	DT_FOREACH_PROP_ELEM_VARGS(node_id, input_id, HOG_DEVICE_DEFINE_INPUT, self)	\
+	))										\
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, output_id), (				\
+	DT_FOREACH_PROP_ELEM_VARGS(node_id, output_id, HOG_DEVICE_DEFINE_OUTPUT, self)	\
 	))
 
 #define HOG_SVC_DEFINE(n)								\
@@ -171,8 +184,8 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 				       BT_GATT_PERM_READ, read_report_map, NULL,	\
 				       (void *)DEVICE_DT_GET(DT_INST_GPARENT(n))),	\
 											\
-		DT_FOREACH_CHILD(DT_CHILD(DT_INST_GPARENT(n), input),			\
-				 HOG_DEVICE_DEFINE)					\
+		DT_FOREACH_CHILD_VARGS(DT_CHILD(DT_INST_GPARENT(n), input),		\
+				       HOG_DEVICE_DEFINE, DEVICE_DT_INST_GET(n))	\
 											\
 		BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_CTRL_POINT,				\
 				       BT_GATT_CHRC_WRITE_WITHOUT_RESP,			\
@@ -190,9 +203,11 @@ static void ble_hog_notify_cb(struct bt_conn *conn, void *user_data)
 	hid_output_notify(dev);
 }
 
-static const struct bt_gatt_attr *hog_find_attr(const struct bt_gatt_service_static *svc,
+static const struct bt_gatt_attr *hog_find_attr(const struct device *dev,
 						uint8_t report_id)
 {
+	const struct ble_hog_config *cfg = dev->config;
+	const struct bt_gatt_service_static *svc = cfg->svc;
 	const struct bt_gatt_attr *out = NULL;
 
 	for (size_t i = 0; i < svc->attr_count; i++) {
@@ -237,13 +252,13 @@ static void ble_hog_notify(const struct device *dev)
 		return;
 	}
 
-	if (!notify_enabled) {
+	if ((data->notify_mask & BIT(report_id)) == 0x00) {
 		return;
 	}
 
 	data->hog_busy = true;
 
-	attr = hog_find_attr(cfg->svc, report_id);
+	attr = hog_find_attr(dev, report_id);
 	if (attr == NULL) {
 		LOG_ERR("hog_find_attr error: %d", size);
 		return;
