@@ -98,10 +98,6 @@ static void usb_hid_notify(const struct device *dev)
 		usb_wakeup_request();
 	}
 
-	if (!connected) {
-		return;
-	}
-
 	if (!hid_has_updates(cfg->hid_dev, dev)) {
 		return;
 	}
@@ -109,6 +105,10 @@ static void usb_hid_notify(const struct device *dev)
 	size = hid_get_report(cfg->hid_dev, dev, &buf[0], &buf[1], USB_HID_REPORT_BUF_SIZE);
 	if (size < 0) {
 		LOG_ERR("get_report error: %d", size);
+		return;
+	}
+
+	if (!connected) {
 		return;
 	}
 
