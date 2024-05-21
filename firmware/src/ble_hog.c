@@ -201,7 +201,7 @@ static const struct bt_gatt_attr *hog_find_attr(const struct bt_gatt_service_sta
 		if (attr->read == bt_gatt_attr_read_chrc) {
 			out = attr;
 		} else if (attr->read == read_report) {
-			struct hids_report *data = attr->user_data;
+			const struct hids_report *data = attr->user_data;
 
 			if (data->id == report_id && data->type == HIDS_INPUT) {
 				return out;
