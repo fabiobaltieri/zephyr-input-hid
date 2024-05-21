@@ -27,11 +27,12 @@ struct hid_config {
 	uint16_t report_map_len;
 	const struct device **output_dev;
 	uint8_t output_dev_count;
+	struct hid_report_cache *cache;
+	uint8_t cache_len;
 };
 
 struct hid_data {
 	const struct device *dev;
-	struct hid_report_cache cache[CACHE_ENTRIES];
 	struct k_sem lock;
 	struct k_work_delayable notify_dwork;
 };
@@ -55,11 +56,11 @@ static struct hid_report_cache *find_cache_idx(const struct device *dev,
 					       const struct device *output_dev,
 					       uint8_t input_id)
 {
-	struct hid_data *data = dev->data;
+	const struct hid_config *cfg = dev->config;
 	uint8_t i;
 
-	for (i = 0; i < CACHE_ENTRIES; i++) {
-		struct hid_report_cache *entry = &data->cache[i];
+	for (i = 0; i < cfg->cache_len; i++) {
+		struct hid_report_cache *entry = &cfg->cache[i];
 
 		if (entry->input_dev == input_dev &&
 		    entry->output_dev == output_dev &&
@@ -139,13 +140,14 @@ static void update_buffers(const struct device *dev,
 static bool has_updates(const struct device *dev,
 			const struct device *output_dev)
 {
+	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
 	bool out = false;
 
 	k_sem_take(&data->lock, K_FOREVER);
 
-	for (uint8_t i = 0; i < CACHE_ENTRIES; i++) {
-		struct hid_report_cache *entry = &data->cache[i];
+	for (uint8_t i = 0; i < cfg->cache_len; i++) {
+		struct hid_report_cache *entry = &cfg->cache[i];
 
 		if (entry->output_dev != output_dev || !entry->updated) {
 			continue;
@@ -166,13 +168,14 @@ static int get_report(const struct device *dev,
 		      uint8_t *buf,
 		      uint8_t size)
 {
+	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
 	int out = -EINVAL;
 
 	k_sem_take(&data->lock, K_FOREVER);
 
-	for (uint8_t i = 0; i < CACHE_ENTRIES; i++) {
-		struct hid_report_cache *entry = &data->cache[i];
+	for (uint8_t i = 0; i < cfg->cache_len; i++) {
+		struct hid_report_cache *entry = &cfg->cache[i];
 
 		if (entry->output_dev != output_dev || !entry->updated) {
 			continue;
@@ -221,6 +224,8 @@ static const struct hid_api hid_api = {
 #define HID_REPORT_DEVICE(node_id) \
 	DT_FOREACH_PROP_ELEM(node_id, report, HID_REPORT_BYTE)
 
+#define INPUT_LEN(node_id) DT_PROP_LEN(node_id, input_id)
+
 #define HID_INIT(n)									\
 	static const uint8_t hid_report_map_##n[] = {					\
 		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), HID_REPORT_DEVICE)		\
@@ -230,11 +235,17 @@ static const struct hid_api hid_api = {
 		DT_FOREACH_CHILD_SEP(DT_INST_CHILD(n, output), DEVICE_DT_GET, (,))	\
 	};										\
 											\
+	static struct hid_report_cache hid_report_cache_##n[				\
+		(DT_FOREACH_CHILD_SEP(DT_INST_CHILD(n, input), INPUT_LEN, (+))) *	\
+		DT_CHILD_NUM(DT_INST_CHILD(n, output))];				\
+											\
 	static const struct hid_config hid_cfg_##n = {					\
 		.report_map = hid_report_map_##n,					\
 		.report_map_len = sizeof(hid_report_map_##n),				\
 		.output_dev = hid_output_dev_##n,					\
 		.output_dev_count = ARRAY_SIZE(hid_output_dev_##n),			\
+		.cache = hid_report_cache_##n,						\
+		.cache_len = ARRAY_SIZE(hid_report_cache_##n),				\
 	};										\
 											\
 	static struct hid_data hid_data_##n;						\
