@@ -11,25 +11,26 @@
 
 LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
 
-#define DEVICE_DT_GET_COMMA(node_id) DEVICE_DT_GET(node_id),
-
-static const struct device *hid_devs[] = {
-	DT_FOREACH_STATUS_OKAY(hid, DEVICE_DT_GET_COMMA)
+struct usb_hid_config {
+	const struct device *hid_dev;
+	uint8_t idx;
 };
 
-#define HID_DEVS_COUNT ARRAY_SIZE(hid_devs)
-
-static const struct device *usb_hid_devs[HID_DEVS_COUNT];
+struct usb_hid_data {
+	const struct device *usb_hid_dev;
+	bool busy;
+};
 
 static bool connected;
 static bool suspended;
-static bool busy;
 
-static void int_in_ready_cb(const struct device *dev)
-{
-	busy = false;
-	hid_output_notify(DEVICE_DT_INST_GET(0));
-}
+#define DEVICE_DT_GET_COMMA(n) DEVICE_DT_INST_GET(n),
+
+static const struct device *usb_hid_devs[] = {
+	DT_INST_FOREACH_STATUS_OKAY(DEVICE_DT_GET_COMMA)
+};
+
+#define USB_HID_DEV_COUNT ARRAY_SIZE(usb_hid_devs)
 
 static void status_cb(enum usb_dc_status_code status, const uint8_t *param)
 {
@@ -39,7 +40,43 @@ static void status_cb(enum usb_dc_status_code status, const uint8_t *param)
 	suspended = (status == USB_DC_SUSPEND);
 }
 
-static const struct hid_ops ops = {
+static int global_usb_enable(void)
+{
+	int ret;
+
+	ret = usb_enable(status_cb);
+	if (ret != 0) {
+		LOG_ERR("Failed to enable USB");
+		return 0;
+	}
+
+	return 0;
+}
+SYS_INIT(global_usb_enable, APPLICATION, 0);
+
+static void int_in_ready_cb(const struct device *dev)
+{
+	struct usb_hid_data *data;
+	uint8_t i;
+
+	for (i = 0; i < USB_HID_DEV_COUNT; i++) {
+		data = usb_hid_devs[i]->data;
+		if (data->usb_hid_dev == dev) {
+			break;
+		}
+	}
+
+	if (i == USB_HID_DEV_COUNT) {
+		LOG_ERR("unknown hid device for %s", dev->name);
+		return;
+	}
+
+	data->busy = false;
+
+	hid_output_notify(usb_hid_devs[i]);
+}
+
+static const struct hid_ops usb_hid_ops = {
 	.int_in_ready = int_in_ready_cb,
 };
 
@@ -47,11 +84,13 @@ static const struct hid_ops ops = {
 
 static void usb_hid_notify(const struct device *dev)
 {
+	const struct usb_hid_config *cfg = dev->config;
+	struct usb_hid_data *data = dev->data;
 	int size;
 	uint8_t buf[USB_HID_REPORT_BUF_SIZE + 1];
 	int ret;
 
-	if (busy) {
+	if (data->busy) {
 		return;
 	}
 
@@ -63,60 +102,47 @@ static void usb_hid_notify(const struct device *dev)
 		return;
 	}
 
-	for (uint8_t i = 0; i < HID_DEVS_COUNT; i++) {
-		const struct device *hid_dev = hid_devs[i];
+	if (!hid_has_updates(cfg->hid_dev, dev)) {
+		return;
+	}
 
-		if (!hid_has_updates(hid_dev, dev)) {
-			continue;
-		}
+	size = hid_get_report(cfg->hid_dev, dev, &buf[0], &buf[1], USB_HID_REPORT_BUF_SIZE);
+	if (size < 0) {
+		LOG_ERR("get_report error: %d", size);
+		return;
+	}
 
-		size = hid_get_report(hid_dev, dev, &buf[0], &buf[1], USB_HID_REPORT_BUF_SIZE);
-		if (size < 0) {
-			LOG_ERR("get_report error: %d", size);
-			continue;
-		}
+	data->busy = true;
 
-		busy = true;
-
-		ret = hid_int_ep_write(usb_hid_devs[i], buf, size + 1, NULL);
-		if (ret) {
-			LOG_ERR("HID write error, %d", ret);
-			return;
-		}
+	ret = hid_int_ep_write(data->usb_hid_dev, buf, size + 1, NULL);
+	if (ret) {
+		LOG_ERR("HID write error, %d", ret);
+		return;
 	}
 }
 
 static int usb_hid_out_init(const struct device *dev)
 {
-	int ret;
+	const struct usb_hid_config *cfg = dev->config;
+	struct usb_hid_data *data = dev->data;
+	const uint8_t *report = hid_report(cfg->hid_dev);
+	uint16_t report_len = hid_report_len(cfg->hid_dev);
+	const struct device *usb_hid_dev;
+	char dev_name[8];
 
-	for (uint8_t i = 0; i < HID_DEVS_COUNT; i++) {
-		const struct device *hid_dev = hid_devs[i];
-		const struct device *usb_hid_dev;
-		const uint8_t *report = hid_report(hid_dev);
-		uint16_t report_len = hid_report_len(hid_dev);
-		char dev_name[8];
+	snprintf(dev_name, sizeof(dev_name), "HID_%d", cfg->idx);
 
-		snprintf(dev_name, sizeof(dev_name), "HID_%d", i);
-
-		usb_hid_dev = device_get_binding(dev_name);
-		if (usb_hid_dev == NULL) {
-			LOG_ERR("Cannot get USB HID Device");
-			return 0;
-		}
-
-		usb_hid_register_device(usb_hid_dev, report, report_len, &ops);
-
-		usb_hid_init(usb_hid_dev);
-
-		usb_hid_devs[i] = usb_hid_dev;
-	}
-
-	ret = usb_enable(status_cb);
-	if (ret != 0) {
-		LOG_ERR("Failed to enable USB");
+	usb_hid_dev = device_get_binding(dev_name);
+	if (usb_hid_dev == NULL) {
+		LOG_ERR("Cannot get USB HID Device");
 		return 0;
 	}
+
+	usb_hid_register_device(usb_hid_dev, report, report_len, &usb_hid_ops);
+
+	usb_hid_init(usb_hid_dev);
+
+	data->usb_hid_dev = usb_hid_dev;
 
 	return 0;
 }
@@ -125,5 +151,16 @@ static const struct hid_output_api usb_hid_api = {
 	.notify = usb_hid_notify,
 };
 
-DEVICE_DT_INST_DEFINE(0, usb_hid_out_init, NULL, NULL, NULL,
-		      POST_KERNEL, 55, &usb_hid_api);
+#define USB_HID_INIT(n)							\
+	static const struct usb_hid_config usb_hid_cfg_##n = {		\
+		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(n)),		\
+		.idx = n,						\
+	};								\
+									\
+	static struct usb_hid_data usb_hid_data_##n;			\
+									\
+	DEVICE_DT_INST_DEFINE(n, usb_hid_out_init, NULL,		\
+			      &usb_hid_data_##n, &usb_hid_cfg_##n,	\
+			      POST_KERNEL, 55, &usb_hid_api);
+
+DT_INST_FOREACH_STATUS_OKAY(USB_HID_INIT)
