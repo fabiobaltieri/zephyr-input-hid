@@ -9,16 +9,12 @@ project(keyboard-matrix-testboard)
 target_include_directories(app PRIVATE include)
 
 target_sources(app PRIVATE
-	src/hid_kbd.c
-	src/hid.c
 	src/main.c
 )
 
-target_sources_ifdef(CONFIG_BT app PRIVATE
-	src/ble.c
-	src/ble_hog.c
-)
+target_sources_ifdef(CONFIG_BT app PRIVATE src/ble.c)
 
-target_sources_ifdef(CONFIG_USB_DEVICE_HID app PRIVATE
-	src/usb_hid.c
-)
+target_sources_ifdef(CONFIG_DT_HAS_HID_ENABLED app PRIVATE src/hid.c)
+target_sources_ifdef(CONFIG_DT_HAS_HID_KBD_ENABLED app PRIVATE src/hid_kbd.c)
+target_sources_ifdef(CONFIG_DT_HAS_HID_HOG_ENABLED app PRIVATE src/ble_hog.c)
+target_sources_ifdef(CONFIG_DT_HAS_USB_HID_ENABLED app PRIVATE src/usb_hid.c)

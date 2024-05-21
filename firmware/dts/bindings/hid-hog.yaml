@@ -1,0 +1,7 @@
+description: HID HOG
+
+compatible: "hid-hog"
+
+on-bus: hid
+
+include: base.yaml
