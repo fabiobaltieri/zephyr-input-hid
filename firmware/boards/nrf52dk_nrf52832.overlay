@@ -1,7 +1,29 @@
 #include <dt-bindings/hid.h>
 
 / {
-	buttons: buttons {};
+	buttons: buttons {
+		button_0 {
+			zephyr,code = <INPUT_KEY_A>;
+		};
+		button_1 {
+			zephyr,code = <INPUT_KEY_B>;
+		};
+		/delete-node/ button_2;
+		/delete-node/ button_3;
+	};
+
+	buttons_2: buttons2 {
+		compatible = "gpio-keys";
+		button2: button_2 {
+			gpios = <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_C>;
+		};
+		button3: button_3 {
+			gpios = <&gpio0 16 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_D>;
+		};
+	};
+
 	hid {
 		compatible = "hid";
 		input {
@@ -18,20 +40,21 @@
 			};
 		};
 	};
-};
 
-&button0 {
-	zephyr,code = <INPUT_KEY_A>;
-};
-
-&button1 {
-	zephyr,code = <INPUT_KEY_B>;
-};
-
-&button2 {
-	zephyr,code = <INPUT_KEY_C>;
-};
-
-&button3 {
-	zephyr,code = <INPUT_KEY_D>;
+	hid2 {
+		compatible = "hid";
+		input {
+			hid-kbd2 {
+				compatible = "hid-kbd";
+				input = <&buttons_2>;
+				input-id = <2>;
+				report = <HID_KBD_REPORT(2)>;
+			};
+		};
+		output {
+			hid-hog2 {
+				compatible = "hid-hog";
+			};
+		};
+	};
 };
