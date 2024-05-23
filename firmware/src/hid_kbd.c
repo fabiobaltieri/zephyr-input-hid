@@ -72,8 +72,8 @@ static int hid_kbd_update_bits(uint8_t bits[], struct input_event *evt)
 }
 
 static int hid_kbd_input_process(const struct device *dev,
-				  uint8_t *buf, uint8_t len,
-				  void *user_data)
+				 uint8_t *buf, uint8_t len,
+				 void *user_data)
 {
 	const struct hid_kbd_config *cfg = dev->config;
 	struct hid_kbd_report_data *data = cfg->report_data;
