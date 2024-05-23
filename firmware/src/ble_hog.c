@@ -102,9 +102,9 @@ static void input_ccc_changed(const struct bt_gatt_attr *attr, uint16_t value)
 	struct ble_hog_data *data = dev->data;
 	bool enabled = value == BT_GATT_CCC_NOTIFY;
 
-	WRITE_BIT(data->notify_mask, hids_report->id, enabled);
+	WRITE_BIT(data->notify_mask, hids_report->report.id, enabled);
 
-	LOG_INF("notify_enabled: %s %d %d", dev->name, hids_report->id, enabled);
+	LOG_INF("notify_enabled: %s %d %d", dev->name, hids_report->report.id, enabled);
 }
 
 static ssize_t read_input_report(struct bt_conn *conn,
