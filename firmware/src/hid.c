@@ -11,7 +11,6 @@
 LOG_MODULE_REGISTER(hid, LOG_LEVEL_INF);
 
 #define CACHE_SIZE 32
-#define CACHE_ENTRIES 4
 
 struct hid_report_cache {
 	const struct device *input_dev;
