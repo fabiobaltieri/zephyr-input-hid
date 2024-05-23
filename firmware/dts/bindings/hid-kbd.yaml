@@ -1,4 +1,4 @@
-description: HID Keyboard node
+description: HID keyboard node
 
 compatible: "hid-kbd"
 

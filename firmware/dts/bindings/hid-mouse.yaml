@@ -1,4 +1,4 @@
-description: HID Mouse node
+description: HID mouse node
 
 compatible: "hid-mouse"
 
