@@ -6,7 +6,7 @@
 			zephyr,code = <INPUT_KEY_A>;
 		};
 		button_1 {
-			zephyr,code = <INPUT_BTN_RIGHT>;
+			zephyr,code = <INPUT_BTN_LEFT>;
 		};
 		/delete-node/ button_2;
 		/delete-node/ button_3;
@@ -20,7 +20,7 @@
 		};
 		button3: button_3 {
 			gpios = <&gpio0 16 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_LEFT>;
+			zephyr,code = <INPUT_BTN_NORTH>;
 		};
 	};
 
@@ -32,6 +32,12 @@
 				input = <&buttons>;
 				input-id = <1>;
 				report = <HID_KBD_REPORT(1)>;
+			};
+			hid-mouse {
+				compatible = "hid-mouse";
+				input = <&paw>;
+				input-id = <2>;
+				report = <HID_MOUSE_REPORT(2)>;
 			};
 		};
 		output {
@@ -47,8 +53,8 @@
 			hid-kbd2 {
 				compatible = "hid-kbd";
 				input = <&buttons_2>;
-				input-id = <2>;
-				report = <HID_KBD_REPORT(2)>;
+				input-id = <3>;
+				report = <HID_KBD_REPORT(3)>;
 			};
 		};
 		output {
@@ -56,5 +62,47 @@
 				compatible = "hid-hog";
 			};
 		};
+	};
+
+	paw-pwr {
+		compatible = "regulator-fixed";
+		regulator-name = "paw-pwr";
+		enable-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
+		regulator-boot-on;
+		startup-delay-us = <100000>;
+	 };
+};
+
+&i2c0 {
+	status = "disabled";
+};
+
+&spi2_default {
+	group1 {
+		psels = <NRF_PSEL(SPIM_SCK, 0, 27)>,
+			<NRF_PSEL(SPIM_MOSI, 0, 26)>,
+			<NRF_PSEL(SPIM_MISO, 0, 26)>;
+	};
+};
+
+&spi2_sleep {
+	group1 {
+		psels = <NRF_PSEL(SPIM_SCK, 0, 27)>,
+			<NRF_PSEL(SPIM_MOSI, 0, 26)>,
+			<NRF_PSEL(SPIM_MISO, 0, 26)>;
+	};
+};
+
+&spi2 {
+	cs-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+	paw: paw3222@0 {
+		compatible = "pixart,paw32xx";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(2)>;
+		motion-gpios = <&gpio0 24 GPIO_ACTIVE_LOW>;
+		zephyr,axis-x = <INPUT_REL_X>;
+		zephyr,axis-y = <INPUT_REL_Y>;
+		invert-x;
+		res-cpi = <800>;
 	};
 };
