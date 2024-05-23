@@ -37,8 +37,10 @@ struct hids_info {
 
 struct hids_report {
 	const struct device *dev;
-	uint8_t id;
-	uint8_t type;
+	struct {
+		uint8_t id;
+		uint8_t type;
+	} report;
 } __packed;
 
 enum {
@@ -78,8 +80,12 @@ static ssize_t read_report(struct bt_conn *conn,
 			   const struct bt_gatt_attr *attr, void *buf,
 			   uint16_t len, uint16_t offset)
 {
-	return bt_gatt_attr_read(conn, attr, buf, len, offset, attr->user_data,
-				 sizeof(struct hids_report));
+	const struct hids_report *hids_report = attr->user_data;
+
+	LOG_DBG("read_report %p %d", &hids_report->report, sizeof(hids_report->report));
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &hids_report->report,
+				 sizeof(hids_report->report));
 }
 
 static void input_ccc_changed(const struct bt_gatt_attr *attr, uint16_t value)
@@ -136,15 +142,15 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 #define HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx, self)	\
 	(&(const struct hids_report){				\
 	 .dev = self,						\
-	 .id = DT_PROP_BY_IDX(node_id, prop, idx),		\
-	 .type = HIDS_INPUT,					\
+	 .report.id = DT_PROP_BY_IDX(node_id, prop, idx),	\
+	 .report.type = HIDS_INPUT,				\
 	 })
 
 #define HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx, self)	\
 	(&(const struct hids_report){				\
 	 .dev = self,						\
-	 .id = DT_PROP_BY_IDX(node_id, prop, idx),		\
-	 .type = HIDS_OUTPUT,					\
+	 .report.id = DT_PROP_BY_IDX(node_id, prop, idx),	\
+	 .report.type = HIDS_OUTPUT,				\
 	 })
 
 #define HOG_DEVICE_DEFINE_INPUT(node_id, prop, idx, self)				\
@@ -218,7 +224,8 @@ static const struct bt_gatt_attr *hog_find_attr(const struct device *dev,
 		} else if (attr->read == read_report) {
 			const struct hids_report *data = attr->user_data;
 
-			if (data->id == report_id && data->type == HIDS_INPUT) {
+			if (data->report.id == report_id &&
+			    data->report.type == HIDS_INPUT) {
 				return out;
 			}
 		}
