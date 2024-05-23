@@ -101,11 +101,11 @@ static void hid_notify_worker(struct k_work *work)
 	}
 }
 
-static void update_buffers(const struct device *dev,
-			   const struct device *input_dev,
-			   uint8_t input_id,
-			   update_buffers_cb_t cb,
-			   void *user_data)
+void hid_update_buffers(const struct device *dev,
+			const struct device *input_dev,
+			uint8_t input_id,
+			update_buffers_cb_t cb,
+			void *user_data)
 {
 	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
@@ -150,8 +150,8 @@ unlock:
 	k_work_schedule(&data->notify_dwork, K_USEC(100));
 }
 
-static bool has_updates(const struct device *dev,
-			const struct device *output_dev)
+bool hid_has_updates(const struct device *dev,
+		     const struct device *output_dev)
 {
 	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
@@ -175,11 +175,11 @@ static bool has_updates(const struct device *dev,
 	return out;
 }
 
-static int get_report(const struct device *dev,
-		      const struct device *output_dev,
-		      uint8_t *report_id,
-		      uint8_t *buf,
-		      uint8_t size)
+int hid_get_report(const struct device *dev,
+		   const struct device *output_dev,
+		   uint8_t *report_id,
+		   uint8_t *buf,
+		   uint8_t size)
 {
 	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
@@ -227,12 +227,6 @@ static int hid_init(const struct device *dev)
 	return 0;
 }
 
-static const struct hid_api hid_api = {
-	.update_buffers = update_buffers,
-	.has_updates = has_updates,
-	.get_report = get_report,
-};
-
 #define HID_REPORT_BYTE(node_id, prop, idx) \
 	DT_PROP_BY_IDX(node_id, prop, idx),
 
@@ -267,7 +261,6 @@ static const struct hid_api hid_api = {
 											\
 	DEVICE_DT_INST_DEFINE(n, hid_init, NULL,					\
 			      &hid_data_##n, &hid_cfg_##n,				\
-			      POST_KERNEL, 55,						\
-			      &hid_api);
+			      POST_KERNEL, 55, NULL);
 
 DT_INST_FOREACH_STATUS_OKAY(HID_INIT)
