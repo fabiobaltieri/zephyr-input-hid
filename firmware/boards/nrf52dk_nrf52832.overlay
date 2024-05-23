@@ -6,7 +6,7 @@
 			zephyr,code = <INPUT_KEY_A>;
 		};
 		button_1 {
-			zephyr,code = <INPUT_BTN_LEFT>;
+			zephyr,code = <INPUT_BTN_NORTH>;
 		};
 		/delete-node/ button_2;
 		/delete-node/ button_3;
@@ -16,7 +16,7 @@
 		compatible = "gpio-keys";
 		button2: button_2 {
 			gpios = <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_KEY_C>;
+			zephyr,code = <INPUT_BTN_LEFT>;
 		};
 		button3: button_3 {
 			gpios = <&gpio0 16 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
@@ -50,11 +50,28 @@
 	hid2 {
 		compatible = "hid";
 		input {
-			hid-kbd2 {
-				compatible = "hid-kbd";
+			hid-gamepad {
+				compatible = "hid-gamepad";
+				input = <&buttons>;
+				input-id = <1>;
+				report = <HID_GAMEPAD_REPORT(1)>;
+			};
+		};
+		output {
+			hid-hog2 {
+				compatible = "hid-hog";
+			};
+		};
+	};
+
+	hid3 {
+		compatible = "hid";
+		input {
+			hid-gamepad {
+				compatible = "hid-gamepad";
 				input = <&buttons_2>;
-				input-id = <3>;
-				report = <HID_KBD_REPORT(3)>;
+				input-id = <1>;
+				report = <HID_GAMEPAD_REPORT(1)>;
 			};
 		};
 		output {
