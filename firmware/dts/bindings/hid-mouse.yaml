@@ -1,0 +1,5 @@
+description: HID Mouse node
+
+compatible: "hid-mouse"
+
+include: hid-common.yaml

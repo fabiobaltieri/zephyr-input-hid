@@ -205,6 +205,8 @@ static int get_report(const struct device *dev,
 
 		entry->updated = false;
 
+		hid_clear_rel(entry->input_dev, entry->data, entry->size);
+
 		break;
 	}
 
