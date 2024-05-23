@@ -114,6 +114,8 @@ static void update_buffers(const struct device *dev,
 	for (uint8_t i = 0; i < cfg->output_dev_count; i++) {
 		const struct device *output_dev = cfg->output_dev[i];
 		struct hid_report_cache *entry;
+		uint8_t last_data[CACHE_SIZE];
+		uint8_t last_size;
 
 		k_sem_take(&data->lock, K_FOREVER);
 
@@ -122,15 +124,26 @@ static void update_buffers(const struct device *dev,
 			continue;
 		}
 
+		last_size = entry->size;
+		if (last_size > 0) {
+			memcpy(last_data, entry->data, last_size);
+		}
+
 		size = cb(input_dev, entry->data, CACHE_SIZE, user_data);
 		if (size < 0) {
 			LOG_ERR("%s cb error: %d", input_dev->name, size);
 		}
 
-		entry->size = size;
+		if (size == last_size &&
+		    memcmp(last_data, entry->data, size) == 0) {
+			LOG_DBG("%s %d no change", input_dev->name, input_id);
+			goto unlock;
+		}
 
+		entry->size = size;
 		entry->updated = true;
 
+unlock:
 		k_sem_give(&data->lock);
 	}
 
