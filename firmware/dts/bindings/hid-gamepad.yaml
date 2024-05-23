@@ -1,0 +1,5 @@
+description: HID gamepad node
+
+compatible: "hid-gamepad"
+
+include: hid-common.yaml
