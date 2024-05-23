@@ -1,0 +1,47 @@
+#include <dt-bindings/hid.h>
+
+/ {
+	buttons: buttons {
+		button_0 {
+			zephyr,code = <INPUT_BTN_NORTH>;
+		};
+	};
+	hid {
+		compatible = "hid";
+		input {
+			hid-kbd {
+				compatible = "hid-kbd";
+				input = <&buttons>;
+				input-id = <1>;
+				report = <HID_KBD_REPORT(1)>;
+			};
+			hid-mouse {
+				compatible = "hid-mouse";
+				input = <&buttons>;
+				input-id = <2>;
+				report = <HID_MOUSE_REPORT(2)>;
+			};
+		};
+		output {
+			usb-hid {
+				compatible = "usb-hid";
+			};
+		};
+	};
+	hid1 {
+		compatible = "hid";
+		input {
+			hid-gamepad {
+				compatible = "hid-gamepad";
+				input = <&buttons>;
+				input-id = <1>;
+				report = <HID_GAMEPAD_REPORT(1)>;
+			};
+		};
+		output {
+			usb-hid {
+				compatible = "usb-hid";
+			};
+		};
+	};
+};
