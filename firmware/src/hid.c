@@ -189,6 +189,14 @@ int hid_get_report(const struct device *dev,
 	return out;
 }
 
+void hid_out_report(const struct device *dev,
+		    uint8_t report_id,
+		    const uint8_t *buf,
+		    uint8_t len)
+{
+	LOG_INF("%d %d", report_id, len);
+}
+
 static int hid_init(const struct device *dev)
 {
 	struct hid_data *data = dev->data;

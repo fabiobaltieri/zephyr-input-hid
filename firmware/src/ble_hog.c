@@ -128,13 +128,16 @@ static __maybe_unused ssize_t write_output_report(
 	}
 
 	const struct hids_report *hids_report = next_attr->user_data;
+	const struct device *dev = hids_report->dev;
+	const struct ble_hog_config *cfg = dev->config;
 
 	if (offset != 0) {
 		LOG_ERR("unsupported offset: %d", offset);
 		return len;
 	}
 
-	LOG_INF("report write: %d %d", hids_report->report.id, len);
+	hid_out_report(cfg->hid_dev, hids_report->report.id, buf, len);
+
 	return len;
 }
 

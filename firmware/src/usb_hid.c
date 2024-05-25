@@ -80,6 +80,7 @@ static void int_in_ready_cb(const struct device *dev)
 
 static void int_out_ready_cb(const struct device *dev)
 {
+	const struct usb_hid_config *cfg = dev->config;
 	char buf[USB_HID_REPORT_BUF_SIZE];
 	uint32_t len;
 	int ret;
@@ -95,7 +96,7 @@ static void int_out_ready_cb(const struct device *dev)
 		return;
 	}
 
-	LOG_INF("report write: %d %d", buf[0], len - 1);
+	hid_out_report(cfg->hid_dev, buf[0], &buf[1], len - 1);
 }
 
 static const struct hid_ops usb_hid_ops = {
