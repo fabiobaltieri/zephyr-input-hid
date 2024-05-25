@@ -151,9 +151,7 @@ unlock:
 
 int hid_get_report(const struct device *dev,
 		   const struct device *output_dev,
-		   uint8_t *report_id,
-		   uint8_t *buf,
-		   uint8_t size)
+		   uint8_t *report_id, uint8_t *buf, uint8_t size)
 {
 	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
@@ -190,9 +188,7 @@ int hid_get_report(const struct device *dev,
 }
 
 void hid_out_report(const struct device *dev,
-		    uint8_t report_id,
-		    const uint8_t *buf,
-		    uint8_t len)
+		    uint8_t report_id, const uint8_t *buf, uint8_t len)
 {
 	LOG_INF("%d %d", report_id, len);
 }

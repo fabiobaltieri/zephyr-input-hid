@@ -17,14 +17,10 @@ void hid_update_buffers(const struct device *dev,
 
 int hid_get_report(const struct device *dev,
 		   const struct device *output_dev,
-		   uint8_t *report_id,
-		   uint8_t *buf,
-		   uint8_t size);
+		   uint8_t *report_id, uint8_t *buf, uint8_t size);
 
 void hid_out_report(const struct device *dev,
-		    uint8_t report_id,
-		    const uint8_t *buf,
-		    uint8_t len);
+		    uint8_t report_id, const uint8_t *buf, uint8_t len);
 
 __subsystem struct hid_input_api {
 	int (*clear_rel)(const struct device *dev,
