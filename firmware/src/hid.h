@@ -25,6 +25,8 @@ void hid_out_report(const struct device *dev,
 __subsystem struct hid_input_api {
 	int (*clear_rel)(const struct device *dev,
 			 uint8_t *buf, uint8_t len);
+	int (*out_report)(const struct device *dev,
+			  uint8_t report_id, const uint8_t *buf, uint8_t len);
 };
 
 static inline int hid_clear_rel(const struct device *dev,
@@ -37,6 +39,18 @@ static inline int hid_clear_rel(const struct device *dev,
 	};
 
 	return api->clear_rel(dev, buf, len);
+}
+
+static inline int hid_input_out_report(const struct device *dev,
+				       uint8_t report_id, const uint8_t *buf, uint8_t len)
+{
+	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
+
+	if (api == NULL || api->out_report == NULL) {
+		return -ENOSYS;
+	};
+
+	return api->out_report(dev, report_id, buf, len);
 }
 
 __subsystem struct hid_output_api {

@@ -21,6 +21,11 @@ struct hid_report_cache {
 	bool updated;
 };
 
+struct hid_out_report {
+	const struct device *dev;
+	uint8_t report_id;
+};
+
 struct hid_config {
 	const uint8_t *report_map;
 	uint16_t report_map_len;
@@ -28,6 +33,8 @@ struct hid_config {
 	uint8_t output_dev_count;
 	struct hid_report_cache *cache;
 	uint8_t cache_len;
+	const struct hid_out_report *out_report;
+	uint8_t out_report_len;
 };
 
 struct hid_data {
@@ -190,7 +197,25 @@ int hid_get_report(const struct device *dev,
 void hid_out_report(const struct device *dev,
 		    uint8_t report_id, const uint8_t *buf, uint8_t len)
 {
-	LOG_INF("%d %d", report_id, len);
+	const struct hid_config *cfg = dev->config;
+	int ret;
+
+	for (uint8_t i = 0; i < cfg->out_report_len; i++) {
+		const struct hid_out_report *out_report = &cfg->out_report[i];
+
+		if (out_report->report_id != report_id) {
+			continue;
+		}
+
+		ret = hid_input_out_report(out_report->dev, report_id, buf, len);
+		if (ret < 0) {
+			LOG_WRN("out report %d handler error: %d", report_id, ret);
+		}
+
+		return;
+	}
+
+	LOG_WRN("unhandled report id: %d", report_id);
 }
 
 static int hid_init(const struct device *dev)
@@ -213,6 +238,16 @@ static int hid_init(const struct device *dev)
 
 #define INPUT_LEN(node_id) DT_PROP_LEN(node_id, input_id)
 
+#define OUT_REPORT_INIT(node_id, prop, idx) { \
+	.dev = DEVICE_DT_GET(node_id), \
+	.report_id = DT_PROP_BY_IDX(node_id, prop, idx), \
+},
+
+#define OUT_REPORT(node_id) \
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, output_id), ( \
+	DT_FOREACH_PROP_ELEM(node_id, output_id, OUT_REPORT_INIT) \
+	))
+
 #define HID_INIT(n)									\
 	static const uint8_t hid_report_map_##n[] = {					\
 		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), HID_REPORT_DEVICE)		\
@@ -220,6 +255,10 @@ static int hid_init(const struct device *dev)
 											\
 	static const struct device *hid_output_dev_##n[] = {				\
 		DT_FOREACH_CHILD_SEP(DT_INST_CHILD(n, output), DEVICE_DT_GET, (,))	\
+	};										\
+											\
+	static const struct hid_out_report hid_out_report_##n[] = {			\
+		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), OUT_REPORT)			\
 	};										\
 											\
 	static struct hid_report_cache hid_report_cache_##n[				\
@@ -233,6 +272,8 @@ static int hid_init(const struct device *dev)
 		.output_dev_count = ARRAY_SIZE(hid_output_dev_##n),			\
 		.cache = hid_report_cache_##n,						\
 		.cache_len = ARRAY_SIZE(hid_report_cache_##n),				\
+		.out_report = hid_out_report_##n,					\
+		.out_report_len = ARRAY_SIZE(hid_out_report_##n),			\
 	};										\
 											\
 	static struct hid_data hid_data_##n;						\

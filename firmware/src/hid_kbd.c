@@ -33,6 +33,7 @@ struct hid_kbd_report_nkro {
 struct hid_kbd_config {
 	const struct device *hid_dev;
 	uint8_t input_id;
+	uint8_t output_id;
 	struct hid_kbd_report_data *report_data;
 };
 
@@ -161,6 +162,30 @@ static void hid_kbd_cb(const struct device *dev, struct input_event *evt)
 	}
 }
 
+static int hid_kbd_out_report(const struct device *dev,
+			      uint8_t report_id, const uint8_t *buf, uint8_t len)
+{
+	const struct hid_kbd_config *cfg = dev->config;
+
+	if (cfg->output_id == 0) {
+		LOG_ERR("output-id not set");
+		return -ENOSYS;
+	}
+
+	if (report_id != cfg->output_id) {
+		LOG_ERR("invalid report_id: %d", report_id);
+		return -EINVAL;
+	}
+
+	LOG_INF("%d %d", report_id, len);
+
+	return 0;
+}
+
+static const struct hid_input_api hid_kbd_api = {
+	.out_report = hid_kbd_out_report,
+};
+
 #define HID_KBD_DEFINE(inst)								\
 	static void hid_kbd_cb_##inst(struct input_event *evt)				\
 	{										\
@@ -176,12 +201,15 @@ static void hid_kbd_cb(const struct device *dev, struct input_event *evt)
 	static const struct hid_kbd_config hid_kbd_config_##inst = {			\
 		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(inst)),			\
 		.input_id = DT_INST_PROP_BY_IDX(inst, input_id, 0),			\
+		IF_ENABLED(DT_INST_NODE_HAS_PROP(inst, output_id), (			\
+		.output_id = DT_INST_PROP_BY_IDX(inst, output_id, 0),			\
+		))									\
 		COND_CODE_1(DT_INST_PROP(inst, nkro), (), (				\
 		.report_data = &hid_kbd_report_data_##inst,				\
 		))									\
 	};										\
 											\
 	DEVICE_DT_INST_DEFINE(inst, NULL, NULL, NULL, &hid_kbd_config_##inst,		\
-			      POST_KERNEL, CONFIG_INPUT_INIT_PRIORITY, NULL);
+			      POST_KERNEL, CONFIG_INPUT_INIT_PRIORITY, &hid_kbd_api);
 
 DT_INST_FOREACH_STATUS_OKAY(HID_KBD_DEFINE)
