@@ -1,9 +1,12 @@
 menu "Application"
 
-config KBD_HID_NKRO
-	bool "Use NKRO HID protocol"
-
 endmenu
+
+configdefault INPUT_SHELL
+	default y
+
+configdefault INPUT_SHELL_KBD_MATRIX_STATE
+	default y
 
 if BT
 
