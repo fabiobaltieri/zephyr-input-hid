@@ -120,6 +120,21 @@ static __maybe_unused ssize_t write_output_report(
 		const void *buf,
 		uint16_t len, uint16_t offset, uint8_t flags)
 {
+	const struct bt_gatt_attr *next_attr = attr + 1;
+
+	if (next_attr->read != read_report) {
+		LOG_ERR("invalid next_attr: %p", next_attr);
+		return len;
+	}
+
+	const struct hids_report *hids_report = next_attr->user_data;
+
+	if (offset != 0) {
+		LOG_ERR("unsupported offset: %d", offset);
+		return len;
+	}
+
+	LOG_INF("report write: %d %d", hids_report->report.id, len);
 	return len;
 }
 

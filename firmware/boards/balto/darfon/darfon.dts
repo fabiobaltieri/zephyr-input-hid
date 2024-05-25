@@ -214,7 +214,7 @@
 				compatible = "hid-kbd";
 				input = <&keymap>;
 				input-id = <1>;
-				report = <HID_KBD_REPORT(1)>;
+				report = <HID_KBD_REPORT(1, 0)>;
 			};
 		};
 		output {

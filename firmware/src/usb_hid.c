@@ -76,11 +76,32 @@ static void int_in_ready_cb(const struct device *dev)
 	hid_output_notify(usb_hid_devs[i]);
 }
 
+#define USB_HID_REPORT_BUF_SIZE 32
+
+static void int_out_ready_cb(const struct device *dev)
+{
+	char buf[USB_HID_REPORT_BUF_SIZE];
+	uint32_t len;
+	int ret;
+
+	ret = hid_int_ep_read(dev, buf, sizeof(buf), &len);
+	if (ret) {
+		LOG_ERR("HID read error, %d", ret);
+		return;
+	}
+
+	if (len < 1) {
+		LOG_ERR("short write");
+		return;
+	}
+
+	LOG_INF("report write: %d %d", buf[0], len - 1);
+}
+
 static const struct hid_ops usb_hid_ops = {
 	.int_in_ready = int_in_ready_cb,
+	.int_out_ready = int_out_ready_cb,
 };
-
-#define USB_HID_REPORT_BUF_SIZE 32
 
 static void usb_hid_notify(const struct device *dev)
 {

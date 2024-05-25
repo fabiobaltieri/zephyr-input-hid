@@ -22,7 +22,18 @@
 #define HID_KBD_REPORT_TRAILER							\
 	0xc0				/* End Collection */
 
-#define HID_KBD_REPORT(id)							\
+#define HID_KBD_REPORT_LED							\
+	0x05 0x08			/*  Usage Page (LEDs) */		\
+	0x19 0x01			/*  Usage Minimum (1) */		\
+	0x29 0x05			/*  Usage Maximum (5) */		\
+	0x95 0x05			/*  Report Count (5) */			\
+	0x75 0x01			/*  Report Size (1) */			\
+	0x91 0x02			/*  Output (Data,Var,Abs) */		\
+	0x95 0x01			/*  Report Count (1) */			\
+	0x75 0x03			/*  Report Size (3) */			\
+	0x91 0x01			/*  Output (Cnst,Arr,Abs) */		\
+
+#define HID_KBD_REPORT(id, led)							\
 	HID_KBD_REPORT_HEADER(id)						\
 	0x19 0x00			/*  Usage Minimum (0) */		\
 	0x29 0xff			/*  Usage Maximum (255) */		\
@@ -31,9 +42,10 @@
 	0x95 HID_KBD_KEYS_CODES_SIZE	/*  Report Count () */			\
 	0x75 0x08			/*  Report Size (8) */			\
 	0x81 0x00			/*  Input (Data,Arr,Abs) */		\
+	IF_ENABLED(led, (HID_KBD_REPORT_LED))					\
 	HID_KBD_REPORT_TRAILER
 
-#define HID_KBD_REPORT_NKRO(id)							\
+#define HID_KBD_REPORT_NKRO(id, led)						\
 	HID_KBD_REPORT_HEADER(id)						\
 	0x19 0x00			/*  Usage Minimum (0) */		\
 	0x29 0x7f			/*  Usage Maximum (127) */		\
@@ -42,6 +54,7 @@
 	0x95 0x80			/*  Report Count (128) */		\
 	0x75 0x01			/*  Report Size (1) */			\
 	0x81 0x02			/*  Input (Data,Var,Abs) */		\
+	IF_ENABLED(led, (HID_KBD_REPORT_LED))					\
 	HID_KBD_REPORT_TRAILER
 
 #define HID_MOUSE_REPORT(id)					\

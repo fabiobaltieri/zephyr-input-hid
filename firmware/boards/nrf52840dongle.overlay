@@ -13,7 +13,8 @@
 				compatible = "hid-kbd";
 				input = <&buttons>;
 				input-id = <1>;
-				report = <HID_KBD_REPORT(1)>;
+				output-id = <1>;
+				report = <HID_KBD_REPORT(1, 1)>;
 			};
 			hid-mouse {
 				compatible = "hid-mouse";
