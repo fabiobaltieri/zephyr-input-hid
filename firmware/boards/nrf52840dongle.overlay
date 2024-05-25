@@ -3,7 +3,7 @@
 / {
 	buttons: buttons {
 		button_0 {
-			zephyr,code = <INPUT_BTN_NORTH>;
+			zephyr,code = <INPUT_KEY_A>;
 		};
 	};
 	hid {
