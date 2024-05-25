@@ -149,31 +149,6 @@ unlock:
 	k_work_schedule(&data->notify_dwork, K_USEC(100));
 }
 
-bool hid_has_updates(const struct device *dev,
-		     const struct device *output_dev)
-{
-	const struct hid_config *cfg = dev->config;
-	struct hid_data *data = dev->data;
-	bool out = false;
-
-	k_sem_take(&data->lock, K_FOREVER);
-
-	for (uint8_t i = 0; i < cfg->cache_len; i++) {
-		struct hid_report_cache *entry = &cfg->cache[i];
-
-		if (entry->output_dev != output_dev || !entry->updated) {
-			continue;
-		}
-
-		out = true;
-		break;
-	}
-
-	k_sem_give(&data->lock);
-
-	return out;
-}
-
 int hid_get_report(const struct device *dev,
 		   const struct device *output_dev,
 		   uint8_t *report_id,
@@ -182,7 +157,7 @@ int hid_get_report(const struct device *dev,
 {
 	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
-	int out = -EINVAL;
+	int out = -EAGAIN;
 
 	k_sem_take(&data->lock, K_FOREVER);
 

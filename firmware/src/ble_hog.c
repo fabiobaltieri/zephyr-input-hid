@@ -264,12 +264,10 @@ static void ble_hog_notify(const struct device *dev)
 		return;
 	}
 
-	if (!hid_has_updates(cfg->hid_dev, dev)) {
-		return;
-	}
-
 	size = hid_get_report(cfg->hid_dev, dev, &report_id, buf, sizeof(buf));
-	if (size < 0) {
+	if (size == -EAGAIN) {
+		return;
+	} else if (size < 0) {
 		LOG_ERR("get_report error: %d", size);
 		return;
 	}

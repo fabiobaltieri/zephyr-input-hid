@@ -15,9 +15,6 @@ void hid_update_buffers(const struct device *dev,
 			update_buffers_cb_t cb,
 			void *user_data);
 
-bool hid_has_updates(const struct device *dev,
-		     const struct device *output_dev);
-
 int hid_get_report(const struct device *dev,
 		   const struct device *output_dev,
 		   uint8_t *report_id,
