@@ -131,13 +131,16 @@ static const struct hid_input_api hid_mouse_api = {
 	.clear_rel = hid_mouse_clear_rel,
 };
 
-#define HID_MOUSE_DEFINE(inst)								\
-	static void hid_mouse_cb_##inst(struct input_event *evt)			\
+#define HID_MOUSE_INPUT_CB(node_id, prop, idx, inst) \
+	static void hid_mouse_cb_##inst##_##idx(struct input_event *evt)		\
 	{										\
-		hid_mouse_cb(DEVICE_DT_INST_GET(inst), evt);				\
+		hid_mouse_cb(DEVICE_DT_GET(node_id), evt);				\
 	}										\
-	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_INST_PHANDLE(inst, input)),	\
-			      hid_mouse_cb_##inst);					\
+	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
+			      hid_mouse_cb_##inst##_##idx);
+
+#define HID_MOUSE_DEFINE(inst)								\
+	DT_INST_FOREACH_PROP_ELEM_VARGS(inst, input, HID_MOUSE_INPUT_CB, inst)		\
 											\
 	static const struct hid_mouse_config hid_mouse_config_##inst = {		\
 		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(inst)),			\
