@@ -54,7 +54,7 @@ static int global_usb_enable(void)
 }
 SYS_INIT(global_usb_enable, APPLICATION, 0);
 
-static void int_in_ready_cb(const struct device *dev)
+static const struct device *find_hid_dev(const struct device *dev)
 {
 	struct usb_hid_data *data;
 	uint8_t i;
@@ -62,28 +62,48 @@ static void int_in_ready_cb(const struct device *dev)
 	for (i = 0; i < USB_HID_DEV_COUNT; i++) {
 		data = usb_hid_devs[i]->data;
 		if (data->usb_hid_dev == dev) {
-			break;
+			return usb_hid_devs[i];
 		}
 	}
 
-	if (i == USB_HID_DEV_COUNT) {
-		LOG_ERR("unknown hid device for %s", dev->name);
+	LOG_ERR("unknown hid device for %s", dev->name);
+
+	return NULL;
+}
+
+static void int_in_ready_cb(const struct device *dev)
+{
+	const struct device *hid_dev;
+	struct usb_hid_data *data;
+
+	hid_dev = find_hid_dev(dev);
+	if (hid_dev == NULL) {
 		return;
 	}
 
+	data = hid_dev->data;
+
 	data->busy = false;
 
-	hid_output_notify(usb_hid_devs[i]);
+	hid_output_notify(hid_dev);
 }
 
 #define USB_HID_REPORT_BUF_SIZE 32
 
 static void int_out_ready_cb(const struct device *dev)
 {
-	const struct usb_hid_config *cfg = dev->config;
+	const struct device *hid_dev;
+	const struct usb_hid_config *cfg;
 	char buf[USB_HID_REPORT_BUF_SIZE];
 	uint32_t len;
 	int ret;
+
+	hid_dev = find_hid_dev(dev);
+	if (hid_dev == NULL) {
+		return;
+	}
+
+	cfg = hid_dev->config;
 
 	ret = hid_int_ep_read(dev, buf, sizeof(buf), &len);
 	if (ret) {
