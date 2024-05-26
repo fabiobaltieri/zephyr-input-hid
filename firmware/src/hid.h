@@ -29,6 +29,13 @@ __subsystem struct hid_input_api {
 			  uint8_t report_id, const uint8_t *buf, uint8_t len);
 };
 
+static inline int hid_has_clear_rel(const struct device *dev)
+{
+	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
+
+	return api != NULL && api->clear_rel != NULL;
+}
+
 static inline int hid_clear_rel(const struct device *dev,
 				uint8_t *buf, uint8_t len)
 {

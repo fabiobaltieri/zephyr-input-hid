@@ -116,6 +116,7 @@ void hid_update_buffers(const struct device *dev,
 	const struct hid_config *cfg = dev->config;
 	struct hid_data *data = dev->data;
 	int size;
+	struct hid_report_cache *first_entry = NULL;
 
 	for (uint8_t i = 0; i < cfg->output_dev_count; i++) {
 		const struct device *output_dev = cfg->output_dev[i];
@@ -135,9 +136,17 @@ void hid_update_buffers(const struct device *dev,
 			memcpy(last_data, entry->data, last_size);
 		}
 
-		size = cb(input_dev, entry->data, CACHE_SIZE, user_data);
-		if (size < 0) {
-			LOG_ERR("%s cb error: %d", input_dev->name, size);
+		if (first_entry == NULL || hid_has_clear_rel(input_dev)) {
+			LOG_DBG("update %s", output_dev->name);
+			size = cb(input_dev, entry->data, CACHE_SIZE, user_data);
+			if (size < 0) {
+				LOG_ERR("%s cb error: %d", input_dev->name, size);
+			}
+			first_entry = entry;
+		} else {
+			LOG_DBG("copy %s %s", output_dev->name, first_entry->output_dev->name);
+			memcpy(entry->data, first_entry->data, first_entry->size);
+			size = first_entry->size;
 		}
 
 		if (size == last_size &&
