@@ -133,7 +133,7 @@ static __maybe_unused ssize_t write_output_report(
 
 	if (offset != 0) {
 		LOG_ERR("unsupported offset: %d", offset);
-		return len;
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
 	}
 
 	hid_out_report(cfg->hid_dev, hids_report->report.id, buf, len);
