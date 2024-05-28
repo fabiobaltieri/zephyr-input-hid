@@ -119,9 +119,44 @@ static void int_out_ready_cb(const struct device *dev)
 	hid_out_report(cfg->hid_dev, buf[0], &buf[1], len - 1);
 }
 
+static int get_report_cb(const struct device *dev,
+			 struct usb_setup_packet *setup,
+			 int32_t *len, uint8_t **data)
+{
+	LOG_WRN("%s unimplemented", __func__);
+	return 0;
+}
+
+static int set_report_cb(const struct device *dev,
+			 struct usb_setup_packet *setup,
+			 int32_t *len, uint8_t **data)
+{
+	const struct device *hid_dev;
+	const struct usb_hid_config *cfg;
+	uint8_t report_id = setup->wValue & 0xff;
+	uint8_t *buf = *data;
+
+	if (report_id != buf[0]) {
+		LOG_ERR("set report id error %d != %d", report_id, buf[0]);
+	}
+
+	hid_dev = find_hid_dev(dev);
+	if (hid_dev == NULL) {
+		return 0;
+	}
+
+	cfg = hid_dev->config;
+
+	hid_out_report(cfg->hid_dev, buf[0], &buf[1], *len - 1);
+
+	return 0;
+}
+
 static const struct hid_ops usb_hid_ops = {
 	.int_in_ready = int_in_ready_cb,
 	.int_out_ready = int_out_ready_cb,
+	.get_report = get_report_cb,
+	.set_report = set_report_cb,
 };
 
 static void usb_hid_notify(const struct device *dev)
