@@ -6,6 +6,7 @@
 			zephyr,code = <INPUT_KEY_A>;
 		};
 	};
+
 	hid {
 		compatible = "hid";
 		input {
@@ -66,3 +67,5 @@
 		in-polling-rate = <1000>;
 	};
 };
+
+led_input_blink: &led1_red {};

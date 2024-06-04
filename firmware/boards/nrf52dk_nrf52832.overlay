@@ -91,6 +91,8 @@
 	 };
 };
 
+led_input_blink: &led0 {};
+
 &i2c0 {
 	status = "disabled";
 };
