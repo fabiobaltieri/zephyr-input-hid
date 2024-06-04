@@ -5,3 +5,8 @@ compatible: "usb-hid"
 on-bus: hid
 
 include: base.yaml
+
+properties:
+  usb-hid-dev:
+    type: phandle
+    required: true

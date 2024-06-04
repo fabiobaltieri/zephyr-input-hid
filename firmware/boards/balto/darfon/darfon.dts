@@ -214,14 +214,26 @@
 				compatible = "hid-kbd";
 				input = <&keymap>;
 				input-id = <1>;
-				report = <HID_KBD_REPORT(1, 0)>;
+				output-id = <1>;
+				report = <HID_KBD_REPORT(1, 1)>;
 			};
 		};
 		output {
 			usb-hid {
 				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_0>;
 			};
 		};
+	};
+
+	hid_dev_0: hid_dev_0 {
+		compatible = "zephyr,hid-device";
+		interface-name = "HID0";
+		protocol-code = "keyboard";
+		in-report-size = <16>;
+		in-polling-rate = <500>;
+		out-report-size = <8>;
+		out-polling-rate = <200>;
 	};
 };
 

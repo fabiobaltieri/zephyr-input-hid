@@ -26,9 +26,11 @@
 		output {
 			usb-hid {
 				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_0>;
 			};
 		};
 	};
+
 	hid1 {
 		compatible = "hid";
 		input {
@@ -42,7 +44,25 @@
 		output {
 			usb-hid {
 				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_1>;
 			};
 		};
+	};
+
+	hid_dev_0: hid_dev_0 {
+		compatible = "zephyr,hid-device";
+		interface-name = "HID0";
+		protocol-code = "keyboard";
+		in-report-size = <16>;
+		in-polling-rate = <500>;
+		out-report-size = <8>;
+		out-polling-rate = <200>;
+	};
+
+	hid_dev_1: hid_dev_1 {
+		compatible = "zephyr,hid-device";
+		interface-name = "HID1";
+		in-report-size = <32>;
+		in-polling-rate = <1000>;
 	};
 };
