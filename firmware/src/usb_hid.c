@@ -171,12 +171,6 @@ static void usb_hid_notify(const struct device *dev)
 		return;
 	}
 
-	/* TODO: figure this out
-	if (suspended) {
-		usbd_wakeup_request();
-	}
-	*/
-
 	size = hid_get_report(cfg->hid_dev, dev, &data->buf[0], &data->buf[1], USB_HID_REPORT_BUF_SIZE);
 	if (size == -EAGAIN) {
 		return;
