@@ -1,5 +1,13 @@
 menu "Application"
 
+config APP_MANUFACTURER_NAME
+	string "Manufacturer name"
+	default "Zephyr"
+
+config APP_DEVICE_NAME
+	string "Device name"
+	default "zephyr-input"
+
 endmenu
 
 configdefault INPUT_SHELL
@@ -17,7 +25,7 @@ config BT_DEVICE_APPEARANCE
 	default 961
 
 config BT_DEVICE_NAME
-	default "zephyr-keyboard"
+	default APP_DEVICE_NAME
 
 config BT_PERIPHERAL
 	default y

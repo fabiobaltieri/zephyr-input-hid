@@ -15,19 +15,15 @@ USBD_DEVICE_DEFINE(sample_usbd,
 		   USBD_VID, USBD_PID);
 
 USBD_DESC_LANG_DEFINE(sample_lang);
-USBD_DESC_MANUFACTURER_DEFINE(sample_mfr, "Zephyr");
-USBD_DESC_PRODUCT_DEFINE(sample_product, "zephyr-input");
+USBD_DESC_MANUFACTURER_DEFINE(sample_mfr, CONFIG_APP_MANUFACTURER_NAME);
+USBD_DESC_PRODUCT_DEFINE(sample_product, CONFIG_APP_DEVICE_NAME);
 USBD_DESC_SERIAL_NUMBER_DEFINE(sample_sn);
 
 static const uint8_t attributes = USB_SCD_REMOTE_WAKEUP;
 
-USBD_CONFIGURATION_DEFINE(sample_fs_config,
-			  attributes,
-			  USBD_MAX_POWER);
+USBD_CONFIGURATION_DEFINE(sample_fs_config, attributes, USBD_MAX_POWER);
 
-USBD_CONFIGURATION_DEFINE(sample_hs_config,
-			  attributes,
-			  USBD_MAX_POWER);
+USBD_CONFIGURATION_DEFINE(sample_hs_config, attributes, USBD_MAX_POWER);
 
 static int register_fs_classes(struct usbd_context *uds_ctx)
 {
@@ -36,12 +32,9 @@ static int register_fs_classes(struct usbd_context *uds_ctx)
 	STRUCT_SECTION_FOREACH_ALTERNATE(usbd_class_fs, usbd_class_node, c_nd) {
 		err = usbd_register_class(uds_ctx, c_nd->c_data->name, USBD_SPEED_FS, 1);
 		if (err) {
-			LOG_ERR("Failed to register FS %s (%d)",
-				c_nd->c_data->name, err);
+			LOG_ERR("Failed to register FS %s (%d)", c_nd->c_data->name, err);
 			return err;
 		}
-
-		LOG_DBG("Register FS %s", c_nd->c_data->name);
 	}
 
 	return 0;
@@ -54,12 +47,9 @@ static int register_hs_classes(struct usbd_context *uds_ctx)
 	STRUCT_SECTION_FOREACH_ALTERNATE(usbd_class_hs, usbd_class_node, c_nd) {
 		err = usbd_register_class(uds_ctx, c_nd->c_data->name, USBD_SPEED_HS, 1);
 		if (err) {
-			LOG_ERR("Failed to register HS %s (%d)",
-				c_nd->c_data->name, err);
+			LOG_ERR("Failed to register HS %s (%d)", c_nd->c_data->name, err);
 			return err;
 		}
-
-		LOG_DBG("Register HS %s", c_nd->c_data->name);
 	}
 
 	return 0;
@@ -90,8 +80,7 @@ static int sample_add_configuration(struct usbd_context *uds_ctx,
 	if (IS_ENABLED(CONFIG_USBD_CDC_ACM_CLASS) ||
 	    IS_ENABLED(CONFIG_USBD_CDC_ECM_CLASS) ||
 	    IS_ENABLED(CONFIG_USBD_AUDIO2_CLASS)) {
-		usbd_device_set_code_triple(uds_ctx, speed,
-					    USB_BCC_MISCELLANEOUS, 0x02, 0x01);
+		usbd_device_set_code_triple(uds_ctx, speed, USB_BCC_MISCELLANEOUS, 0x02, 0x01);
 	} else {
 		usbd_device_set_code_triple(uds_ctx, speed, 0, 0, 0);
 	}
@@ -128,16 +117,14 @@ struct usbd_context *usbd_init_device(void)
 	}
 
 	if (usbd_caps_speed(&sample_usbd) == USBD_SPEED_HS) {
-		err = sample_add_configuration(&sample_usbd, USBD_SPEED_HS,
-					       &sample_hs_config);
+		err = sample_add_configuration(&sample_usbd, USBD_SPEED_HS, &sample_hs_config);
 		if (err) {
 			LOG_ERR("Failed to add High-Speed configuration");
 			return NULL;
 		}
 	}
 
-	err = sample_add_configuration(&sample_usbd, USBD_SPEED_FS,
-				       &sample_fs_config);
+	err = sample_add_configuration(&sample_usbd, USBD_SPEED_FS, &sample_fs_config);
 	if (err) {
 		LOG_ERR("Failed to add Full-Speed configuration");
 		return NULL;
