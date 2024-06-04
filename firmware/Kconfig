@@ -10,10 +10,25 @@ config APP_DEVICE_NAME
 
 endmenu
 
-configdefault INPUT_SHELL
+config INPUT_SHELL
+	default y
+
+config INPUT_EVENT_DUMP
 	default y
 
 configdefault INPUT_SHELL_KBD_MATRIX_STATE
+	default y
+
+config I2C_SHELL
+	default y
+
+config LED_SHELL
+	default y
+
+config SETTINGS_SHELL
+	default y
+
+config PM_DEVICE_SHELL
 	default y
 
 if BT
