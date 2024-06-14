@@ -26,58 +26,8 @@ USBD_CONFIGURATION_DEFINE(app_usb_fs_config, attributes, USBD_MAX_POWER);
 
 USBD_CONFIGURATION_DEFINE(app_usb_hs_config, attributes, USBD_MAX_POWER);
 
-static int register_fs_classes(struct usbd_context *uds_ctx)
+static void fix_code_triple(struct usbd_context *uds_ctx, const enum usbd_speed speed)
 {
-	int err;
-
-	STRUCT_SECTION_FOREACH_ALTERNATE(usbd_class_fs, usbd_class_node, c_nd) {
-		err = usbd_register_class(uds_ctx, c_nd->c_data->name, USBD_SPEED_FS, 1);
-		if (err) {
-			LOG_ERR("Failed to register FS %s (%d)", c_nd->c_data->name, err);
-			return err;
-		}
-	}
-
-	return 0;
-}
-
-static int register_hs_classes(struct usbd_context *uds_ctx)
-{
-	int err;
-
-	STRUCT_SECTION_FOREACH_ALTERNATE(usbd_class_hs, usbd_class_node, c_nd) {
-		err = usbd_register_class(uds_ctx, c_nd->c_data->name, USBD_SPEED_HS, 1);
-		if (err) {
-			LOG_ERR("Failed to register HS %s (%d)", c_nd->c_data->name, err);
-			return err;
-		}
-	}
-
-	return 0;
-}
-
-static int app_usb_add_configuration(struct usbd_context *uds_ctx,
-				     const enum usbd_speed speed,
-				     struct usbd_config_node *config)
-{
-	int err;
-
-	err = usbd_add_configuration(uds_ctx, speed, config);
-	if (err) {
-		LOG_ERR("Failed to add configuration (%d)", err);
-		return err;
-	}
-
-	if (speed == USBD_SPEED_FS) {
-		err = register_fs_classes(uds_ctx);
-	} else if (speed == USBD_SPEED_HS) {
-		err = register_hs_classes(uds_ctx);
-	}
-
-	if (err) {
-		return err;
-	}
-
 	if (IS_ENABLED(CONFIG_USBD_CDC_ACM_CLASS) ||
 	    IS_ENABLED(CONFIG_USBD_CDC_ECM_CLASS) ||
 	    IS_ENABLED(CONFIG_USBD_AUDIO2_CLASS)) {
@@ -85,8 +35,6 @@ static int app_usb_add_configuration(struct usbd_context *uds_ctx,
 	} else {
 		usbd_device_set_code_triple(uds_ctx, speed, 0, 0, 0);
 	}
-
-	return 0;
 }
 
 struct usbd_context *usbd_init_device(void)
@@ -118,18 +66,34 @@ struct usbd_context *usbd_init_device(void)
 	}
 
 	if (usbd_caps_speed(&app_usbd) == USBD_SPEED_HS) {
-		err = app_usb_add_configuration(&app_usbd, USBD_SPEED_HS, &app_usb_hs_config);
+		err = usbd_add_configuration(&app_usbd, USBD_SPEED_HS, &app_usb_hs_config);
 		if (err) {
 			LOG_ERR("Failed to add High-Speed configuration");
 			return NULL;
 		}
+
+		err = usbd_register_all_classes(&app_usbd, USBD_SPEED_HS, 1);
+		if (err) {
+			LOG_ERR("Failed to add register classes");
+			return NULL;
+		}
+
+		fix_code_triple(&app_usbd, USBD_SPEED_HS);
 	}
 
-	err = app_usb_add_configuration(&app_usbd, USBD_SPEED_FS, &app_usb_fs_config);
+	err = usbd_add_configuration(&app_usbd, USBD_SPEED_FS, &app_usb_fs_config);
 	if (err) {
 		LOG_ERR("Failed to add Full-Speed configuration");
 		return NULL;
 	}
+
+	err = usbd_register_all_classes(&app_usbd, USBD_SPEED_FS, 1);
+	if (err) {
+		LOG_ERR("Failed to add register classes");
+		return NULL;
+	}
+
+	fix_code_triple(&app_usbd, USBD_SPEED_FS);
 
 	err = usbd_init(&app_usbd);
 	if (err) {
@@ -164,9 +128,9 @@ SYS_INIT(app_usbd_enable, APPLICATION, 0);
 #if 0
 static void input_resume_cb(struct input_event *evt)
 {
-        if (!evt->sync) {
-                return;
-        }
+	if (!evt->sync) {
+		return;
+	}
 
 	if (usbd_is_suspended(&app_usbd)) {
 		usbd_wakeup_request(&app_usbd);
