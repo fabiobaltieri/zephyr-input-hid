@@ -231,9 +231,9 @@
 		interface-name = "HID0";
 		protocol-code = "keyboard";
 		in-report-size = <16>;
-		in-polling-rate = <2000>;
+		in-polling-period-us = <2000>;
 		out-report-size = <8>;
-		out-polling-rate = <5000>;
+		out-polling-period-us = <5000>;
 	};
 };
 
