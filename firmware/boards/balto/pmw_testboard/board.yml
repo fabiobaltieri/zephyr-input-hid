@@ -1,0 +1,5 @@
+board:
+  name: pmw_testboard
+  vendor: balto
+  socs:
+    - name: nrf52833

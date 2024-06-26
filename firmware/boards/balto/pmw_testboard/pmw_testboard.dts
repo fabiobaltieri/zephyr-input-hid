@@ -1,0 +1,185 @@
+/dts-v1/;
+#include <nordic/nrf52833_qdaa.dtsi>
+#include "pmw_testboard-pinctrl.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <dt-bindings/hid.h>
+
+/ {
+	model = "PMW Testboard";
+	compatible = "balto,pmw-testboard";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_input_blink: led_b {
+			gpios = <&gpio0 18 GPIO_ACTIVE_HIGH>;
+		};
+		system: led_a {
+			gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	buttons: buttons {
+		compatible = "gpio-keys";
+		sw_a {
+			gpios = <&gpio0 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_LEFT>;
+		};
+		sw_b {
+			gpios = <&gpio0 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_MIDDLE>;
+		};
+		swc {
+			gpios = <&gpio0 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_RIGHT>;
+		};
+	};
+
+	vbatt: vbatt {
+		compatible = "voltage-divider";
+		io-channels = <&adc 0>;
+		output-ohms = <(560 * 1000)>;
+		full-ohms = <(560 * 1000 * 2)>;
+	};
+
+	hid {
+		compatible = "hid";
+		input {
+			hid-mouse {
+				compatible = "hid-mouse";
+				input = <&pmw &buttons>;
+				input-id = <1>;
+				report = <HID_MOUSE_REPORT(1)>;
+			};
+		};
+		output {
+			hid-hog {
+				compatible = "hid-hog";
+			};
+			usb-hid {
+				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_0>;
+			};
+		};
+	};
+
+	hid_dev_0: hid_dev_0 {
+		compatible = "zephyr,hid-device";
+		interface-name = "HID0";
+		in-report-size = <16>;
+		in-polling-period-us = <1000>;
+	};
+};
+
+&uicr {
+	nfct-pins-as-gpios;
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_6";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN2>;
+		zephyr,resolution = <10>;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&uart0 {
+	compatible = "nordic,nrf-uarte";
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	charger: bq25180@6a {
+		compatible = "ti,bq25180";
+		reg = <0x6a>;
+		constant-charge-current-max-microamp = <500000>;
+	};
+};
+
+&spi1 {
+	compatible = "nordic,nrf-spi";
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	cs-gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+
+	sensor: pmw: pmw3610@0 {
+		compatible = "pixart,pmw3610";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(2)>;
+		motion-gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+		zephyr,axis-x = <INPUT_REL_X>;
+		zephyr,axis-y = <INPUT_REL_Y>;
+		res-cpi = <800>;
+		invert-y;
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0xC000>;
+		};
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000C000 0x37000>;
+		};
+		slot1_partition: partition@43000 {
+			label = "image-1";
+			reg = <0x00043000 0x37000>;
+		};
+		storage_partition: partition@7a000 {
+			label = "storage";
+			reg = <0x0007A000 0x00006000>;
+		};
+	};
+};
+
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+};

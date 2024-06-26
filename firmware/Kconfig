@@ -8,6 +8,29 @@ config APP_DEVICE_NAME
 	string "Device name"
 	default "zephyr-input"
 
+config APP_BAS_ADC
+	bool "BAS Vbatt ADC support"
+	default y
+	depends on "$(dt_nodelabel_enabled,vbatt)"
+	select ADC
+	select BT_BAS
+
+config APP_CHARGER
+	bool "Charger support"
+	default y
+	depends on "$(dt_nodelabel_enabled,charger)"
+	select CHARGER
+
+config APP_BLINKER
+	bool "Blinker support"
+	default y
+	depends on "$(dt_nodelabel_enabled,system)"
+	select LED
+
+config APP_BLE_UNPAIR
+	bool "Left-right unpair support"
+	depends on BT
+
 endmenu
 
 config INPUT_SHELL
