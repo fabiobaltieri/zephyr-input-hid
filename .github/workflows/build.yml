@@ -17,7 +17,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board: [kbd_matrix, darfon, nrf52dk/nrf52832, nrf52840dongle, pmw_testboard]
+        board: 
+          - kbd_matrix
+          - darfon
+          - nrf52dk/nrf52832
+          - nrf52840dongle
+          - pmw_testboard
+          - paw_testboard
 
     steps:
       - name: Checkout
