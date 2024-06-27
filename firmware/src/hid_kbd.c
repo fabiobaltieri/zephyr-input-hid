@@ -186,13 +186,16 @@ static const struct hid_input_api hid_kbd_api = {
 	.out_report = hid_kbd_out_report,
 };
 
-#define HID_KBD_DEFINE(inst)								\
-	static void hid_kbd_cb_##inst(struct input_event *evt)				\
+#define HID_KBD_INPUT_CB(node_id, prop, idx, inst) \
+	static void hid_kbd_cb_##inst##_##idx(struct input_event *evt)			\
 	{										\
-		hid_kbd_cb(DEVICE_DT_INST_GET(inst), evt);				\
+		hid_kbd_cb(DEVICE_DT_GET(node_id), evt);				\
 	}										\
-	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_INST_PHANDLE(inst, input)),	\
-			      hid_kbd_cb_##inst);					\
+	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
+			      hid_kbd_cb_##inst##_##idx);
+
+#define HID_KBD_DEFINE(inst)								\
+	DT_INST_FOREACH_PROP_ELEM_VARGS(inst, input, HID_KBD_INPUT_CB, inst)		\
 											\
 	COND_CODE_1(DT_INST_PROP(inst, nkro), (), (					\
 	static struct hid_kbd_report_data hid_kbd_report_data_##inst;			\

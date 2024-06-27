@@ -177,13 +177,16 @@ static void hid_gamepad_cb(const struct device *dev, struct input_event *evt)
 			   hid_gamepad_input_process, evt);
 }
 
-#define HID_GAMEPAD_DEFINE(inst)								\
-	static void hid_gamepad_cb_##inst(struct input_event *evt)			\
+#define HID_GAMEPAD_INPUT_CB(node_id, prop, idx, inst) \
+	static void hid_gamepad_cb_##inst##_##idx(struct input_event *evt)		\
 	{										\
-		hid_gamepad_cb(DEVICE_DT_INST_GET(inst), evt);				\
+		hid_gamepad_cb(DEVICE_DT_GET(node_id), evt);				\
 	}										\
-	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_INST_PHANDLE(inst, input)),	\
-			      hid_gamepad_cb_##inst);					\
+	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
+			      hid_gamepad_cb_##inst##_##idx);
+
+#define HID_GAMEPAD_DEFINE(inst)							\
+	DT_INST_FOREACH_PROP_ELEM_VARGS(inst, input, HID_GAMEPAD_INPUT_CB, inst)	\
 											\
 	static const struct hid_gamepad_config hid_gamepad_config_##inst = {		\
 		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(inst)),			\
