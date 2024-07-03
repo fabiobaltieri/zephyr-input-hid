@@ -1,0 +1,420 @@
+/dts-v1/;
+#include <nordic/nrf52832_qfaa.dtsi>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include "zalpakka-pinctrl.dtsi"
+#include <dt-bindings/hid.h>
+
+/ {
+	model = "Z-Alpakka";
+	compatible = "inputlabs,z-alpakka";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		system: pwm_led_1 {
+			pwms = <&pwm0 0 PWM_HZ(200) PWM_POLARITY_NORMAL>;
+		};
+		pwm_led_2 {
+			pwms = <&pwm0 1 PWM_HZ(200) PWM_POLARITY_NORMAL>;
+		};
+		touch_led: pwm_led_3 {
+			pwms = <&pwm0 2 PWM_HZ(200) PWM_POLARITY_NORMAL>;
+		};
+		led_input_blink: pwm_led_4 {
+			pwms = <&pwm0 3 PWM_HZ(200) PWM_POLARITY_NORMAL>;
+		};
+	};
+
+	buttons: buttons {
+		compatible = "gpio-keys";
+		wkup: button_analog {
+			gpios = <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_MODE>;
+		};
+
+		button_up {
+			gpios = <&ioexp_l 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_0>;
+		};
+		button_down {
+			gpios = <&ioexp_l 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_1>;
+		};
+		button_left {
+			gpios = <&ioexp_l 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_2>;
+		};
+		button_right {
+			gpios = <&ioexp_l 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_3>;
+		};
+
+		hat_up {
+			gpios = <&ioexp_r 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_DPAD_UP>;
+		};
+		hat_down {
+			gpios = <&ioexp_r 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_DPAD_DOWN>;
+		};
+		hat_left {
+			gpios = <&ioexp_r 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_DPAD_LEFT>;
+		};
+		hat_right {
+			gpios = <&ioexp_r 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_DPAD_RIGHT>;
+		};
+		hat_press {
+			gpios = <&ioexp_r 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_MIDDLE>;
+		};
+
+		button_north {
+			gpios = <&ioexp_r 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_NORTH>;
+		};
+		button_south {
+			gpios = <&ioexp_r 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_SOUTH>;
+		};
+		button_west {
+			gpios = <&ioexp_r 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_WEST>;
+		};
+		button_east {
+			gpios = <&ioexp_r 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_EAST>;
+		};
+
+		select_1 {
+			gpios = <&ioexp_l 14 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_SELECT>;
+		};
+		select_2 {
+			gpios = <&ioexp_l 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_A>;
+		};
+		start_1 {
+			gpios = <&ioexp_r 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_START>;
+		};
+		start_2 {
+			gpios = <&ioexp_r 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_B>;
+		};
+
+		l1 {
+			gpios = <&ioexp_l 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_TL>;
+		};
+		l2 {
+			gpios = <&ioexp_l 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_RIGHT>;
+		};
+		l3 {
+			gpios = <&ioexp_l 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_THUMBL>;
+		};
+		l4 {
+			gpios = <&ioexp_l 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_C>;
+		};
+		r1 {
+			gpios = <&ioexp_r 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_TR>;
+		};
+		r2 {
+			gpios = <&ioexp_r 14 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_LEFT>;
+		};
+		r4 {
+			gpios = <&ioexp_r 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_KEY_D>;
+		};
+	};
+
+	gpio_qdec: qdec {
+		compatible = "gpio-qdec";
+		gpios = <&gpio0 14 (GPIO_PULL_UP | GPIO_ACTIVE_HIGH)>,
+		        <&gpio0 13 (GPIO_PULL_UP | GPIO_ACTIVE_HIGH)>;
+		steps-per-period = <2>;
+		zephyr,axis = <INPUT_REL_WHEEL>;
+		sample-time-us = <2000>;
+		idle-timeout-ms = <200>;
+	};
+
+	aa: analog_axis {
+		compatible = "analog-axis";
+		axis-x {
+			io-channels = <&adc 1>;
+			in-deadzone = <50>;
+			in-min = <100>;
+			in-max = <800>;
+			zephyr,axis = <INPUT_ABS_X>;
+		};
+		axis-y {
+			io-channels = <&adc 0>;
+			in-deadzone = <50>;
+			in-min = <100>;
+			in-max = <800>;
+			zephyr,axis = <INPUT_ABS_Y>;
+		};
+	};
+
+	analog_pwr: analog_pwr {
+		 compatible = "regulator-fixed";
+		 regulator-name = "analog_pwr";
+		 enable-gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+		 regulator-boot-on;
+	};
+
+	vbatt: vbatt {
+		compatible = "voltage-divider";
+		io-channels = <&adc 2>;
+		output-ohms = <100000>;
+		full-ohms = <200000>;
+	};
+
+	touch_sense: touch-sense {
+		compatible = "touch-sense";
+		drive-gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+		sense-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+	};
+
+	gyro: gyro {
+		compatible = "gyro";
+		imu-l = <&imu_l>;
+		imu-r = <&imu_r>;
+	};
+
+	suspend-gpios {
+		compatible = "suspend-gpios";
+		gpios = <&gpio0 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 14 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 22 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 28 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l  0 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l  1 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l  2 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l  3 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l  4 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l  9 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l 12 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l 14 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_l 15 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  0 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  1 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  2 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  3 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  4 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  5 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  6 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r  7 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r 10 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r 11 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r 12 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r 14 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&ioexp_r 15 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+	};
+
+	drv8212: drv8212 {
+		compatible = "ti,drv8212";
+		mode-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+		pwms = <&pwm1 0 PWM_HZ(160) PWM_POLARITY_NORMAL>,
+		       <&pwm2 0 PWM_KHZ(8) PWM_POLARITY_NORMAL>;
+	};
+
+	hid {
+		compatible = "hid";
+		input {
+			hid-gamepad {
+				compatible = "hid-gamepad";
+				input = <&aa &buttons>;
+				input-id = <1>;
+				report = <HID_GAMEPAD_REPORT(1)>;
+			};
+			hid-mouse {
+				compatible = "hid-mouse";
+				input = <&gyro &gpio_qdec &buttons>;
+				input-id = <2>;
+				report = <HID_MOUSE_REPORT(2)>;
+			};
+			hid-kbd {
+				compatible = "hid-kbd";
+				input = <&buttons>;
+				input-id = <3>;
+				report = <HID_KBD_REPORT(3, 0)>;
+			};
+		};
+		output {
+			hid-hog {
+				compatible = "hid-hog";
+			};
+		};
+	};
+
+};
+
+&uicr {
+	nfct-pins-as-gpios;
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_5";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+		zephyr,input-positive = <NRF_SAADC_AIN2>;
+		zephyr,resolution = <10>;
+	};
+
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1_5";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+		zephyr,input-positive = <NRF_SAADC_AIN3>;
+		zephyr,resolution = <10>;
+	};
+
+	channel@2 {
+		reg = <2>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN6>;
+		zephyr,resolution = <10>;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+	compatible = "nordic,nrf-uarte";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	ioexp_l: pcal6416a@20 {
+		compatible = "nxp,pcal6416a";
+		status = "okay";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		ngpios = <16>;
+		int-gpios = <&gpio0 22 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+	};
+
+	ioexp_r: pcal6416a@21 {
+		compatible = "nxp,pcal6416a";
+		status = "okay";
+		reg = <0x21>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		ngpios = <16>;
+		int-gpios = <&gpio0 28 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+	};
+};
+
+&spi1 {
+	compatible = "nordic,nrf-spi";
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	cs-gpios = <&gpio0 21 GPIO_ACTIVE_LOW>, <&gpio0 6 GPIO_ACTIVE_LOW>;
+
+	imu_l: lsm6dso@0 {
+		compatible = "st,lsm6dso";
+		spi-max-frequency = <DT_FREQ_M(10)>;
+		reg = <0>;
+		irq-gpios = <&gpio0 23 GPIO_ACTIVE_HIGH>;
+	};
+
+	imu_r: lsm6dso@1 {
+		compatible = "st,lsm6dso";
+		spi-max-frequency = <DT_FREQ_M(10)>;
+		reg = <1>;
+		irq-gpios = <&gpio0 27 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&pwm1 {
+	status = "okay";
+	pinctrl-0 = <&pwm1_default>;
+	pinctrl-1 = <&pwm1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&pwm2 {
+	status = "okay";
+	pinctrl-0 = <&pwm2_default>;
+	pinctrl-1 = <&pwm2_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0x8000>;
+		};
+		slot0_partition: partition@8000 {
+			label = "image-0";
+			reg = <0x00008000 0x3a000>;
+		};
+		slot1_partition: partition@42000 {
+			label = "image-1";
+			reg = <0x00042000 0x3a000>;
+		};
+		storage_partition: partition@7c000 {
+			label = "storage";
+			reg = <0x0007c000 0x00004000>;
+		};
+	};
+};

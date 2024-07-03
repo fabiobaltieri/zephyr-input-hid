@@ -1,0 +1,10 @@
+description: Touch sense
+
+compatible: touch-sense
+
+properties:
+  drive-gpios:
+    type: phandle-array
+
+  sense-gpios:
+    type: phandle-array

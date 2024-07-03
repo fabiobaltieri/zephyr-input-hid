@@ -1,0 +1,10 @@
+description: Touch sense
+
+compatible: gyro
+
+properties:
+  imu-l:
+    type: phandle
+
+  imu-r:
+    type: phandle

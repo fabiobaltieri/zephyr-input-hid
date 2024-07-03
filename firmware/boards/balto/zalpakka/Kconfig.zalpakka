@@ -1,0 +1,2 @@
+config BOARD_ZALPAKKA
+	select SOC_NRF52832_QFAA
