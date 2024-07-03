@@ -18,6 +18,7 @@ target_sources_ifdef(CONFIG_APP_BAS_ADC app PRIVATE src/bas_adc.c)
 target_sources_ifdef(CONFIG_APP_BLE_UNPAIR app PRIVATE src/ble_unpair.c)
 target_sources_ifdef(CONFIG_APP_BLINKER app PRIVATE src/blinker.c)
 target_sources_ifdef(CONFIG_APP_CHARGER app PRIVATE src/charger.c)
+target_sources_ifdef(CONFIG_INPUT_ANALOG_AXIS app PRIVATE src/analog-axis-shell.c)
 
 target_sources_ifdef(CONFIG_DT_HAS_HID_ENABLED app PRIVATE src/hid.c)
 target_sources_ifdef(CONFIG_DT_HAS_HID_KBD_ENABLED app PRIVATE src/hid_kbd.c)
