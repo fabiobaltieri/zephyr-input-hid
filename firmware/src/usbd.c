@@ -5,8 +5,6 @@
 
 LOG_MODULE_REGISTER(usbd_app, LOG_LEVEL_INF);
 
-#include <zephyr/usb/bos.h>
-
 #define USBD_VID 0x2fe3
 #define USBD_PID 0x0007
 #define USBD_MAX_POWER 250
