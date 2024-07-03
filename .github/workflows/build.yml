@@ -24,6 +24,7 @@ jobs:
           - nrf52840dongle
           - pmw_testboard
           - paw_testboard
+          - zalpakka
 
     steps:
       - name: Checkout
