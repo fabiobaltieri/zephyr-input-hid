@@ -1,0 +1,14 @@
+description: DRV8212
+
+compatible: "ti,drv8212"
+
+include: base.yaml
+
+properties:
+  mode-gpios:
+    type: phandle-array
+    required: true
+
+  pwms:
+    type: phandle-array
+    required: true
