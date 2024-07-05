@@ -42,19 +42,19 @@
 
 		button_up {
 			gpios = <&ioexp_l 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_KEY_0>;
+			zephyr,code = <INPUT_KEY_W>;
 		};
 		button_down {
 			gpios = <&ioexp_l 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_KEY_1>;
+			zephyr,code = <INPUT_KEY_S>;
 		};
 		button_left {
 			gpios = <&ioexp_l 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_KEY_2>;
+			zephyr,code = <INPUT_KEY_A>;
 		};
 		button_right {
 			gpios = <&ioexp_l 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_KEY_3>;
+			zephyr,code = <INPUT_KEY_D>;
 		};
 
 		hat_up {
@@ -73,10 +73,12 @@
 			gpios = <&ioexp_r 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			zephyr,code = <INPUT_BTN_DPAD_RIGHT>;
 		};
+		/* clicks with the rest of the hat switches
 		hat_press {
 			gpios = <&ioexp_r 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			zephyr,code = <INPUT_BTN_MIDDLE>;
 		};
+		*/
 
 		button_north {
 			gpios = <&ioexp_r 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
@@ -126,7 +128,7 @@
 		};
 		l4 {
 			gpios = <&ioexp_l 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_KEY_C>;
+			zephyr,code = <INPUT_KEY_LEFTSHIFT>;
 		};
 		r1 {
 			gpios = <&ioexp_r 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
@@ -138,7 +140,7 @@
 		};
 		r4 {
 			gpios = <&ioexp_r 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_KEY_D>;
+			zephyr,code = <INPUT_KEY_RIGHTSHIFT>;
 		};
 	};
 
