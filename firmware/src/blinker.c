@@ -70,6 +70,12 @@ static void blinker_thread(void)
 			k_sleep(K_SECONDS(3));
 			led_off(leds, LED_IDX);
 			break;
+		case BLINK_BLINK:
+			led_on(leds, LED_IDX);
+			k_sleep(K_MSEC(30));
+			led_off(leds, LED_IDX);
+			k_sleep(K_MSEC(30));
+			break;
 		case BLINK_POWEROFF:
 			led_on(leds, LED_IDX);
 			k_sleep(K_SECONDS(1));
@@ -84,8 +90,6 @@ static void blinker_thread(void)
 			led_off(leds, LED_IDX);
 			break;
 		}
-
-		k_sleep(K_MSEC(100));
 	}
 }
 

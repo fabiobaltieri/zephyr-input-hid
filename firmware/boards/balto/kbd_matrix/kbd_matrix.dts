@@ -20,7 +20,7 @@
 
 	leds {
 		compatible = "gpio-leds";
-		led_input_blink: led_a {
+		led_blinker: led_a {
 			gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
 		};
 	};
