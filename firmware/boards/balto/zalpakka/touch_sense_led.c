@@ -2,7 +2,7 @@
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 
-#define TOUCH_LED_NODE DT_NODELABEL(touch_led)
+#define TOUCH_LED_NODE DT_NODELABEL(led_touch)
 #define TOUCH_LED_IDX DT_NODE_CHILD_IDX(TOUCH_LED_NODE)
 
 static void input_cb(struct input_event *evt)
