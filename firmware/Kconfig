@@ -27,6 +27,13 @@ config APP_BLINKER
 	depends on "$(dt_nodelabel_enabled,led_blinker)"
 	select LED
 
+config APP_AUTO_POWEROFF
+	bool "Auto power-off"
+	default y
+	depends on "$(dt_nodelabel_enabled,wkup)"
+	select POWEROFF
+	depends on BT
+
 endmenu
 
 config INPUT_SHELL

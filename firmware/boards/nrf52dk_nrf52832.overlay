@@ -2,7 +2,7 @@
 
 / {
 	buttons: buttons {
-		button_0 {
+		wkup: button_0 {
 			zephyr,code = <INPUT_KEY_A>;
 		};
 		button_1 {
