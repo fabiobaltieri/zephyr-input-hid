@@ -7,9 +7,9 @@
 
 LOG_MODULE_REGISTER(blinker, LOG_LEVEL_INF);
 
-#define LED_SYSTEM_NODE DT_NODELABEL(led_blinker)
-#define LED_SYSTEM DT_NODE_CHILD_IDX(LED_SYSTEM_NODE)
-static const struct device *leds = DEVICE_DT_GET(DT_PARENT(LED_SYSTEM_NODE));
+#define LED_NODE DT_NODELABEL(led_blinker)
+#define LED_IDX DT_NODE_CHILD_IDX(LED_NODE)
+static const struct device *leds = DEVICE_DT_GET(DT_PARENT(LED_NODE));
 
 #define BLINKER_QUEUE_SZ 10
 
@@ -35,9 +35,9 @@ static void blinker_thread(void)
 		return;
 	}
 
-	led_on(leds, LED_SYSTEM);
+	led_on(leds, LED_IDX);
 	k_sleep(K_MSEC(100));
-	led_off(leds, LED_SYSTEM);
+	led_off(leds, LED_IDX);
 
 	while (true) {
 		ret = k_msgq_get(&blinker_msgq, &event, K_FOREVER);
@@ -48,27 +48,40 @@ static void blinker_thread(void)
 
 		switch (event) {
 		case BLINK_CONNECTED:
-			led_on(leds, LED_SYSTEM);
+			led_on(leds, LED_IDX);
 			k_sleep(K_MSEC(100));
-			led_off(leds, LED_SYSTEM);
+			led_off(leds, LED_IDX);
 			k_sleep(K_MSEC(150));
-			led_on(leds, LED_SYSTEM);
+			led_on(leds, LED_IDX);
 			k_sleep(K_MSEC(100));
-			led_off(leds, LED_SYSTEM);
+			led_off(leds, LED_IDX);
 			k_sleep(K_MSEC(150));
-			led_on(leds, LED_SYSTEM);
+			led_on(leds, LED_IDX);
 			k_sleep(K_MSEC(100));
-			led_off(leds, LED_SYSTEM);
+			led_off(leds, LED_IDX);
 			break;
 		case BLINK_DISCONNECTED:
-			led_on(leds, LED_SYSTEM);
+			led_on(leds, LED_IDX);
 			k_sleep(K_MSEC(300));
-			led_off(leds, LED_SYSTEM);
+			led_off(leds, LED_IDX);
 			break;
 		case BLINK_UNPAIRED:
-			led_on(leds, LED_SYSTEM);
+			led_on(leds, LED_IDX);
 			k_sleep(K_SECONDS(3));
-			led_off(leds, LED_SYSTEM);
+			led_off(leds, LED_IDX);
+			break;
+		case BLINK_POWEROFF:
+			led_on(leds, LED_IDX);
+			k_sleep(K_SECONDS(1));
+			led_off(leds, LED_IDX);
+			k_sleep(K_MSEC(200));
+			led_on(leds, LED_IDX);
+			k_sleep(K_MSEC(50));
+			led_off(leds, LED_IDX);
+			k_sleep(K_MSEC(200));
+			led_on(leds, LED_IDX);
+			k_sleep(K_MSEC(50));
+			led_off(leds, LED_IDX);
 			break;
 		}
 
