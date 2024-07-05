@@ -1,4 +1,5 @@
 #include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/init.h>
 #include <zephyr/kernel.h>
@@ -49,6 +50,28 @@ static int cmd_ble_unpair(const struct shell *sh, size_t argc, char **argv)
 SHELL_CMD_REGISTER(ble_unpair, NULL, "BLE Unpair", cmd_ble_unpair);
 
 #endif
+
+static void ble_disconnect(struct bt_conn *conn, void *user_data)
+{
+	int err;
+
+	err = bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+	if (err) {
+		LOG_ERR("bt_conn_disconnect: %d", err);
+	}
+}
+
+void ble_stop(void)
+{
+	int err;
+
+	err = bt_le_adv_stop();
+	if (err) {
+		LOG_ERR("bt_le_adv_stop: %d", err);
+	}
+
+	bt_conn_foreach(BT_CONN_TYPE_LE, ble_disconnect, NULL);
+}
 
 static int ble_setup(void)
 {
