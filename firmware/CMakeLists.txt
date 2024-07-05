@@ -15,7 +15,6 @@ target_sources(app PRIVATE
 target_sources_ifdef(CONFIG_BT app PRIVATE src/ble.c src/ble_status.c)
 
 target_sources_ifdef(CONFIG_APP_BAS_ADC app PRIVATE src/bas_adc.c)
-target_sources_ifdef(CONFIG_APP_BLE_UNPAIR app PRIVATE src/ble_unpair.c)
 target_sources_ifdef(CONFIG_APP_BLINKER app PRIVATE src/blinker.c)
 target_sources_ifdef(CONFIG_APP_CHARGER app PRIVATE src/charger.c)
 target_sources_ifdef(CONFIG_INPUT_ANALOG_AXIS app PRIVATE src/analog-axis-shell.c)
@@ -26,3 +25,4 @@ target_sources_ifdef(CONFIG_DT_HAS_HID_MOUSE_ENABLED app PRIVATE src/hid_mouse.c
 target_sources_ifdef(CONFIG_DT_HAS_HID_GAMEPAD_ENABLED app PRIVATE src/hid_gamepad.c)
 target_sources_ifdef(CONFIG_DT_HAS_HID_HOG_ENABLED app PRIVATE src/ble_hog.c)
 target_sources_ifdef(CONFIG_DT_HAS_USB_HID_ENABLED app PRIVATE src/usb_hid.c src/usbd.c)
+target_sources_ifdef(CONFIG_DT_HAS_BLE_UNPAIR_ENABLED app PRIVATE src/ble_unpair.c)

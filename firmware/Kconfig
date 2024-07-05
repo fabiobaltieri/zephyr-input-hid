@@ -27,10 +27,6 @@ config APP_BLINKER
 	depends on "$(dt_nodelabel_enabled,system)"
 	select LED
 
-config APP_BLE_UNPAIR
-	bool "Left-right unpair support"
-	depends on BT
-
 endmenu
 
 config INPUT_SHELL

@@ -1,3 +1,5 @@
+#define DT_DRV_COMPAT ble_unpair
+
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
@@ -8,6 +10,9 @@
 LOG_MODULE_REGISTER(ble_unpair, LOG_LEVEL_INF);
 
 #define UNPAIR_TIMEOUT_S 5
+
+#define KEY_A DT_INST_PROP(0, key_a)
+#define KEY_B DT_INST_PROP(0, key_b)
 
 static void unpair_handler(struct k_work *work)
 {
@@ -26,10 +31,10 @@ static void unpair_cb(struct input_event *evt)
 		return;
 	}
 
-	if (evt->code == INPUT_BTN_LEFT) {
+	if (evt->code == KEY_A) {
 		a = evt->value;
 	}
-	else if (evt->code == INPUT_BTN_RIGHT) {
+	else if (evt->code == KEY_B) {
 		b = evt->value;
 	}
 
@@ -39,4 +44,4 @@ static void unpair_cb(struct input_event *evt)
 		k_work_cancel_delayable(&unpair_dwork);
 	}
 }
-INPUT_CALLBACK_DEFINE(NULL, unpair_cb);
+INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_INST_PHANDLE(0, input)), unpair_cb);

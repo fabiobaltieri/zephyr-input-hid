@@ -76,6 +76,13 @@
 		in-report-size = <16>;
 		in-polling-period-us = <1000>;
 	};
+
+	ble-unpair {
+		input = <&buttons>;
+		compatible = "ble-unpair";
+		key-a = <INPUT_BTN_LEFT>;
+		key-b = <INPUT_BTN_RIGHT>;
+	};
 };
 
 &uicr {

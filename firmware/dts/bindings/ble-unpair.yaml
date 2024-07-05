@@ -1,0 +1,15 @@
+description: BLE unpair hotkey
+
+compatible: ble-unpair
+
+properties:
+  input:
+    type: phandle
+
+  key-a:
+    type: int
+    required: true
+
+  key-b:
+    type: int
+    required: true

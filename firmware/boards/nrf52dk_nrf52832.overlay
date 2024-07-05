@@ -24,6 +24,12 @@
 		};
 	};
 
+	ble-unpair {
+		compatible = "ble-unpair";
+		key-a = <INPUT_KEY_A>;
+		key-b = <INPUT_BTN_LEFT>;
+	};
+
 	hid {
 		compatible = "hid";
 		input {
