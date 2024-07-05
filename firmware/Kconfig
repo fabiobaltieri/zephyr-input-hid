@@ -24,7 +24,7 @@ config APP_CHARGER
 config APP_BLINKER
 	bool "Blinker support"
 	default y
-	depends on "$(dt_nodelabel_enabled,system)"
+	depends on "$(dt_nodelabel_enabled,led_blinker)"
 	select LED
 
 endmenu

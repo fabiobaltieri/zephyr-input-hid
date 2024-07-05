@@ -7,7 +7,7 @@
 
 LOG_MODULE_REGISTER(blinker, LOG_LEVEL_INF);
 
-#define LED_SYSTEM_NODE DT_NODELABEL(system)
+#define LED_SYSTEM_NODE DT_NODELABEL(led_blinker)
 #define LED_SYSTEM DT_NODE_CHILD_IDX(LED_SYSTEM_NODE)
 static const struct device *leds = DEVICE_DT_GET(DT_PARENT(LED_SYSTEM_NODE));
 

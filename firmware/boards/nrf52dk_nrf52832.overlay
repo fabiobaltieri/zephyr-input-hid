@@ -97,7 +97,7 @@
 	 };
 };
 
-system: &led0 {};
+led_blinker: &led0 {};
 led_input_blink: &led1 {};
 
 &i2c0 {

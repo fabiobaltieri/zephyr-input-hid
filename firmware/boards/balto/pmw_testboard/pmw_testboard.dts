@@ -21,7 +21,7 @@
 		led_input_blink: led_b {
 			gpios = <&gpio0 18 GPIO_ACTIVE_HIGH>;
 		};
-		system: led_a {
+		led_blinker: led_a {
 			gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
 		};
 	};

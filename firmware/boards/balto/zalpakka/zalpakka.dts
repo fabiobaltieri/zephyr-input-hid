@@ -19,7 +19,7 @@
 
 	pwmleds {
 		compatible = "pwm-leds";
-		system: pwm_led_1 {
+		led_blinker: pwm_led_1 {
 			pwms = <&pwm0 0 PWM_HZ(200) PWM_POLARITY_NORMAL>;
 		};
 		pwm_led_2 {
