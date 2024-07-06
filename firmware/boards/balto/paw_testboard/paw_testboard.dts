@@ -148,7 +148,7 @@
 
 	cs-gpios = <&gpio0 17 GPIO_ACTIVE_LOW>;
 
-	sensor: paw: paw3610@0 {
+	sensor: paw: paw3222@0 {
 		compatible = "pixart,paw32xx";
 		reg = <0>;
 		spi-max-frequency = <DT_FREQ_M(2)>;
