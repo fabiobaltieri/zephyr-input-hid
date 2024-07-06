@@ -18,6 +18,31 @@ static const struct gpio_dt_spec wkup = GPIO_DT_SPEC_GET(DT_NODELABEL(wkup), gpi
 
 static const struct device *analog_pwr = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(analog_pwr));
 
+#if CONFIG_DT_HAS_SUSPEND_GPIOS_ENABLED
+#define SUSPEND_GPIOS_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(suspend_gpios)
+static const struct gpio_dt_spec suspend_gpio_specs[] = {
+	DT_FOREACH_PROP_ELEM_SEP(SUSPEND_GPIOS_NODE, gpios,
+				 GPIO_DT_SPEC_GET_BY_IDX, (,))
+};
+
+static void suspend_gpios(void)
+{
+	int ret;
+
+	for (int i = 0; i < ARRAY_SIZE(suspend_gpio_specs); i++) {
+		ret = gpio_pin_configure_dt(&suspend_gpio_specs[i], GPIO_INPUT);
+		if (ret != 0) {
+			LOG_ERR("Pin %d configuration failed: %d", i, ret);
+			return;
+		}
+	}
+}
+#else
+static void suspend_gpios(void)
+{
+}
+#endif
+
 static void auto_poweroff_handler(struct k_work *work)
 {
 	LOG_INF("auto poweroff");
@@ -29,6 +54,8 @@ static void auto_poweroff_handler(struct k_work *work)
 	blink(BLINK_POWEROFF);
 
 	k_sleep(K_SECONDS(2));
+
+	suspend_gpios();
 
 	if (analog_pwr != NULL) {
 		regulator_disable(analog_pwr);
