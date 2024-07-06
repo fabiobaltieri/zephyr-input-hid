@@ -36,25 +36,25 @@ config APP_AUTO_POWEROFF
 
 endmenu
 
-config INPUT_SHELL
+configdefault INPUT_SHELL
 	default y
 
-config INPUT_EVENT_DUMP
+configdefault INPUT_EVENT_DUMP
 	default y
 
 configdefault INPUT_SHELL_KBD_MATRIX_STATE
 	default y
 
-config I2C_SHELL
+configdefault I2C_SHELL
 	default y
 
-config LED_SHELL
+configdefault LED_SHELL
 	default y
 
-config SETTINGS_SHELL
+configdefault SETTINGS_SHELL
 	default y
 
-config PM_DEVICE_SHELL
+configdefault PM_DEVICE_SHELL
 	default y
 
 if BT
