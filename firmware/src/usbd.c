@@ -35,6 +35,30 @@ static void fix_code_triple(struct usbd_context *uds_ctx, const enum usbd_speed 
 	}
 }
 
+static void usbd_msg_cb(struct usbd_context *const usbd_ctx,
+			const struct usbd_msg *const msg)
+{
+	int ret;
+
+	LOG_INF("USBD message: %s", usbd_msg_type_string(msg->type));
+
+	if (!usbd_can_detect_vbus(usbd_ctx)) {
+		return;
+	}
+
+	if (msg->type == USBD_MSG_VBUS_READY) {
+		ret = usbd_enable(usbd_ctx);
+		if (ret) {
+			LOG_ERR("Failed to enable device support");
+		}
+	} else if (msg->type == USBD_MSG_VBUS_REMOVED) {
+		ret = usbd_disable(usbd_ctx);
+		if (ret) {
+			LOG_ERR("Failed to disable device support");
+		}
+	}
+}
+
 struct usbd_context *usbd_init_device(void)
 {
 	int err;
@@ -93,6 +117,12 @@ struct usbd_context *usbd_init_device(void)
 
 	fix_code_triple(&app_usbd, USBD_SPEED_FS);
 
+	err = usbd_msg_register_cb(&app_usbd, usbd_msg_cb);
+	if (err) {
+		LOG_ERR("Failed to register message callback");
+		return NULL;
+	}
+
 	err = usbd_init(&app_usbd);
 	if (err) {
 		LOG_ERR("Failed to initialize device support");
@@ -111,6 +141,10 @@ static int app_usbd_enable(void)
 	if (usbd == NULL) {
 		LOG_ERR("Failed to initialize USB device");
 		return -ENODEV;
+	}
+
+	if (usbd_can_detect_vbus(usbd)) {
+		return 0;
 	}
 
 	ret = usbd_enable(usbd);
