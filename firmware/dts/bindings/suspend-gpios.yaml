@@ -1,0 +1,7 @@
+description: GPIO suspend state
+
+compatible: suspend-gpios
+
+properties:
+  gpios:
+    type: phandle-array
