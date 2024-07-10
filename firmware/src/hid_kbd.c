@@ -2,6 +2,7 @@
 
 #include <dt-bindings/hid.h>
 #include <stdint.h>
+#include <zephyr/device.h>
 #include <zephyr/input/input.h>
 #include <zephyr/input/input_hid.h>
 #include <zephyr/logging/log.h>
