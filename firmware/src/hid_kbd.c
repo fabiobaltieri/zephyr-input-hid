@@ -1,6 +1,7 @@
 #define DT_DRV_COMPAT hid_kbd
 
 #include <dt-bindings/hid.h>
+#include <hid_kbd.h>
 #include <stdint.h>
 #include <zephyr/device.h>
 #include <zephyr/input/input.h>
@@ -36,6 +37,10 @@ struct hid_kbd_config {
 	uint8_t input_id;
 	uint8_t output_id;
 	struct hid_kbd_report_data *report_data;
+};
+
+struct hid_kbd_data {
+	hid_kbd_led_cb led_cb;
 };
 
 static void hid_kbd_update_modifiers(uint8_t *modifiers, struct input_event *evt)
@@ -163,10 +168,18 @@ static void hid_kbd_cb(const struct device *dev, struct input_event *evt)
 	}
 }
 
+void hid_kbd_register_led_cb(const struct device *dev, hid_kbd_led_cb cb)
+{
+	struct hid_kbd_data *data = dev->data;
+
+	data->led_cb = cb;
+}
+
 static int hid_kbd_out_report(const struct device *dev,
 			      uint8_t report_id, const uint8_t *buf, uint8_t len)
 {
 	const struct hid_kbd_config *cfg = dev->config;
+	struct hid_kbd_data *data = dev->data;
 
 	if (cfg->output_id == 0) {
 		LOG_ERR("output-id not set");
@@ -178,7 +191,9 @@ static int hid_kbd_out_report(const struct device *dev,
 		return -EINVAL;
 	}
 
-	LOG_INF("%d %d", report_id, len);
+	if (data->led_cb != NULL) {
+		data->led_cb(dev, buf[0]);
+	}
 
 	return 0;
 }
@@ -213,7 +228,10 @@ static const struct hid_input_api hid_kbd_api = {
 		))									\
 	};										\
 											\
-	DEVICE_DT_INST_DEFINE(inst, NULL, NULL, NULL, &hid_kbd_config_##inst,		\
+	struct hid_kbd_data hid_kbd_data_##inst;					\
+											\
+	DEVICE_DT_INST_DEFINE(inst, NULL, NULL,						\
+			      &hid_kbd_data_##inst, &hid_kbd_config_##inst,		\
 			      POST_KERNEL, CONFIG_INPUT_INIT_PRIORITY, &hid_kbd_api);
 
 DT_INST_FOREACH_STATUS_OKAY(HID_KBD_DEFINE)
