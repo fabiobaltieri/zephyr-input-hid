@@ -1,2 +1,2 @@
 zephyr_library()
-zephyr_library_sources(darfon.c)
+zephyr_library_sources(clicker.c)
