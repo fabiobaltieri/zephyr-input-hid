@@ -6,7 +6,7 @@ set(BOARD kbd_matrix)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(keyboard-matrix-testboard)
 
-target_include_directories(app PRIVATE include)
+zephyr_include_directories(include)
 
 target_sources(app PRIVATE
 	src/main.c
