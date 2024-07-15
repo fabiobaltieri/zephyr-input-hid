@@ -99,11 +99,4 @@ config BT_MAX_PAIRED
 
 endif # BT
 
-if USB_DEVICE_STACK_NEXT
-
-config USBD_HID_SUPPORT
-	default y
-
-endif # USB_DEVICE_STACK_NEXT
-
 source "Kconfig.zephyr"
