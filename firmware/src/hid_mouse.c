@@ -11,12 +11,6 @@
 
 LOG_MODULE_REGISTER(hid_mouse, LOG_LEVEL_INF);
 
-#define INPUT_BTN_SIDE		0x113
-#define INPUT_BTN_EXTRA		0x114
-#define INPUT_BTN_FORWARD	0x115
-#define INPUT_BTN_BACK		0x116
-#define INPUT_BTN_TASK		0x117
-
 struct hid_mouse_report {
 	uint8_t buttons;
 	int16_t x;
