@@ -63,7 +63,9 @@ config BT_SMP
 	default y
 
 config BT_DEVICE_APPEARANCE
-	default 961
+	default 964 if DT_HAS_HID_GAMEPAD_ENABLED
+	default 961 if DT_HAS_HID_KBD_ENABLED
+	default 962 if DT_HAS_HID_MOUSE_ENABLED
 
 config BT_DEVICE_NAME
 	default APP_DEVICE_NAME
