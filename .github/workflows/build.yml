@@ -18,12 +18,13 @@ jobs:
       fail-fast: false
       matrix:
         board: 
-          - kbd_matrix
           - darfon
-          - nrf52dk/nrf52832
+          - kbd_matrix
+          - negcon_retro
           - nrf52840dongle
-          - pmw_testboard
+          - nrf52dk/nrf52832
           - paw_testboard
+          - pmw_testboard
           - zalpakka
 
     steps:
