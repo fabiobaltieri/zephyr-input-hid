@@ -1,0 +1,2 @@
+config BOARD_NEGCON_RETRO
+	select SOC_NRF52832_QFAA

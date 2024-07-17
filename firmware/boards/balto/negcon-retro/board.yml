@@ -1,0 +1,5 @@
+board:
+  name: negcon_retro
+  vendor: balto
+  socs:
+    - name: nrf52832
