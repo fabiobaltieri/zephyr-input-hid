@@ -13,4 +13,7 @@ manifest:
           - hal_nordic
           - hal_st
           - hal_stm32
+          - mcuboot
+          - segger
           - tinycrypt
+          - zcbor
