@@ -1,0 +1,18 @@
+#!/bin/sh
+
+BUILDDIR=build-mcuboot
+
+west build -p -d $BUILDDIR \
+	-b ble_pulse_encoder \
+	$HOME/zephyrproject/bootloader/mcuboot/boot/zephyr \
+	-- \
+	-DCONFIG_BOOT_SIGNATURE_KEY_FILE=\"$PWD/../keys/ble-pulse-encoder-key.pem\" \
+	-DBOARD_ROOT="$PWD" \
+	-DCONFIG_SERIAL=n \
+	-DCONFIG_GPIO=n \
+	-DCONFIG_UART_CONSOLE=n \
+	-DCONFIG_USE_SEGGER_RTT=y \
+	-DCONFIG_RTT_CONSOLE=y
+
+#west build -d $BUILDDIR -t menuconfig
+west flash -d $BUILDDIR -r nrfjprog
