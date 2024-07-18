@@ -1,6 +1,8 @@
 *.swp
 build/
 
+keys/
+
 *.svg
 zephyr-doc-figures/out/
 
