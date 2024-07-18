@@ -1,0 +1,162 @@
+/dts-v1/;
+#include <nordic/nrf52832_qfaa.dtsi>
+#include "ble_pulse_encoder-pinctrl.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/gpio/nordic-nrf-gpio.h>
+#include <dt-bindings/hid.h>
+
+/ {
+	model = "BLE Pulse Encoder";
+	compatible = "balto,ble-pulse-encoder";
+
+	/* TODO: figure this out
+	zephyr,user {
+		chrg-gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+	};
+	*/
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_blinker: led_a {
+			gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
+		};
+		led_input_blink: led_b {
+			gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	buttons: buttons {
+		compatible = "gpio-keys";
+		sw_a {
+			gpios = <&gpio0 22 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_RIGHT>;
+		};
+		sw_b {
+			gpios = <&gpio0 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_LEFT>;
+		};
+	};
+
+	sensor: gpio_qdec: gpio-qdec {
+		compatible = "gpio-qdec";
+		gpios = <&gpio0 17 GPIO_ACTIVE_LOW>,
+			<&gpio0 13 GPIO_ACTIVE_LOW>;
+		led-gpios = <&gpio0 15 (GPIO_ACTIVE_HIGH | NRF_GPIO_DRIVE_S0H1)>,
+			    <&gpio0 14 (GPIO_ACTIVE_HIGH | NRF_GPIO_DRIVE_S0H1)>;
+		led-pre-us = <4>;
+		steps-per-period = <4>;
+		zephyr,axis = <INPUT_REL_WHEEL>;
+		sample-time-us = <128>;
+		idle-timeout-ms = <100>;
+		idle-poll-time-us = <5000>;
+	};
+
+	vbatt: vbatt {
+		compatible = "voltage-divider";
+		io-channels = <&adc 0>;
+		output-ohms = <(560 * 1000)>;
+		full-ohms = <(560 * 1000 * 2)>;
+	};
+
+	hid {
+		compatible = "hid";
+		input { 
+		hid-mouse {
+			compatible = "hid-mouse";
+			input = <&gpio_qdec &buttons>;
+			input-id = <1>;
+			report = <HID_MOUSE_REPORT(1)>;
+		};
+		};
+		output {
+			hid-hog {
+				compatible = "hid-hog";
+			};
+		};
+	};
+
+	ble-unpair {
+		input = <&buttons>;
+		compatible = "ble-unpair";
+		key-a = <INPUT_BTN_LEFT>;
+		key-b = <INPUT_BTN_RIGHT>;
+	};
+};
+
+&uicr {
+	nfct-pins-as-gpios;
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN3>;
+		zephyr,resolution = <10>;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+	sense-edge-mask = <0xffffffff>;
+
+	photo-transistors {
+		gpio-hog;
+		gpios = <12 GPIO_ACTIVE_HIGH>,
+			<16 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};
+};
+
+&uart0 {
+	status = "okay";
+	compatible = "nordic,nrf-uarte";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0x8000>;
+		};
+		slot0_partition: partition@8000 {
+			label = "image-0";
+			reg = <0x00008000 0x3a000>;
+		};
+		slot1_partition: partition@42000 {
+			label = "image-1";
+			reg = <0x00042000 0x3a000>;
+		};
+		storage_partition: partition@7c000 {
+			label = "storage";
+			reg = <0x0007c000 0x00004000>;
+		};
+	};
+};
