@@ -24,17 +24,6 @@ USBD_CONFIGURATION_DEFINE(app_usb_fs_config, attributes, USBD_MAX_POWER);
 
 USBD_CONFIGURATION_DEFINE(app_usb_hs_config, attributes, USBD_MAX_POWER);
 
-static void fix_code_triple(struct usbd_context *uds_ctx, const enum usbd_speed speed)
-{
-	if (IS_ENABLED(CONFIG_USBD_CDC_ACM_CLASS) ||
-	    IS_ENABLED(CONFIG_USBD_CDC_ECM_CLASS) ||
-	    IS_ENABLED(CONFIG_USBD_AUDIO2_CLASS)) {
-		usbd_device_set_code_triple(uds_ctx, speed, USB_BCC_MISCELLANEOUS, 0x02, 0x01);
-	} else {
-		usbd_device_set_code_triple(uds_ctx, speed, 0, 0, 0);
-	}
-}
-
 static void usbd_msg_cb(struct usbd_context *const usbd_ctx,
 			const struct usbd_msg *const msg)
 {
@@ -100,7 +89,7 @@ struct usbd_context *usbd_init_device(void)
 			return NULL;
 		}
 
-		fix_code_triple(&app_usbd, USBD_SPEED_HS);
+		usbd_device_set_code_triple(&app_usbd, USBD_SPEED_HS, 0, 0, 0);
 	}
 
 	err = usbd_add_configuration(&app_usbd, USBD_SPEED_FS, &app_usb_fs_config);
@@ -115,7 +104,7 @@ struct usbd_context *usbd_init_device(void)
 		return NULL;
 	}
 
-	fix_code_triple(&app_usbd, USBD_SPEED_FS);
+	usbd_device_set_code_triple(&app_usbd, USBD_SPEED_FS, 0, 0, 0);
 
 	err = usbd_msg_register_cb(&app_usbd, usbd_msg_cb);
 	if (err) {
