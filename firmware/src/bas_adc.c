@@ -11,8 +11,8 @@ LOG_MODULE_REGISTER(bas_adc, LOG_LEVEL_INF);
 #define SOC_UPDATE_SECS 10
 
 #define VBATT_NODE DT_NODELABEL(vbatt)
-#define VBATT_FULL_MV 4200
-#define VBATT_EMPTY_MV 3000
+#define VBATT_FULL_MV (4200 - 50)
+#define VBATT_EMPTY_MV (3000 + 50)
 static const struct adc_dt_spec vbatt = ADC_DT_SPEC_GET(VBATT_NODE);
 
 static void soc_adc_handler(struct k_work *work);
