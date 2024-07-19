@@ -235,6 +235,12 @@
 		out-report-size = <8>;
 		out-polling-period-us = <5000>;
 	};
+
+	usb-wakeup {
+		compatible = "usb-wakeup";
+		input = <&keymap>;
+		key-codes = <INPUT_KEY_SPACE>;
+	};
 };
 
 &pinctrl {

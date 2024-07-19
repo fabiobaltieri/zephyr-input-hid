@@ -157,17 +157,36 @@ static int app_usbd_enable(void)
 }
 SYS_INIT(app_usbd_enable, APPLICATION, 0);
 
-#if 0
-static void input_resume_cb(struct input_event *evt)
+#if CONFIG_DT_HAS_USB_WAKEUP_ENABLED
+#define USB_WAKEUP_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(usb_wakeup)
+
+static const uint16_t input_wakeup_codes[] = DT_PROP(USB_WAKEUP_NODE, key_codes);
+
+static void input_wakeup_cb(struct input_event *evt)
 {
-	if (!evt->sync) {
+	uint8_t i;
+
+	if (!usbd_is_suspended(&app_usbd)) {
 		return;
 	}
 
-	if (usbd_is_suspended(&app_usbd)) {
-		usbd_wakeup_request(&app_usbd);
+	if (evt->type != INPUT_EV_KEY ||
+	    !evt->sync ||
+	    evt->value == 0) {
+		return;
 	}
 
+	for (i = 0; i < ARRAY_SIZE(input_wakeup_codes); i++) {
+		if (input_wakeup_codes[i] == evt->code) {
+			break;
+		}
+	}
+	if (i == ARRAY_SIZE(input_wakeup_codes)) {
+		return;
+	}
+
+	usbd_wakeup_request(&app_usbd);
 }
-INPUT_CALLBACK_DEFINE(NULL, input_resume_cb);
+INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_PHANDLE(USB_WAKEUP_NODE, input)),
+		      input_wakeup_cb);
 #endif

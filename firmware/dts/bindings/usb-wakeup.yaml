@@ -1,0 +1,10 @@
+description: USB wakeup
+
+compatible: usb-wakeup
+
+properties:
+  input:
+    type: phandle
+
+  key-codes:
+    type: array
