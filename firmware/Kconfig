@@ -34,6 +34,23 @@ config APP_AUTO_POWEROFF
 	select POWEROFF
 	depends on BT
 
+if USB_DEVICE_STACK_NEXT
+
+config APP_USB_VID
+	hex "USB VID"
+	default 0x2fe3
+
+config APP_USB_PID
+	hex "USB PID"
+	default 0x0007
+
+config APP_USB_MAX_POWER
+        int "USB bMaxPower (2mA units)"
+        default 250
+        range 0 250
+
+endif # USB_DEVICE_STACK_NEXT
+
 endmenu
 
 configdefault INPUT_SHELL

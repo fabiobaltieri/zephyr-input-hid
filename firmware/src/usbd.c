@@ -5,13 +5,10 @@
 
 LOG_MODULE_REGISTER(usbd_app, LOG_LEVEL_INF);
 
-#define USBD_VID 0x2fe3
-#define USBD_PID 0x0007
-#define USBD_MAX_POWER 250
-
 USBD_DEVICE_DEFINE(app_usbd,
 		   DEVICE_DT_GET(DT_NODELABEL(zephyr_udc0)),
-		   USBD_VID, USBD_PID);
+		   CONFIG_APP_USB_VID,
+		   CONFIG_APP_USB_PID);
 
 USBD_DESC_LANG_DEFINE(app_usb_lang);
 USBD_DESC_MANUFACTURER_DEFINE(app_usb_mfr, CONFIG_APP_MANUFACTURER_NAME);
@@ -20,9 +17,9 @@ USBD_DESC_SERIAL_NUMBER_DEFINE(app_usb_sn);
 
 static const uint8_t attributes = USB_SCD_REMOTE_WAKEUP;
 
-USBD_CONFIGURATION_DEFINE(app_usb_fs_config, attributes, USBD_MAX_POWER);
+USBD_CONFIGURATION_DEFINE(app_usb_fs_config, attributes, CONFIG_APP_USB_MAX_POWER);
 
-USBD_CONFIGURATION_DEFINE(app_usb_hs_config, attributes, USBD_MAX_POWER);
+USBD_CONFIGURATION_DEFINE(app_usb_hs_config, attributes, CONFIG_APP_USB_MAX_POWER);
 
 static void usbd_msg_cb(struct usbd_context *const usbd_ctx,
 			const struct usbd_msg *const msg)
