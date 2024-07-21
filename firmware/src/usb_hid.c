@@ -4,6 +4,7 @@
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/pm/device.h>
 #include <zephyr/usb/class/usb_hid.h>
 #include <zephyr/usb/class/usbd_hid.h>
 #include <zephyr/usb/usbd.h>
@@ -23,6 +24,7 @@ struct usb_hid_data {
 	char buf[USB_HID_REPORT_BUF_SIZE];
 	bool busy;
 	bool connected;
+	bool suspended;
 };
 
 #define DEVICE_DT_GET_COMMA(n) DEVICE_DT_INST_GET(n),
@@ -183,6 +185,10 @@ static void usb_hid_notify(const struct device *dev)
 		return;
 	}
 
+	if (data->suspended) {
+		return;
+	}
+
 	data->busy = true;
 
 	ret = hid_device_submit_report(cfg->usb_hid_dev, size + 1, data->buf);
@@ -190,6 +196,25 @@ static void usb_hid_notify(const struct device *dev)
 		LOG_ERR("HID write error, %d", ret);
 		return;
 	}
+}
+
+static int usb_hid_pm_action(const struct device *dev,
+			     enum pm_device_action action)
+{
+	struct usb_hid_data *data = dev->data;
+
+	switch (action) {
+	case PM_DEVICE_ACTION_SUSPEND:
+		data->suspended = true;
+		break;
+	case PM_DEVICE_ACTION_RESUME:
+		data->suspended = false;
+		break;
+	default:
+		return -ENOTSUP;
+	}
+
+	return 0;
 }
 
 static int usb_hid_out_init(const struct device *dev)
@@ -217,7 +242,9 @@ static const struct hid_output_api usb_hid_api = {
 										\
 	static struct usb_hid_data usb_hid_data_##n;				\
 										\
-	DEVICE_DT_INST_DEFINE(n, usb_hid_out_init, NULL,			\
+	PM_DEVICE_DT_INST_DEFINE(n, usb_hid_pm_action);				\
+										\
+	DEVICE_DT_INST_DEFINE(n, usb_hid_out_init, PM_DEVICE_DT_INST_GET(n),	\
 			      &usb_hid_data_##n, &usb_hid_cfg_##n,		\
 			      POST_KERNEL, 55, &usb_hid_api);
 

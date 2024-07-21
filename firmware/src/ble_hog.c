@@ -6,6 +6,7 @@
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/pm/device.h>
 #include <zephyr/sys/util.h>
 
 #include "hid.h"
@@ -20,6 +21,7 @@ struct ble_hog_config {
 struct ble_hog_data {
 	uint32_t notify_mask;
 	bool hog_busy;
+	bool suspended;
 };
 
 #define HOG_REPORT_BUF_SIZE 32
@@ -279,6 +281,10 @@ static void ble_hog_notify(const struct device *dev)
 		return;
 	}
 
+	if (data->suspended) {
+		return;
+	}
+
 	data->hog_busy = true;
 
 	attr = hog_find_attr(dev, report_id);
@@ -301,6 +307,25 @@ static void ble_hog_notify(const struct device *dev)
 	}
 }
 
+static int ble_hog_pm_action(const struct device *dev,
+			     enum pm_device_action action)
+{
+	struct ble_hog_data *data = dev->data;
+
+	switch (action) {
+	case PM_DEVICE_ACTION_SUSPEND:
+		data->suspended = true;
+		break;
+	case PM_DEVICE_ACTION_RESUME:
+		data->suspended = false;
+		break;
+	default:
+		return -ENOTSUP;
+	}
+
+	return 0;
+}
+
 static int ble_hog_init(const struct device *dev)
 {
 	return 0;
@@ -318,9 +343,11 @@ static const struct hid_output_api ble_hog_api = {
 		.svc = &ble_hog_svc_##n,				\
 	};								\
 									\
+	PM_DEVICE_DT_INST_DEFINE(n, ble_hog_pm_action);			\
+									\
 	static struct ble_hog_data ble_hog_data_##n;			\
 									\
-DEVICE_DT_INST_DEFINE(n, ble_hog_init, NULL,				\
+DEVICE_DT_INST_DEFINE(n, ble_hog_init, PM_DEVICE_DT_INST_GET(n),	\
 		      &ble_hog_data_##n, &ble_hog_cfg_##n,		\
 		      POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,	\
 		      &ble_hog_api);
