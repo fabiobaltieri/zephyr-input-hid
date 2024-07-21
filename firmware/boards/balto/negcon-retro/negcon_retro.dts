@@ -86,7 +86,6 @@
 		};
 		axis-l {
 			io-channels = <&adc 3>;
-			in-deadzone = <50>;
 			in-min = <100>;
 			in-max = <800>;
 			zephyr,axis = <INPUT_ABS_RX>;
