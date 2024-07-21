@@ -66,6 +66,16 @@
 		in-report-size = <32>;
 		in-polling-period-us = <1000>;
 	};
+
+	xinput1 {
+		compatible = "xinput";
+		input = <&buttons>;
+	};
+
+	xinput2 {
+		compatible = "xinput";
+		input = <&buttons>;
+	};
 };
 
 led_input_blink: &led1_red {};

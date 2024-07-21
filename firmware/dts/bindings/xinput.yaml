@@ -1,0 +1,9 @@
+description: xinput
+
+compatible: "xinput"
+
+include: base.yaml
+
+properties:
+  input:
+    type: phandles
