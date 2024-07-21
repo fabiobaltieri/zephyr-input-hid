@@ -58,19 +58,19 @@
 		};
 
 		hat_up {
-			gpios = <&ioexp_r 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&ioexp_r 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			zephyr,code = <INPUT_BTN_DPAD_UP>;
 		};
 		hat_down {
-			gpios = <&ioexp_r 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&ioexp_r 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			zephyr,code = <INPUT_BTN_DPAD_DOWN>;
 		};
 		hat_left {
-			gpios = <&ioexp_r 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&ioexp_r 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			zephyr,code = <INPUT_BTN_DPAD_LEFT>;
 		};
 		hat_right {
-			gpios = <&ioexp_r 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&ioexp_r 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			zephyr,code = <INPUT_BTN_DPAD_RIGHT>;
 		};
 		/* clicks with the rest of the hat switches
