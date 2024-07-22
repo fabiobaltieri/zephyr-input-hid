@@ -97,7 +97,7 @@
 	 };
 };
 
-led_blinker: &led0 {};
+led_status: &led0 {};
 led_input_activity: &led1 {};
 
 &i2c0 {
