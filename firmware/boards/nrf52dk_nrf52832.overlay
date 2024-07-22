@@ -98,7 +98,7 @@
 };
 
 led_blinker: &led0 {};
-led_input_blink: &led1 {};
+led_input_activity: &led1 {};
 
 &i2c0 {
 	status = "disabled";

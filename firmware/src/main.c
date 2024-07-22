@@ -9,8 +9,8 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 static struct k_sem blink_sem = Z_SEM_INITIALIZER(blink_sem, 0, 10);
 
-#if DT_NODE_EXISTS(DT_NODELABEL(led_input_blink))
-#define BLINKER_NODE DT_NODELABEL(led_input_blink)
+#if DT_NODE_EXISTS(DT_NODELABEL(led_input_activity))
+#define BLINKER_NODE DT_NODELABEL(led_input_activity)
 static const struct device *leds = DEVICE_DT_GET(DT_PARENT(BLINKER_NODE));
 static const uint32_t blinker_led = DT_NODE_CHILD_IDX(BLINKER_NODE);
 #else

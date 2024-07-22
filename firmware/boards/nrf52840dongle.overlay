@@ -78,4 +78,4 @@
 	};
 };
 
-led_input_blink: &led1_red {};
+led_input_activity: &led1_red {};

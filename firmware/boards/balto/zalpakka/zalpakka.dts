@@ -28,7 +28,7 @@
 		led_touch: pwm_led_3 {
 			pwms = <&pwm0 2 PWM_HZ(200) PWM_POLARITY_NORMAL>;
 		};
-		led_input_blink: pwm_led_4 {
+		led_input_activity: pwm_led_4 {
 			pwms = <&pwm0 3 PWM_HZ(200) PWM_POLARITY_NORMAL>;
 		};
 	};
