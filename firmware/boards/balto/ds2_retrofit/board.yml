@@ -1,0 +1,5 @@
+board:
+  name: ds2_retrofit
+  vendor: balto
+  socs:
+    - name: nrf52832

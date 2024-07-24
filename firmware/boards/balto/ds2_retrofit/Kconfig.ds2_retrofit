@@ -1,0 +1,2 @@
+config BOARD_DS2_RETROFIT
+	select SOC_NRF52832_QFAA

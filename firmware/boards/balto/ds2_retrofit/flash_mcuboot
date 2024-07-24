@@ -1,0 +1,15 @@
+#!/bin/sh
+
+BUILDDIR=build-mcuboot
+
+west build -p -d $BUILDDIR \
+	-b ds2_retrofit \
+	$HOME/zephyrproject/bootloader/mcuboot/boot/zephyr \
+	-- \
+	-DCONFIG_BOOT_SIGNATURE_KEY_FILE=\"$PWD/ds2-retrofit-key.pem\" \
+	-DBOARD_ROOT="$PWD" \
+	-DCONFIG_MCUBOOT_LOG_LEVEL_WRN=y \
+	-DCONFIG_GPIO_PCAL64XXA=n -DCONFIG_I2C=n -DCONFIG_GPIO=n
+
+#west build -d $BUILDDIR -t menuconfig
+west flash -d $BUILDDIR -r nrfjprog

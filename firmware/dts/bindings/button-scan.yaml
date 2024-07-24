@@ -1,0 +1,46 @@
+description: Button scan device
+
+compatible: "button-scan"
+
+include: base.yaml
+
+properties:
+  group1-gpios:
+    type: phandle-array
+    required: true
+
+  group2-gpios:
+    type: phandle-array
+    required: true
+
+  group-delay-ms:
+    type: int
+    required: true
+
+  input-delay-us:
+    type: int
+    required: true
+
+  input-gpios:
+    type: phandle-array
+    required: true
+
+  pwms:
+    type: phandle-array
+    required: true
+
+  pulse-group1-pct:
+    type: int
+    required: true
+
+  pulse-group2-pct:
+    type: int
+    required: true
+
+  codes-group1:
+    type: array
+    required: true
+
+  codes-group2:
+    type: array
+    required: true

@@ -1,0 +1,9 @@
+if BOARD_DS2_RETROFIT
+
+config BT_CTLR
+	default BT
+
+config SOC_DCDC_NRF52X
+	default y
+
+endif

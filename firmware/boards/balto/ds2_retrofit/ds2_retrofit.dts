@@ -1,0 +1,328 @@
+/dts-v1/;
+#include <nordic/nrf52832_qfaa.dtsi>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include "ds2_retrofit-pinctrl.dtsi"
+#include <dt-bindings/hid.h>
+
+/ {
+	model = "DS2 Retrofit";
+	compatible = "balto,ds2-retrofit";
+
+	zephyr,user {
+		chrg-gpios = <&pcal6408a 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+	};
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_input_activity: led_a {
+			gpios = <&gpio0 24 GPIO_ACTIVE_HIGH>;
+		};
+		led_status: led_b {
+			gpios = <&pcal6408a 2 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	buttons: buttons {
+		compatible = "gpio-keys";
+		debounce-interval-ms = <3>;
+
+		wkup: button_analog {
+			gpios = <&gpio0 20 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_MODE>;
+		};
+		button_select {
+			gpios = <&pcal6408a 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_SELECT>;
+		};
+		button_start {
+			gpios = <&pcal6408a 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_START>;
+		};
+		button_ts_l {
+			gpios = <&pcal6408a 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_THUMBL>;
+		};
+		button_ts_r {
+			gpios = <&pcal6408a 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_THUMBR>;
+		};
+	};
+
+	button_scan: button-scan {
+		compatible = "button-scan";
+		group1-gpios = <&gpio0  9 GPIO_ACTIVE_HIGH>, /* UP */
+			       <&gpio0 10 GPIO_ACTIVE_HIGH>, /* DOWN */
+			       <&gpio0 19 GPIO_ACTIVE_HIGH>, /* NORTH */
+			       <&gpio0 18 GPIO_ACTIVE_HIGH>, /* SOUTH */
+			       <&gpio0 11 GPIO_ACTIVE_HIGH>, /* L1 */
+			       <&gpio0  8 GPIO_ACTIVE_HIGH>, /* L2 */
+			       <&gpio0 16 GPIO_ACTIVE_HIGH>, /* R1 */
+			       <&gpio0 17 GPIO_ACTIVE_HIGH>; /* R2 */
+		codes-group1 = <INPUT_BTN_DPAD_UP>,
+			       <INPUT_BTN_DPAD_DOWN>,
+			       <INPUT_BTN_NORTH>,
+			       <INPUT_BTN_SOUTH>,
+			       <INPUT_BTN_TL>,
+			       <INPUT_BTN_TL2>,
+			       <INPUT_BTN_TR>,
+			       <INPUT_BTN_TR2>;
+
+		group2-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>, /* LEFT */
+			       <&gpio0 13 GPIO_ACTIVE_HIGH>, /* RIGHT */
+			       <&gpio0 14 GPIO_ACTIVE_HIGH>, /* WEST */
+			       <&gpio0 15 GPIO_ACTIVE_HIGH>; /* EAST */
+		codes-group2 = <INPUT_BTN_DPAD_LEFT>,
+			       <INPUT_BTN_DPAD_RIGHT>,
+			       <INPUT_BTN_WEST>,
+			       <INPUT_BTN_EAST>;
+
+		group-delay-ms = <4>;
+		input-gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
+		input-delay-us = <6>;
+		pwms = <&pwm1 0 PWM_KHZ(100) PWM_POLARITY_NORMAL>;
+		pulse-group1-pct = <30>;
+		pulse-group2-pct = <27>;
+	};
+
+	aa: analog_axis {
+		compatible = "analog-axis";
+		axis-y {
+			io-channels = <&adc 0>;
+			in-deadzone = <16>;
+			in-min = <(-160)>;
+			in-max = <160>;
+			zephyr,axis = <INPUT_ABS_Y>;
+			invert;
+		};
+		axis-x {
+			io-channels = <&adc 1>;
+			in-deadzone = <16>;
+			in-min = <(-160)>;
+			in-max = <160>;
+			zephyr,axis = <INPUT_ABS_X>;
+		};
+		axis-ry {
+			io-channels = <&adc 2>;
+			in-deadzone = <16>;
+			in-min = <(-160)>;
+			in-max = <160>;
+			zephyr,axis = <INPUT_ABS_RY>;
+			invert;
+		};
+		axis-rx {
+			io-channels = <&adc 3>;
+			in-deadzone = <16>;
+			in-min = <(-160)>;
+			in-max = <160>;
+			zephyr,axis = <INPUT_ABS_RX>;
+		};
+	};
+
+	dcdc_mode: dcdc_mode {
+		 compatible = "regulator-fixed";
+		 regulator-name = "dcdc_mode";
+		 enable-gpios = <&pcal6408a 5 GPIO_ACTIVE_HIGH>;
+	};
+
+	analog_pwr: analog_pwr {
+		 compatible = "regulator-fixed";
+		 regulator-name = "analog_pwr";
+		 enable-gpios = <&pcal6408a 7 GPIO_ACTIVE_HIGH>;
+		 regulator-boot-on;
+	};
+
+	suspend-gpios {
+		compatible = "suspend-gpios";
+		gpios = <&gpio0 25 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0  8 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0  9 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 10 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 11 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 12 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 14 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 15 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 16 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 17 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 18 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 19 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&pcal6408a 0 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&pcal6408a 1 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&pcal6408a 3 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+			<&pcal6408a 4 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+	};
+
+	hid {
+		compatible = "hid";
+		input {
+			hid-gamepad {
+				compatible = "hid-gamepad";
+				input = <&aa &buttons &button_scan>;
+				input-id = <1>;
+				report = <HID_GAMEPAD_REPORT(1)>;
+			};
+		};
+		output {
+			hid-hog {
+				compatible = "hid-hog";
+			};
+		};
+	};
+
+	ble-unpair {
+		input = <&buttons>;
+		compatible = "ble-unpair";
+		key-a = <INPUT_BTN_START>;
+		key-b = <INPUT_BTN_NORTH>;
+	};
+};
+
+&uicr {
+	nfct-pins-as-gpios;
+	gpio-as-nreset;
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 3)>;
+		zephyr,input-positive = <NRF_SAADC_AIN0>;
+		zephyr,input-negative = <NRF_SAADC_AIN1>;
+		zephyr,resolution = <10>;
+	};
+
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 3)>;
+		zephyr,input-positive = <NRF_SAADC_AIN3>;
+		zephyr,input-negative = <NRF_SAADC_AIN2>;
+		zephyr,resolution = <10>;
+	};
+
+	channel@2 {
+		reg = <2>;
+		zephyr,gain = "ADC_GAIN_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 3)>;
+		zephyr,input-positive = <NRF_SAADC_AIN5>;
+		zephyr,input-negative = <NRF_SAADC_AIN4>;
+		zephyr,resolution = <10>;
+	};
+
+	channel@3 {
+		reg = <3>;
+		zephyr,gain = "ADC_GAIN_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 3)>;
+		zephyr,input-positive = <NRF_SAADC_AIN7>;
+		zephyr,input-negative = <NRF_SAADC_AIN6>;
+		zephyr,resolution = <10>;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+	compatible = "nordic,nrf-uarte";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	pcal6408a: pcal6408a@20 {
+		compatible = "nxp,pcal6408a";
+		status = "okay";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		ngpios = <8>;
+		int-gpios = <&gpio0 25 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+	};
+
+	fuel_gauge: max17055@36 {
+		compatible = "maxim,max17055";
+		reg = <0x36>;
+		design-capacity = <150>;
+		design-voltage = <4200>;
+		desired-voltage = <4200>;
+		desired-charging-current = <450>;
+		i-chg-term = <10>;
+		rsense-mohms = <7>;
+		v-empty = <2800>;
+	};
+
+	drv_l: drv8830@60 {
+		compatible = "ti,drv8830";
+		reg = <0x60>;
+	};
+
+	drv_r: drv8830@61 {
+		compatible = "ti,drv8830";
+		reg = <0x61>;
+	};
+};
+
+&pwm1 {
+	status = "okay";
+	pinctrl-0 = <&pwm1_default>;
+	pinctrl-1 = <&pwm1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0x8000>;
+		};
+		slot0_partition: partition@8000 {
+			label = "image-0";
+			reg = <0x00008000 0x3a000>;
+		};
+		slot1_partition: partition@42000 {
+			label = "image-1";
+			reg = <0x00042000 0x3a000>;
+		};
+		storage_partition: partition@7c000 {
+			label = "storage";
+			reg = <0x0007c000 0x00004000>;
+		};
+	};
+};
