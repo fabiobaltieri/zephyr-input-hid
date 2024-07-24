@@ -20,6 +20,7 @@ jobs:
         board: 
           - ble_pulse_encoder
           - darfon
+          - ds2_retrofit
           - kbd_matrix
           - negcon_retro
           - nrf52840dongle
