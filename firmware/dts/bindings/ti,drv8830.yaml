@@ -1,0 +1,5 @@
+description: DRV8830 Low-Voltage Motor Driver With Serial Interface
+
+compatible: "ti,drv8830"
+
+include: [sensor-device.yaml, i2c-device.yaml]

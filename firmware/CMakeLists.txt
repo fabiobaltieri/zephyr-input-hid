@@ -29,5 +29,6 @@ target_sources_ifdef(CONFIG_DT_HAS_HID_HOG_ENABLED app PRIVATE src/ble_hog.c)
 target_sources_ifdef(CONFIG_DT_HAS_USB_HID_ENABLED app PRIVATE src/usb_hid.c)
 target_sources_ifdef(CONFIG_DT_HAS_BLE_UNPAIR_ENABLED app PRIVATE src/ble_unpair.c)
 target_sources_ifdef(CONFIG_DT_HAS_XINPUT_ENABLED app PRIVATE src/xinput.c)
+target_sources_ifdef(CONFIG_DT_HAS_TI_DRV8830_ENABLED app PRIVATE src/drv8830.c)
 
 target_sources_ifdef(CONFIG_USB_DEVICE_STACK_NEXT app PRIVATE src/usbd.c)
