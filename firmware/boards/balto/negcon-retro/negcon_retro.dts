@@ -26,6 +26,7 @@
 
 	buttons: buttons {
 		compatible = "gpio-keys";
+		debounce-interval-ms = <3>;
 
 		wkup: button_start {
 			gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
