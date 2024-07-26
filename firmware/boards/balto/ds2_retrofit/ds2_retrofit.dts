@@ -181,8 +181,8 @@
 	ble-unpair {
 		input = <&buttons>;
 		compatible = "ble-unpair";
-		key-a = <INPUT_BTN_START>;
-		key-b = <INPUT_BTN_NORTH>;
+		key-a = <INPUT_BTN_MODE>;
+		key-b = <INPUT_BTN_START>;
 	};
 };
 
