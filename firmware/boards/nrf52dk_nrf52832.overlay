@@ -42,7 +42,7 @@
 			};
 			hid-mouse {
 				compatible = "hid-mouse";
-				input = <&buttons_2 &paw>;
+				input = <&buttons_2>;
 				input-id = <2>;
 				report = <HID_MOUSE_REPORT(2)>;
 			};
@@ -87,14 +87,6 @@
 			};
 		};
 	};
-
-	paw-pwr {
-		compatible = "regulator-fixed";
-		regulator-name = "paw-pwr";
-		enable-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
-		regulator-boot-on;
-		startup-delay-us = <100000>;
-	 };
 };
 
 led_status: &led0 {};
@@ -117,19 +109,5 @@ led_input_activity: &led1 {};
 		psels = <NRF_PSEL(SPIM_SCK, 0, 27)>,
 			<NRF_PSEL(SPIM_MOSI, 0, 26)>,
 			<NRF_PSEL(SPIM_MISO, 0, 26)>;
-	};
-};
-
-&spi2 {
-	cs-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
-	paw: paw3222@0 {
-		compatible = "pixart,paw32xx";
-		reg = <0>;
-		spi-max-frequency = <DT_FREQ_M(2)>;
-		motion-gpios = <&gpio0 24 GPIO_ACTIVE_LOW>;
-		zephyr,axis-x = <INPUT_REL_X>;
-		zephyr,axis-y = <INPUT_REL_Y>;
-		invert-x;
-		res-cpi = <800>;
 	};
 };
