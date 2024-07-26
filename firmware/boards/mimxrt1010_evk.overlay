@@ -1,0 +1,68 @@
+#include <dt-bindings/hid.h>
+
+/ {
+	buttons: gpio_keys {
+		button-1 {
+			zephyr,code = <INPUT_BTN_WEST>;
+		};
+	};
+
+	aa: analog_axis {
+		compatible = "analog-axis";
+		poll-period-ms = <1>;
+		axis-x {
+			io-channels = <&adc1 1>;
+			in-min = <90>;
+			in-max = <900>;
+			in-deadzone = <50>;
+			zephyr,axis = <INPUT_ABS_X>;
+		};
+	};
+
+	hid {
+		compatible = "hid";
+		input {
+			hid-gamepad {
+				compatible = "hid-gamepad";
+				input = <&buttons &aa>;
+				input-id = <1>;
+				report = <HID_GAMEPAD_REPORT(1)>;
+			};
+		};
+		output {
+			usb-hid {
+				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_0>;
+			};
+		};
+	};
+
+	hid_dev_0: hid_dev_0 {
+		compatible = "zephyr,hid-device";
+		interface-name = "HID0";
+		in-report-size = <16>;
+		in-polling-period-us = <125>;
+		out-report-size = <8>;
+		out-polling-period-us = <5000>;
+	};
+
+	xinput0 {
+		compatible = "xinput";
+		input = <&buttons>;
+	};
+};
+
+led_input_activity: &green_led {};
+
+&adc1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,resolution = <10>;
+	};
+};

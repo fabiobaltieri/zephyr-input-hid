@@ -22,6 +22,7 @@ jobs:
           - darfon
           - ds2_retrofit
           - kbd_matrix
+          - mimxrt1010_evk
           - negcon_retro
           - nrf52840dongle
           - nrf52dk/nrf52832
