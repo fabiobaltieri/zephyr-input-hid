@@ -136,7 +136,7 @@ static int cmd_analog_axis_cal(const struct shell *sh, size_t argc, char **argv)
 
 static void raw_print_cb(const struct device *dev, int channel, int16_t raw_val)
 {
-	LOG_INF("%s: %d: %d", dev->name, channel, raw_val);
+	LOG_INF("%s: chan=%d val=%d", dev->name, channel, raw_val);
 }
 
 static int cmd_analog_axis_raw_print(const struct shell *sh, size_t argc, char **argv)
@@ -211,7 +211,7 @@ static int cmd_analog_axis_calibration_set(const struct shell *sh, size_t argc, 
 	cal.in_min = in_min;
 	cal.in_max = in_max;
 	cal.in_deadzone = in_deadzone;
-	LOG_INF("%d %d %d", cal.in_min, cal.in_max, cal.in_deadzone);
+	LOG_INF("min=%d max=%d deadzone=%d", cal.in_min, cal.in_max, cal.in_deadzone);
 
 	err = analog_axis_calibration_set(dev, chan, &cal);
 	if (err < 0) {
