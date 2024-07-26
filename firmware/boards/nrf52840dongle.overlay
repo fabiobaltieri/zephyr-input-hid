@@ -67,12 +67,12 @@
 		in-polling-period-us = <1000>;
 	};
 
-	xinput1 {
+	xinput0 {
 		compatible = "xinput";
 		input = <&buttons>;
 	};
 
-	xinput2 {
+	xinput1 {
 		compatible = "xinput";
 		input = <&buttons>;
 	};
