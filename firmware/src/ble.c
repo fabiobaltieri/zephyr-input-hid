@@ -7,7 +7,7 @@
 #include <zephyr/settings/settings.h>
 #include <zephyr/shell/shell.h>
 
-#include "blinker.h"
+#include "event.h"
 
 LOG_MODULE_REGISTER(ble, LOG_LEVEL_INF);
 
@@ -43,7 +43,7 @@ static int cmd_ble_unpair(const struct shell *sh, size_t argc, char **argv)
 
 	shell_print(sh, "Pairing successfully cleared");
 
-	blink(BLINK_UNPAIRED);
+	event(EVENT_BT_UNPAIRED);
 
 	return 0;
 }

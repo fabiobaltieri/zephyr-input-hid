@@ -4,7 +4,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/pm/device.h>
 
-#include "blinker.h"
+#include "event.h"
 
 LOG_MODULE_REGISTER(ble_state, LOG_LEVEL_INF);
 
@@ -16,7 +16,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 		pm_device_action_run(sensor, PM_DEVICE_ACTION_RESUME);
 	}
 
-	blink(BLINK_CONNECTED);
+	event(EVENT_BT_CONNECTED);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -25,7 +25,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 		pm_device_action_run(sensor, PM_DEVICE_ACTION_SUSPEND);
 	}
 
-	blink(BLINK_DISCONNECTED);
+	event(EVENT_BT_DISCONNECTED);
 }
 
 BT_CONN_CB_DEFINE(conn_callbacks) = {

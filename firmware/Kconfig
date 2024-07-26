@@ -28,12 +28,6 @@ config APP_CHARGER
 	depends on "$(dt_nodelabel_enabled,charger)"
 	select CHARGER
 
-config APP_BLINKER
-	bool "Blinker support"
-	default y
-	depends on "$(dt_nodelabel_enabled,led_status)"
-	select LED
-
 config APP_AUTO_POWEROFF
 	bool "Auto power-off"
 	default y

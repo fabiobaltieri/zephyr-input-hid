@@ -5,7 +5,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-#include "blinker.h"
+#include "event.h"
 
 LOG_MODULE_REGISTER(ble_unpair, LOG_LEVEL_INF);
 
@@ -18,7 +18,7 @@ static void unpair_handler(struct k_work *work)
 {
 	bt_unpair(BT_ID_DEFAULT, NULL);
 
-	blink(BLINK_UNPAIRED);
+	event(EVENT_BT_UNPAIRED);
 }
 
 K_WORK_DELAYABLE_DEFINE(unpair_dwork, unpair_handler);

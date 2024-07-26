@@ -10,13 +10,15 @@ zephyr_include_directories(include)
 
 target_sources(app PRIVATE
 	src/main.c
+	src/event.c
 )
+
+zephyr_linker_sources(ROM_SECTIONS src/event.ld)
 
 target_sources_ifdef(CONFIG_BT app PRIVATE src/ble.c src/ble_status.c)
 
 target_sources_ifdef(CONFIG_APP_BAS_FUEL_GAUGE app PRIVATE src/bas_fuel_gauge.c)
 target_sources_ifdef(CONFIG_APP_BAS_ADC app PRIVATE src/bas_adc.c)
-target_sources_ifdef(CONFIG_APP_BLINKER app PRIVATE src/blinker.c)
 target_sources_ifdef(CONFIG_APP_CHARGER app PRIVATE src/charger.c)
 target_sources_ifdef(CONFIG_APP_AUTO_POWEROFF app PRIVATE src/auto_poweroff.c)
 target_sources_ifdef(CONFIG_INPUT_ANALOG_AXIS app PRIVATE src/analog-axis-shell.c)

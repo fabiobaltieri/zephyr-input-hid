@@ -8,7 +8,7 @@
 #include <zephyr/sys/poweroff.h>
 
 #include "ble.h"
-#include "blinker.h"
+#include "event.h"
 
 LOG_MODULE_REGISTER(auto_poweroff, LOG_LEVEL_INF);
 
@@ -51,7 +51,7 @@ static void auto_poweroff_handler(struct k_work *work)
 
 	k_sleep(K_SECONDS(1));
 
-	blink(BLINK_POWEROFF);
+	event(EVENT_POWEROFF);
 
 	k_sleep(K_SECONDS(2));
 
