@@ -7,7 +7,7 @@
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
-static struct k_sem blink_sem = Z_SEM_INITIALIZER(blink_sem, 0, 10);
+static struct k_sem blink_sem = Z_SEM_INITIALIZER(blink_sem, 0, 4);
 
 #if DT_NODE_EXISTS(DT_NODELABEL(led_input_activity))
 #define BLINKER_NODE DT_NODELABEL(led_input_activity)
@@ -37,9 +37,9 @@ int main(void)
 			blink(BLINK_BLINK);
 		} else {
 			led_on(leds, blinker_led);
-			k_sleep(K_MSEC(30));
+			k_sleep(K_MSEC(20));
 			led_off(leds, blinker_led);
-			k_sleep(K_MSEC(30));
+			k_sleep(K_MSEC(20));
 		}
 	}
 
