@@ -41,6 +41,10 @@ config APP_AUTO_POWEROFF
 	select POWEROFF
 	depends on BT
 
+config APP_USB_REMOTE_WAKEUP
+	bool "USB Remote Wakeup"
+	depends on USB_DEVICE_STACK_NEXT
+
 if USB_DEVICE_STACK_NEXT
 
 config APP_USB_VID
