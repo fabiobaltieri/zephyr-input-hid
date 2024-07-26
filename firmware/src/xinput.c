@@ -27,7 +27,9 @@ struct xinput_desc {
 	struct usb_if_descriptor if0;
 	char undocumented[16];
 	struct usb_ep_descriptor if0_in_ep;
+	struct usb_ep_descriptor if0_in_ep_hs;
 	struct usb_ep_descriptor if0_out_ep;
+	struct usb_ep_descriptor if0_out_ep_hs;
 };
 
 struct xinput_config {
@@ -35,6 +37,7 @@ struct xinput_config {
 	struct usbd_class_data *c_data;
 	struct xinput_desc *desc;
 	const struct usb_desc_header **fs_desc;
+	const struct usb_desc_header **hs_desc;
 };
 
 struct xinput_data {
@@ -42,48 +45,76 @@ struct xinput_data {
 
 #define XINPUT_BUF_COUNT 4
 
-#define XINPUT_DESC_INIT()					\
-{								\
-	.if0 = {						\
-		.bLength = sizeof(struct usb_if_descriptor),	\
-		.bDescriptorType = USB_DESC_INTERFACE,		\
-		.bInterfaceNumber = 0,				\
-		.bAlternateSetting = 0,				\
-		.bNumEndpoints = 2,				\
-		.bInterfaceClass = USB_BCC_VENDOR,		\
-		.bInterfaceSubClass = 0x5d,			\
-		.bInterfaceProtocol = 1,			\
-		.iInterface = 0,				\
-	},							\
-	.undocumented = {					\
-		0x10, 0x21, 0x10, 0x01, 0x01, 0x24, 0x81, 0x14,	\
-		0x03, 0x00, 0x03, 0x13, 0x02, 0x00, 0x03, 0x00,	\
-	},							\
-	.if0_in_ep = {						\
-		.bLength = sizeof(struct usb_ep_descriptor),	\
-		.bDescriptorType = USB_DESC_ENDPOINT,		\
-		.bEndpointAddress = 0x81,			\
-		.bmAttributes = USB_EP_TYPE_INTERRUPT,		\
-		.wMaxPacketSize = sys_cpu_to_le16(32U),		\
-		.bInterval = 0x04,				\
-	},							\
-	.if0_out_ep = {						\
-		.bLength = sizeof(struct usb_ep_descriptor),	\
-		.bDescriptorType = USB_DESC_ENDPOINT,		\
-		.bEndpointAddress = 0x01,			\
-		.bmAttributes = USB_EP_TYPE_INTERRUPT,		\
-		.wMaxPacketSize = sys_cpu_to_le16(32U),		\
-		.bInterval = 0x08,				\
-	},							\
+#define INTERVAL_IN_US 4000
+#define INTERVAL_OUT_US 8000
+
+#define XINPUT_DESC_INIT()						\
+{									\
+	.if0 = {							\
+		.bLength = sizeof(struct usb_if_descriptor),		\
+		.bDescriptorType = USB_DESC_INTERFACE,			\
+		.bInterfaceNumber = 0,					\
+		.bAlternateSetting = 0,					\
+		.bNumEndpoints = 2,					\
+		.bInterfaceClass = USB_BCC_VENDOR,			\
+		.bInterfaceSubClass = 0x5d,				\
+		.bInterfaceProtocol = 1,				\
+		.iInterface = 0,					\
+	},								\
+	.undocumented = {						\
+		0x10, 0x21, 0x10, 0x01, 0x01, 0x24, 0x81, 0x14,		\
+		0x03, 0x00, 0x03, 0x13, 0x02, 0x00, 0x03, 0x00,		\
+	},								\
+	.if0_in_ep = {							\
+		.bLength = sizeof(struct usb_ep_descriptor),		\
+		.bDescriptorType = USB_DESC_ENDPOINT,			\
+		.bEndpointAddress = 0x81,				\
+		.bmAttributes = USB_EP_TYPE_INTERRUPT,			\
+		.wMaxPacketSize = sys_cpu_to_le16(32U),			\
+		.bInterval = USB_FS_INT_EP_INTERVAL(INTERVAL_IN_US),	\
+	},								\
+	.if0_in_ep_hs = {						\
+		.bLength = sizeof(struct usb_ep_descriptor),		\
+		.bDescriptorType = USB_DESC_ENDPOINT,			\
+		.bEndpointAddress = 0x81,				\
+		.bmAttributes = USB_EP_TYPE_INTERRUPT,			\
+		.wMaxPacketSize = sys_cpu_to_le16(32U),			\
+		.bInterval = USB_HS_INT_EP_INTERVAL(INTERVAL_IN_US),	\
+	},								\
+	.if0_out_ep = {							\
+		.bLength = sizeof(struct usb_ep_descriptor),		\
+		.bDescriptorType = USB_DESC_ENDPOINT,			\
+		.bEndpointAddress = 0x01,				\
+		.bmAttributes = USB_EP_TYPE_INTERRUPT,			\
+		.wMaxPacketSize = sys_cpu_to_le16(32U),			\
+		.bInterval = USB_FS_INT_EP_INTERVAL(INTERVAL_OUT_US),	\
+	},								\
+	.if0_out_ep_hs = {						\
+		.bLength = sizeof(struct usb_ep_descriptor),		\
+		.bDescriptorType = USB_DESC_ENDPOINT,			\
+		.bEndpointAddress = 0x01,				\
+		.bmAttributes = USB_EP_TYPE_INTERRUPT,			\
+		.wMaxPacketSize = sys_cpu_to_le16(32U),			\
+		.bInterval = USB_HS_INT_EP_INTERVAL(INTERVAL_OUT_US),	\
+	},								\
 };
 
-#define XINPUT_DESC_HEADER(desc)			\
+#define XINPUT_FS_DESC_HEADER(desc)			\
 {							\
 	(struct usb_desc_header *)&desc.if0,		\
 	(struct usb_desc_header *)&desc.undocumented,	\
 	(struct usb_desc_header *)&desc.if0_out_ep,	\
 	(struct usb_desc_header *)&desc.if0_in_ep,	\
-	NULL, \
+	NULL,						\
+};
+
+#define XINPUT_HS_DESC_HEADER(desc)			\
+{							\
+	(struct usb_desc_header *)&desc.if0,		\
+	(struct usb_desc_header *)&desc.undocumented,	\
+	(struct usb_desc_header *)&desc.if0_out_ep_hs,	\
+	(struct usb_desc_header *)&desc.if0_in_ep_hs,	\
+	NULL,						\
 };
 
 static void xinput_update(struct usbd_class_data *c_data,
@@ -134,6 +165,10 @@ static void *xinput_get_desc(struct usbd_class_data *const c_data,
 {
 	const struct device *dev = usbd_class_get_private(c_data);
 	const struct xinput_config *cfg = dev->config;
+
+	if (speed == USBD_SPEED_HS) {
+		return cfg->hs_desc;
+	}
 
 	return cfg->fs_desc;
 }
@@ -217,13 +252,16 @@ static void xinput_cb(const struct device *dev, struct input_event *evt)
 											\
 	struct xinput_desc xinput_desc_##n = XINPUT_DESC_INIT();			\
 	const static struct usb_desc_header *xinput_fs_desc_##n[] =			\
-		XINPUT_DESC_HEADER(xinput_desc_##n);					\
+		XINPUT_FS_DESC_HEADER(xinput_desc_##n);					\
+	const static struct usb_desc_header *xinput_hs_desc_##n[] =			\
+		XINPUT_HS_DESC_HEADER(xinput_desc_##n);					\
 											\
 	static const struct xinput_config xinput_cfg_##n = {				\
 		.pool_in = &xinput_buf_pool_in_##n,					\
 		.c_data = &xinput_##n,							\
 		.desc = &xinput_desc_##n,						\
 		.fs_desc = xinput_fs_desc_##n,						\
+		.hs_desc = xinput_hs_desc_##n,						\
 	};										\
 											\
 	static struct xinput_data xinput_data_##n;					\
