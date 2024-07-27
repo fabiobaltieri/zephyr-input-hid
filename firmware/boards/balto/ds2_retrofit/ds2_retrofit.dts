@@ -101,7 +101,7 @@
 			in-min = <(-160)>;
 			in-max = <160>;
 			zephyr,axis = <INPUT_ABS_Y>;
-			invert;
+			invert-input;
 		};
 		axis-x {
 			io-channels = <&adc 1>;
@@ -116,7 +116,7 @@
 			in-min = <(-160)>;
 			in-max = <160>;
 			zephyr,axis = <INPUT_ABS_RY>;
-			invert;
+			invert-input;
 		};
 		axis-rx {
 			io-channels = <&adc 3>;
