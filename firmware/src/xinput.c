@@ -123,7 +123,7 @@ struct xinput_data {
 static void xinput_update(struct usbd_class_data *c_data,
 			  uint8_t iface, uint8_t alternate)
 {
-	LOG_INF("%s\n", __func__);
+	LOG_INF("%s", __func__);
 }
 
 static int xinput_control_to_host(struct usbd_class_data *c_data,
@@ -139,7 +139,7 @@ static int xinput_control_to_host(struct usbd_class_data *c_data,
 				MIN(sizeof(dummy), setup->wLength));
 	}
 
-	LOG_INF("%s\n", __func__);
+	LOG_INF("%s", __func__);
 	return 0;
 }
 
@@ -147,7 +147,7 @@ static int xinput_control_to_dev(struct usbd_class_data *c_data,
 				 const struct usb_setup_packet *const setup,
 				 const struct net_buf *const buf)
 {
-	LOG_INF("%s\n", __func__);
+	LOG_INF("%s", __func__);
 	return 0;
 }
 
@@ -194,18 +194,16 @@ static void xinput_enable(struct usbd_class_data *const c_data)
 	struct xinput_data *data = dev->data;
 
 	k_work_submit(&data->out_work);
-
-	LOG_INF("%s\n", __func__);
 }
 
 static void xinput_disable(struct usbd_class_data *const c_data)
 {
-	LOG_INF("%s\n", __func__);
+	LOG_INF("%s", __func__);
 }
 
 static int xinput_usb_init(struct usbd_class_data *c_data)
 {
-	LOG_INF("%s\n", __func__);
+	LOG_INF("%s", __func__);
 	return 0;
 }
 
