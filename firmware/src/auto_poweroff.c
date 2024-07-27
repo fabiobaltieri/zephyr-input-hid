@@ -68,7 +68,7 @@ static void auto_poweroff_handler(struct k_work *work)
 
 static K_WORK_DELAYABLE_DEFINE(auto_poweroff_dwork, auto_poweroff_handler);
 
-static void auto_poweroff_cb(struct input_event *evt)
+static void auto_poweroff_cb(struct input_event *evt, void *user_data)
 {
 	if (evt->type == INPUT_EV_ABS) {
 		return;
@@ -76,7 +76,7 @@ static void auto_poweroff_cb(struct input_event *evt)
 
 	k_work_reschedule(&auto_poweroff_dwork, AUTO_POWEROFF_TIME);
 }
-INPUT_CALLBACK_DEFINE(NULL, auto_poweroff_cb);
+INPUT_CALLBACK_DEFINE(NULL, auto_poweroff_cb, NULL);
 
 static int auto_poweroff_init(void)
 {

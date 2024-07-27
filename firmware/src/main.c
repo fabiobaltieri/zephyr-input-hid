@@ -146,7 +146,7 @@ void blinker_cb(enum event_code code)
 }
 EVENT_CALLBACK_DEFINE(blinker_cb);
 
-static void blink_input_cb(struct input_event *evt)
+static void blink_input_cb(struct input_event *evt, void *user_data)
 {
 	if (!evt->sync) {
 		return;
@@ -154,4 +154,4 @@ static void blink_input_cb(struct input_event *evt)
 
 	event(EVENT_INPUT);
 }
-INPUT_CALLBACK_DEFINE(NULL, blink_input_cb);
+INPUT_CALLBACK_DEFINE(NULL, blink_input_cb, NULL);

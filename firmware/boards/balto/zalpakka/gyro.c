@@ -170,7 +170,7 @@ static void imu_configure(const struct device *dev, int freq, int full_scale)
 	}
 }
 
-static void gyro_input_cb(struct input_event *evt)
+static void gyro_input_cb(struct input_event *evt, void *user_data)
 {
 	if (evt->code == INPUT_BTN_TOUCH) {
 		if (evt->value) {
@@ -180,7 +180,7 @@ static void gyro_input_cb(struct input_event *evt)
 		}
 	}
 }
-INPUT_CALLBACK_DEFINE(NULL, gyro_input_cb);
+INPUT_CALLBACK_DEFINE(NULL, gyro_input_cb, NULL);
 
 static void gyro_thread(void)
 {

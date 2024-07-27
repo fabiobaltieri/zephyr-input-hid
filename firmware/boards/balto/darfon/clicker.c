@@ -18,7 +18,7 @@ static void click_handler(struct k_work *work)
 }
 static K_WORK_DELAYABLE_DEFINE(click_dwork, click_handler);
 
-static void clicker_cb(struct input_event *evt)
+static void clicker_cb(struct input_event *evt, void *user_data)
 {
 	if (!evt->sync) {
 		return;
@@ -35,9 +35,9 @@ static void clicker_cb(struct input_event *evt)
 	pwm_set_pulse_dt(&clicker, clicker.period);
 	k_work_reschedule(&click_dwork, K_MSEC(30));
 }
-INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_NODELABEL(keymap)), clicker_cb);
+INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_NODELABEL(keymap)), clicker_cb, NULL);
 
-static void input_cb(struct input_event *evt)
+static void input_cb(struct input_event *evt, void *user_data)
 {
 	static int col, row, val;
 
@@ -64,4 +64,4 @@ static void input_cb(struct input_event *evt)
 		led_set_brightness(leds, LED_CLICKER, clicker_enabled ? 100: 0);
 	}
 }
-INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_NODELABEL(kbd)), input_cb);
+INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_NODELABEL(kbd)), input_cb, NULL);

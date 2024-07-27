@@ -23,7 +23,7 @@ static void unpair_handler(struct k_work *work)
 
 K_WORK_DELAYABLE_DEFINE(unpair_dwork, unpair_handler);
 
-static void unpair_cb(struct input_event *evt)
+static void unpair_cb(struct input_event *evt, void *user_data)
 {
 	static bool a, b;
 
@@ -44,4 +44,4 @@ static void unpair_cb(struct input_event *evt)
 		k_work_cancel_delayable(&unpair_dwork);
 	}
 }
-INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_INST_PHANDLE(0, input)), unpair_cb);
+INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_INST_PHANDLE(0, input)), unpair_cb, NULL);

@@ -273,8 +273,9 @@ static void xinput_out_handler(struct k_work *work)
 	}
 }
 
-static void xinput_cb(const struct device *dev, struct input_event *evt)
+static void xinput_cb(struct input_event *evt, void *user_data)
 {
+	const struct device *dev = user_data;
 	struct xinput_report report;
 
 	memset(&report, 0, sizeof(report));
@@ -311,12 +312,10 @@ static int xinput_init(const struct device *dev)
 }
 
 #define XINPUT_CB(node_id, prop, idx, n)						\
-	static void xinput_cb_##n##_##idx(struct input_event *evt)			\
-	{										\
-		xinput_cb(DEVICE_DT_GET(node_id), evt);					\
-	}										\
-	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
-			      xinput_cb_##n##_##idx);
+	INPUT_CALLBACK_DEFINE_NAMED(							\
+			DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),		\
+			xinput_cb, (void *)DEVICE_DT_GET(node_id),			\
+			xinput_cb_##idx##_##n);
 
 #define XINPUT_DEFINE(n)								\
 	DT_INST_FOREACH_PROP_ELEM_VARGS(n, input, XINPUT_CB, n)				\

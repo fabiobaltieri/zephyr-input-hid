@@ -23,7 +23,7 @@ static void sleep_handler(struct k_work *work)
 
 K_WORK_DELAYABLE_DEFINE(sleep_dwork, sleep_handler);
 
-static void pmw_cb(struct input_event *evt)
+static void pmw_cb(struct input_event *evt, void *user_data)
 {
 	if (!force_awake) {
 		pmw3610_force_awake(pmw, true);
@@ -33,4 +33,4 @@ static void pmw_cb(struct input_event *evt)
 
 	k_work_reschedule(&sleep_dwork, K_SECONDS(FORCE_AWAKE_TIMEOUT_S));
 }
-INPUT_CALLBACK_DEFINE(pmw, pmw_cb);
+INPUT_CALLBACK_DEFINE(pmw, pmw_cb, NULL);

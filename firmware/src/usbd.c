@@ -180,7 +180,7 @@ SYS_INIT(app_usbd_enable, APPLICATION, 0);
 
 static const uint16_t input_wakeup_codes[] = DT_PROP(USB_WAKEUP_NODE, key_codes);
 
-static void input_wakeup_cb(struct input_event *evt)
+static void input_wakeup_cb(struct input_event *evt, void *user_data)
 {
 	uint8_t i;
 
@@ -206,5 +206,5 @@ static void input_wakeup_cb(struct input_event *evt)
 	usbd_wakeup_request(&app_usbd);
 }
 INPUT_CALLBACK_DEFINE(DEVICE_DT_GET_OR_NULL(DT_PHANDLE(USB_WAKEUP_NODE, input)),
-		      input_wakeup_cb);
+		      input_wakeup_cb, NULL);
 #endif

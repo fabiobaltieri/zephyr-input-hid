@@ -151,8 +151,9 @@ static int hid_kbd_input_process_nkro(const struct device *dev,
 	return sizeof(*report);
 }
 
-static void hid_kbd_cb(const struct device *dev, struct input_event *evt)
+static void hid_kbd_cb(struct input_event *evt, void *user_data)
 {
+	const struct device *dev = user_data;
 	const struct hid_kbd_config *cfg = dev->config;
 
 	if (evt->type != INPUT_EV_KEY) {
@@ -202,13 +203,12 @@ static const struct hid_input_api hid_kbd_api = {
 	.out_report = hid_kbd_out_report,
 };
 
-#define HID_KBD_INPUT_CB(node_id, prop, idx, inst) \
-	static void hid_kbd_cb_##inst##_##idx(struct input_event *evt)			\
-	{										\
-		hid_kbd_cb(DEVICE_DT_GET(node_id), evt);				\
-	}										\
-	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
-			      hid_kbd_cb_##inst##_##idx);
+#define HID_KBD_INPUT_CB(node_id, prop, idx, inst)				\
+	INPUT_CALLBACK_DEFINE_NAMED(						\
+			DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
+			hid_kbd_cb,						\
+			(void *)DEVICE_DT_GET(node_id),				\
+			hid_kbd_cb_##idx##_##inst);
 
 #define HID_KBD_DEFINE(inst)								\
 	DT_INST_FOREACH_PROP_ELEM_VARGS(inst, input, HID_KBD_INPUT_CB, inst)		\

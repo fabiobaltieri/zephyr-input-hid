@@ -170,21 +170,21 @@ static int hid_gamepad_input_process(const struct device *dev,
 	return sizeof(*report);
 }
 
-static void hid_gamepad_cb(const struct device *dev, struct input_event *evt)
+static void hid_gamepad_cb(struct input_event *evt, void *user_data)
 {
+	const struct device *dev = user_data;
 	const struct hid_gamepad_config *cfg = dev->config;
 
 	hid_update_buffers(cfg->hid_dev, dev, cfg->input_id,
 			   hid_gamepad_input_process, evt);
 }
 
-#define HID_GAMEPAD_INPUT_CB(node_id, prop, idx, inst) \
-	static void hid_gamepad_cb_##inst##_##idx(struct input_event *evt)		\
-	{										\
-		hid_gamepad_cb(DEVICE_DT_GET(node_id), evt);				\
-	}										\
-	INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
-			      hid_gamepad_cb_##inst##_##idx);
+#define HID_GAMEPAD_INPUT_CB(node_id, prop, idx, inst)				\
+	INPUT_CALLBACK_DEFINE_NAMED(						\
+			DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node_id, prop, idx)),	\
+			hid_gamepad_cb,						\
+			(void *)DEVICE_DT_GET(node_id),				\
+			hid_gamepad_cb_##idx##_##inst);
 
 #define HID_GAMEPAD_DEFINE(inst)							\
 	DT_INST_FOREACH_PROP_ELEM_VARGS(inst, input, HID_GAMEPAD_INPUT_CB, inst)	\
