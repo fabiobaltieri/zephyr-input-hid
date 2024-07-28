@@ -10,5 +10,5 @@ void k_sys_fatal_error_handler(unsigned int reason,
 {
 	LOG_PANIC();
 	LOG_ERR("Fatal error - reboot");
-	sys_reboot(0);
+	sys_reboot(SYS_REBOOT_COLD);
 }

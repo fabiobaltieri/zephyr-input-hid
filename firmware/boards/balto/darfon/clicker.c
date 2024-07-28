@@ -58,7 +58,7 @@ static void input_cb(struct input_event *evt)
 	}
 
 	if (row == 5 && col == 0 && val == 1) {
-		sys_reboot(0);
+		sys_reboot(SYS_REBOOT_COLD);
 	} else if (row == 4 && col == 16 && val == 1) {
 		clicker_enabled = !clicker_enabled;
 		led_set_brightness(leds, LED_CLICKER, clicker_enabled ? 100: 0);
