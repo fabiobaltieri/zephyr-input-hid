@@ -3,6 +3,8 @@
 #include <zephyr/usb/usbd.h>
 #include <zephyr/input/input.h>
 
+#include "event.h"
+
 LOG_MODULE_REGISTER(usbd_app, LOG_LEVEL_INF);
 
 USBD_DEVICE_DEFINE(app_usbd,
@@ -25,6 +27,8 @@ USBD_CONFIGURATION_DEFINE(app_usb_hs_config, attributes, CONFIG_APP_USB_MAX_POWE
 static void usbd_msg_cb(struct usbd_context *const usbd_ctx,
 			const struct usbd_msg *const msg)
 {
+	static bool vbus_ready;
+	static bool connected;
 	int ret;
 
 	LOG_INF("USBD message: %s", usbd_msg_type_string(msg->type));
@@ -33,20 +37,45 @@ static void usbd_msg_cb(struct usbd_context *const usbd_ctx,
 		return;
 	}
 
-	if (msg->type == USBD_MSG_VBUS_READY) {
+	switch (msg->type) {
+	case USBD_MSG_VBUS_READY:
+		vbus_ready = true;
+
 		ret = usbd_enable(usbd_ctx);
 		if (ret) {
 			LOG_ERR("Failed to enable device support");
 		}
-	} else if (msg->type == USBD_MSG_VBUS_REMOVED) {
+
+		break;
+	case USBD_MSG_VBUS_REMOVED:
+		vbus_ready = false;
+
 		ret = usbd_disable(usbd_ctx);
 		if (ret) {
 			LOG_ERR("Failed to disable device support");
 		}
+
+		break;
+	case USBD_MSG_RESUME:
+		if (vbus_ready && !connected) {
+			event(EVENT_USB_CONNECTED);
+			connected = true;
+		}
+
+		break;
+	case USBD_MSG_SUSPEND:
+		if (connected) {
+			event(EVENT_USB_DISCONNECTED);
+			connected = false;
+		}
+
+		break;
+	default:
+		break;
 	}
 }
 
-struct usbd_context *usbd_init_device(void)
+static struct usbd_context *usbd_init_device(void)
 {
 	int err;
 
@@ -139,6 +168,8 @@ static int app_usbd_enable(void)
 		LOG_ERR("Failed to enable USB");
 		return 0;
 	}
+
+	event(EVENT_USB_CONNECTED);
 
 	return 0;
 }
