@@ -11,6 +11,7 @@ zephyr_include_directories(include)
 target_sources(app PRIVATE
 	src/main.c
 	src/event.c
+	src/panic.c
 )
 
 zephyr_linker_sources(ROM_SECTIONS src/event.ld)
