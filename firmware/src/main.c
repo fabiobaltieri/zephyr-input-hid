@@ -139,7 +139,7 @@ void blinker_cb(enum event_code code)
 
 	ret = k_msgq_put(&blinker_msgq, &code, K_NO_WAIT);
 	if (ret != 0) {
-		LOG_WRN("blinker queue full");
+		LOG_DBG("blinker queue full");
 	}
 
 	LOG_DBG("event %d", code);
