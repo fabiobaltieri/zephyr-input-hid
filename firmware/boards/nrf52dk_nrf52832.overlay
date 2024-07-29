@@ -65,7 +65,7 @@
 			};
 		};
 		output {
-			hid-hog2 {
+			hid-hog-2 {
 				compatible = "hid-hog";
 			};
 		};
@@ -82,7 +82,7 @@
 			};
 		};
 		output {
-			hid-hog2 {
+			hid-hog-3 {
 				compatible = "hid-hog";
 			};
 		};
