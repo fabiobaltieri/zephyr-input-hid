@@ -10,6 +10,7 @@
 #include <zephyr/pm/device.h>
 #include <zephyr/sys/util.h>
 
+#include "ble_hog.h"
 #include "hid.h"
 
 LOG_MODULE_REGISTER(ble_hog, LOG_LEVEL_INF);
@@ -23,6 +24,8 @@ struct ble_hog_data {
 	uint32_t notify_mask;
 	bool hog_busy;
 	bool suspended;
+	bool peer_set;
+	bt_addr_le_t peer;
 };
 
 #define HOG_REPORT_BUF_SIZE 32
@@ -59,6 +62,19 @@ static struct hids_info info = {
 };
 
 static uint8_t ctrl_point;
+
+void ble_hog_set_peer(const struct device *dev, const bt_addr_le_t *peer)
+{
+	struct ble_hog_data *data = dev->data;
+
+	if (peer == NULL) {
+		data->peer_set = false;
+		return;
+	}
+
+	memcpy(&data->peer, peer, sizeof(*peer));
+	data->peer_set = true;
+}
 
 static ssize_t read_info(struct bt_conn *conn,
 			  const struct bt_gatt_attr *attr, void *buf,
@@ -260,6 +276,7 @@ static void ble_hog_notify(const struct device *dev)
 	const struct ble_hog_config *cfg = dev->config;
 	struct ble_hog_data *data = dev->data;
 	struct bt_gatt_notify_params params;
+	struct bt_conn *conn;
 	const struct bt_gatt_attr *attr;
 	int ret;
 	uint8_t report_id;
@@ -301,7 +318,16 @@ static void ble_hog_notify(const struct device *dev)
 	params.func = ble_hog_notify_cb;
 	params.user_data = (void *)dev;
 
-	ret = bt_gatt_notify_cb(NULL, &params);
+	if (data->peer_set) {
+		conn = bt_conn_lookup_addr_le(BT_ID_DEFAULT, &data->peer);
+		if (conn == NULL) {
+			LOG_WRN("cannot find a connection for peer");
+		}
+	} else {
+		conn = NULL;
+	}
+
+	ret = bt_gatt_notify_cb(conn, &params);
 	if (ret) {
 		LOG_WRN("bt_gatt_notify_cb failed: %d", ret);
 		data->hog_busy = false;
