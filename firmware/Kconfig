@@ -79,6 +79,15 @@ configdefault SETTINGS_SHELL
 configdefault PM_DEVICE_SHELL
 	default y
 
+config SHELL_CMDS
+	default n
+
+config SHELL_CMDS_RETURN_VALUE
+	default n
+
+config DEVMEM_SHELL
+	default n
+
 if BT
 
 config BT_SMP
