@@ -63,8 +63,7 @@ static void connection_status(struct bt_conn *conn, void *user_data)
 
 	bt_addr_le_to_str(info.le.dst, addr, sizeof(addr));
 
-	shell_print(sh, "  [%u] %s %s: interval=%u latency=%u timeout=%u security=%d",
-		    info.id,
+	shell_print(sh, "  %s %s: interval=%u latency=%u timeout=%u security=%d",
 		    info.role == BT_CONN_ROLE_CENTRAL ? "central" : "peripheral",
 		    addr,
 		    info.le.interval,
