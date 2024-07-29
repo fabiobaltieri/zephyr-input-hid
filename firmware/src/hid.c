@@ -5,6 +5,7 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/shell/shell.h>
 
 #include "hid.h"
 
@@ -42,6 +43,67 @@ struct hid_data {
 	struct k_sem lock;
 	struct k_work_delayable notify_dwork;
 };
+
+#if CONFIG_SHELL
+
+static void device_name_get(size_t idx, struct shell_static_entry *entry)
+{
+	const struct device *dev = shell_device_lookup(idx, NULL);
+
+	entry->syntax = (dev != NULL) ? dev->name : NULL;
+	entry->handler = NULL;
+	entry->help = NULL;
+	entry->subcmd = NULL;
+}
+
+SHELL_DYNAMIC_CMD_CREATE(dsub_device_name, device_name_get);
+
+static int cmd_hid_status(const struct shell *sh, size_t argc, char **argv)
+{
+	const struct device *dev;
+	const struct hid_config *cfg;
+	char buf[CACHE_SIZE*3 + 1];
+
+	dev = device_get_binding(argv[1]);
+	if (dev == NULL) {
+		shell_error(sh, "Device %s not available", argv[1]);
+		return -ENODEV;
+	}
+
+	cfg = dev->config;
+
+	shell_print(sh, "hid_dev: %s", dev->name);
+
+	for (uint8_t i = 0; i < cfg->cache_len; i++) {
+		struct hid_report_cache *entry = &cfg->cache[i];
+		uint8_t idx;
+
+		if (entry->input_dev == NULL &&
+		    entry->output_dev == NULL &&
+		    entry->report_id == 0) {
+			shell_print(sh, "[%d] empty", i);
+			continue;
+		}
+
+		for (idx = 0; idx < entry->size; idx++) {
+			snprintf(&buf[idx * 3], 4, "%02x ", entry->data[idx]);
+		}
+		buf[idx * 3 - 1] = '\0';
+
+		shell_print(sh, "[%d] %10s -> %10s: report_id=%d size=%d updated=%d data=%s", i,
+			    entry->input_dev->name,
+			    entry->output_dev->name,
+			    entry->report_id,
+			    entry->size,
+			    entry->updated,
+			    buf);
+	}
+
+	return 0;
+}
+SHELL_CMD_ARG_REGISTER(hid_status, &dsub_device_name, "HID status", cmd_hid_status, 2, 0);
+
+#endif
 
 const uint8_t *hid_report(const struct device *dev)
 {
