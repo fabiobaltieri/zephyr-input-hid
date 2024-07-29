@@ -12,6 +12,13 @@ static const struct device *sensor = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(sensor))
 
 static void connected(struct bt_conn *conn, uint8_t err)
 {
+	int ret;
+
+	ret = bt_conn_set_security(conn, BT_SECURITY_L2);
+	if (ret) {
+		LOG_WRN("Failed to set security");
+	}
+
 	if (sensor != NULL) {
 		pm_device_action_run(sensor, PM_DEVICE_ACTION_RESUME);
 	}
