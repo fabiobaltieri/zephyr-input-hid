@@ -1,7 +1,6 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/regulator.h>
-#include <zephyr/drivers/regulator.h>
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
