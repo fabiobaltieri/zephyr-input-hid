@@ -1,0 +1,2 @@
+config BOARD_PAW_POGO
+	select SOC_STM32F411XE

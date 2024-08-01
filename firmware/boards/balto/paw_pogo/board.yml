@@ -1,0 +1,5 @@
+board:
+  name: paw_pogo
+  vendor: balto
+  socs:
+    - name: stm32f411xe

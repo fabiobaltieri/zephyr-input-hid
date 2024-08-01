@@ -26,6 +26,7 @@ jobs:
           - negcon_retro
           - nrf52840dongle
           - nrf52dk/nrf52832
+          - paw_pogo
           - paw_testboard
           - pmw_testboard
           - zalpakka
