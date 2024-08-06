@@ -191,6 +191,10 @@
 	gpio-as-nreset;
 };
 
+&reg {
+	regulator-initial-mode = <NRF5X_REG_MODE_DCDC>;
+};
+
 &adc {
 	status = "okay";
 	#address-cells = <1>;
