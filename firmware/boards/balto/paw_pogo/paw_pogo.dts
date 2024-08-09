@@ -30,11 +30,11 @@
 
 		sw0 {
 			gpios = <&gpiob 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_RIGHT>;
+			zephyr,code = <INPUT_BTN_LEFT>;
 		};
 		sw1 {
 			gpios = <&gpiob 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_LEFT>;
+			zephyr,code = <INPUT_BTN_RIGHT>;
 		};
 	};
 
