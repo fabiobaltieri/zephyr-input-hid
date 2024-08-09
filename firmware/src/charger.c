@@ -6,7 +6,7 @@
 
 LOG_MODULE_REGISTER(charger, LOG_LEVEL_INF);
 
-static const struct device *charger = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(charger));
+static const struct device *charger = DEVICE_DT_GET(DT_NODELABEL(charger));
 
 static void charging_handler(struct k_work *work);
 
@@ -52,11 +52,6 @@ out:
 
 static int charging_start(void)
 {
-	if (charger == NULL) {
-		LOG_INF("no charger defined");
-		return 0;
-	}
-
 	charging_handler(&charging_dwork.work);
 
 	return 0;
