@@ -32,6 +32,8 @@ static const struct {
 
 K_MSGQ_DEFINE(blinker_msgq, sizeof(enum event_code), BLINKER_QUEUE_SZ, 4);
 
+static bool led_invert;
+
 static void led_status(bool on)
 {
 	if (cfg.status_leds == NULL) {
@@ -39,9 +41,11 @@ static void led_status(bool on)
 	}
 
 	if (on) {
-		led_on(cfg.status_leds, cfg.status_idx);
+		led_set_brightness(cfg.status_leds, cfg.status_idx,
+				   (cfg.activity_leds == NULL && led_invert) ? 0 : 100);
 	} else {
-		led_off(cfg.status_leds, cfg.status_idx);
+		led_set_brightness(cfg.status_leds, cfg.status_idx,
+				   (cfg.activity_leds == NULL && led_invert) ? 100 : 0);
 	}
 }
 
@@ -53,9 +57,9 @@ static void led_activity(bool on)
 	}
 
 	if (on) {
-		led_on(cfg.activity_leds, cfg.activity_idx);
+		led_set_brightness(cfg.activity_leds, cfg.activity_idx, led_invert ? 0 : 100);
 	} else {
-		led_off(cfg.activity_leds, cfg.activity_idx);
+		led_set_brightness(cfg.activity_leds, cfg.activity_idx, led_invert ? 100 : 0);
 	}
 }
 
@@ -125,6 +129,11 @@ int main(void)
 			k_sleep(K_MSEC(50));
 			led_status(false);
 			break;
+		case EVENT_CHARGER_CHARGING:
+		case EVENT_CHARGER_FULL:
+		case EVENT_CHARGER_DISCONNECTED:
+			led_activity(false);
+			break;
 		default:
 			break;
 		}
@@ -133,7 +142,23 @@ int main(void)
 	return 0;
 }
 
-void blinker_cb(enum event_code code)
+static void charger_cb(enum event_code code)
+{
+	switch (code) {
+		case EVENT_CHARGER_CHARGING:
+			led_invert = true;
+			break;
+		case EVENT_CHARGER_FULL:
+		case EVENT_CHARGER_DISCONNECTED:
+			led_invert = false;
+			break;
+		default:
+			break;
+	}
+}
+EVENT_CALLBACK_DEFINE(charger_cb);
+
+static void blinker_cb(enum event_code code)
 {
 	int ret;
 
