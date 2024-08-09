@@ -28,6 +28,11 @@ config APP_CHARGER
 	depends on "$(dt_nodelabel_enabled,charger)"
 	select CHARGER
 
+config APP_CHARGER_GPIO
+	bool "GPIO charger support"
+	default y
+	depends on "$(dt_nodelabel_enabled,charger_gpio)"
+
 config APP_AUTO_POWEROFF
 	bool "Auto power-off"
 	default y

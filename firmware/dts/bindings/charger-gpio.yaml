@@ -1,0 +1,7 @@
+description: GPIO charger state
+
+compatible: charger-gpio
+
+properties:
+  gpios:
+    type: phandle-array

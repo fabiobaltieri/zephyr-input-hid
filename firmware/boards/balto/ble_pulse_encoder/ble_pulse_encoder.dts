@@ -9,12 +9,6 @@
 	model = "BLE Pulse Encoder";
 	compatible = "balto,ble-pulse-encoder";
 
-	/* TODO: figure this out
-	zephyr,user {
-		chrg-gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-	};
-	*/
-
 	chosen {
 		zephyr,console = &uart0;
 		zephyr,shell-uart = &uart0;
@@ -65,6 +59,11 @@
 		io-channels = <&adc 0>;
 		output-ohms = <(560 * 1000)>;
 		full-ohms = <(560 * 1000 * 2)>;
+	};
+
+	charger_gpio: charger-gpio {
+		compatible = "charger-gpio";
+		gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 	};
 
 	hid {
