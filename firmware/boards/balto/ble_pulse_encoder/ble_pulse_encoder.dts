@@ -70,12 +70,12 @@
 	hid {
 		compatible = "hid";
 		input { 
-		hid-mouse {
-			compatible = "hid-mouse";
-			input = <&gpio_qdec &buttons>;
-			input-id = <1>;
-			report = <HID_MOUSE_REPORT(1)>;
-		};
+			hid-mouse {
+				compatible = "hid-mouse";
+				input = <&gpio_qdec &buttons>;
+				input-id = <1>;
+				report = <HID_MOUSE_REPORT(1)>;
+			};
 		};
 		output {
 			hid-hog {
