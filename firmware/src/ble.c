@@ -31,7 +31,7 @@ static void ble_disconnect(struct bt_conn *conn, void *user_data)
 {
 	int err;
 
-	err = bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+	err = bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_POWER_OFF);
 	if (err) {
 		LOG_ERR("bt_conn_disconnect: %d", err);
 	}
