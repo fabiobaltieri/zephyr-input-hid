@@ -24,6 +24,24 @@ static int cmd_ble_unpair(const struct shell *sh, size_t argc, char **argv)
 	return 0;
 }
 
+static void ble_disconnect(struct bt_conn *conn, void *user_data)
+{
+	const struct shell *sh = user_data;
+	int err;
+
+	err = bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+	if (err) {
+		shell_print(sh, "bt_conn_disconnect: %d", err);
+	}
+}
+
+static int cmd_ble_disconnect(const struct shell *sh, size_t argc, char **argv)
+{
+	bt_conn_foreach(BT_CONN_TYPE_LE, ble_disconnect, (void *)sh);
+
+	return 0;
+}
+
 static void connection_status(struct bt_conn *conn, void *user_data)
 {
 	const struct shell *sh = user_data;
@@ -69,6 +87,7 @@ static int cmd_ble_status(const struct shell *sh, size_t argc, char **argv)
 }
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_ble_cmds,
 	SHELL_CMD_ARG(unpair, NULL, "Unpair", cmd_ble_unpair, 0, 0),
+	SHELL_CMD_ARG(disconnect, NULL, "Disconnect", cmd_ble_disconnect, 0, 0),
 	SHELL_CMD_ARG(status, NULL, "Connections", cmd_ble_status, 0, 0),
 	SHELL_SUBCMD_SET_END);
 
