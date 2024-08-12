@@ -1,4 +1,5 @@
 #include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/init.h>
@@ -24,8 +25,48 @@ static const struct bt_data ad[] = {
 };
 
 static struct bt_le_adv_param ad_param = BT_LE_ADV_PARAM_INIT(
-		BT_LE_ADV_OPT_CONNECTABLE,
+		BT_LE_ADV_OPT_CONNECTABLE | BT_LE_ADV_OPT_ONE_TIME,
 		BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX, NULL);
+
+static void connected(struct bt_conn *conn, uint8_t err)
+{
+	int ret;
+
+	ret = bt_conn_set_security(conn, BT_SECURITY_L2);
+	if (ret) {
+		LOG_WRN("Failed to set security");
+	}
+
+	event(EVENT_BT_CONNECTED);
+}
+
+static void disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	event(EVENT_BT_DISCONNECTED);
+}
+
+static void adv_work_handler(struct k_work *work)
+{
+	int ret;
+
+	ret = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
+	if (ret) {
+		LOG_ERR("bt_le_adv_start failed: %d", ret);
+		return;
+	}
+}
+K_WORK_DEFINE(adv_work, adv_work_handler);
+
+static void recycled(void)
+{
+	k_work_submit(&adv_work);
+}
+
+BT_CONN_CB_DEFINE(conn_callbacks) = {
+	.connected = connected,
+	.disconnected = disconnected,
+	.recycled = recycled,
+};
 
 static void ble_disconnect(struct bt_conn *conn, void *user_data)
 {
@@ -65,11 +106,7 @@ static int ble_setup(void)
 		settings_load();
 	}
 
-	err = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
-	if (err) {
-		LOG_ERR("Advertising failed to start (err %d)", err);
-		return -EIO;
-	}
+	k_work_submit(&adv_work);
 
 	return 0;
 }
