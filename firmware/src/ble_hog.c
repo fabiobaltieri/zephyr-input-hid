@@ -332,6 +332,10 @@ static void ble_hog_notify(const struct device *dev)
 		LOG_WRN("bt_gatt_notify_cb failed: %d", ret);
 		data->hog_busy = false;
 	}
+
+	if (conn != NULL) {
+		bt_conn_unref(conn);
+	}
 }
 
 static int ble_hog_pm_action(const struct device *dev,
