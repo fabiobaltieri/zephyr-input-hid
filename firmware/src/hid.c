@@ -288,7 +288,7 @@ void hid_out_report(const struct device *dev,
 		return;
 	}
 
-	LOG_WRN("unhandled report id: %d", report_id);
+	LOG_WRN("unhandled out report id: %d", report_id);
 }
 
 int hid_set_feature(const struct device *dev,
@@ -313,7 +313,7 @@ int hid_set_feature(const struct device *dev,
 		return 0;
 	}
 
-	LOG_WRN("unhandled report id: %d", report_id);
+	LOG_WRN("unhandled set feat report id: %d", report_id);
 
 	return -ENOTSUP;
 }
