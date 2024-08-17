@@ -152,11 +152,12 @@ static int hid_mouse_set_feature(const struct device *dev,
 		return -EINVAL;
 	}
 
-	if (data->feat_cb != NULL) {
-		return data->feat_cb(dev, report_id, buf, len);
+	if (data->feat_cb == NULL) {
+		LOG_ERR("no feat callback set");
+		return -ENOSYS;
 	}
 
-	return 0;
+	return data->feat_cb(dev, report_id, buf, len);
 }
 
 static const struct hid_input_api hid_mouse_api = {

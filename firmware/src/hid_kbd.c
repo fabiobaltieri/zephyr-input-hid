@@ -192,9 +192,12 @@ static int hid_kbd_out_report(const struct device *dev,
 		return -EINVAL;
 	}
 
-	if (data->led_cb != NULL) {
-		data->led_cb(dev, buf[0]);
+	if (data->led_cb == NULL) {
+		LOG_ERR("no led_cb set");
+		return -ENOSYS;
 	}
+
+	data->led_cb(dev, buf[0]);
 
 	return 0;
 }
