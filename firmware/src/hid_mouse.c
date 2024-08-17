@@ -1,6 +1,7 @@
 #define DT_DRV_COMPAT hid_mouse
 
 #include <stdint.h>
+#include <hid_mouse.h>
 #include <zephyr/input/input.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/pm/device.h>
@@ -21,6 +22,11 @@ struct hid_mouse_report {
 struct hid_mouse_config {
 	const struct device *hid_dev;
 	uint8_t input_id;
+	uint8_t feature_id;
+};
+
+struct hid_mouse_data {
+	hid_mouse_feat_cb feat_cb;
 };
 
 static void hid_mouse_set_key_mouse(struct hid_mouse_report *report,
@@ -123,8 +129,39 @@ static int hid_mouse_clear_rel(const struct device *dev,
 	return 0;
 }
 
+void hid_mouse_register_feat_cb(const struct device *dev, hid_mouse_feat_cb cb)
+{
+	struct hid_mouse_data *data = dev->data;
+
+	data->feat_cb = cb;
+}
+
+static int hid_mouse_set_feature(const struct device *dev,
+				uint8_t report_id, const uint8_t *buf, uint8_t len)
+{
+        const struct hid_mouse_config *cfg = dev->config;
+	struct hid_mouse_data *data = dev->data;
+
+	if (cfg->feature_id == 0) {
+		LOG_ERR("feature-id not set");
+		return -ENOSYS;
+	}
+
+	if (report_id != cfg->feature_id) {
+		LOG_ERR("invalid report_id: %d", report_id);
+		return -EINVAL;
+	}
+
+	if (data->feat_cb != NULL) {
+		return data->feat_cb(dev, report_id, buf, len);
+	}
+
+	return 0;
+}
+
 static const struct hid_input_api hid_mouse_api = {
 	.clear_rel = hid_mouse_clear_rel,
+	.set_feature = hid_mouse_set_feature,
 };
 
 #define HID_MOUSE_INPUT_CB(node_id, prop, idx, inst)					\
@@ -140,9 +177,15 @@ static const struct hid_input_api hid_mouse_api = {
 	static const struct hid_mouse_config hid_mouse_config_##inst = {		\
 		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(inst)),			\
 		.input_id = DT_INST_PROP_BY_IDX(inst, input_id, 0),			\
+		IF_ENABLED(DT_INST_NODE_HAS_PROP(inst, feature_id), (			\
+		.feature_id = DT_INST_PROP_BY_IDX(inst, feature_id, 0),			\
+		))									\
 	};										\
 											\
-	DEVICE_DT_INST_DEFINE(inst, NULL, NULL, NULL, &hid_mouse_config_##inst,		\
+	struct hid_mouse_data hid_mouse_data_##inst;					\
+											\
+	DEVICE_DT_INST_DEFINE(inst, NULL, NULL,						\
+			      &hid_mouse_data_##inst, &hid_mouse_config_##inst,		\
 			      POST_KERNEL, CONFIG_INPUT_INIT_PRIORITY, &hid_mouse_api);
 
 DT_INST_FOREACH_STATUS_OKAY(HID_MOUSE_DEFINE)
