@@ -70,7 +70,7 @@ static inline int hid_input_set_feature(const struct device *dev,
 {
 	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
 
-	if (api == NULL || api->out_report == NULL) {
+	if (api == NULL || api->set_feature == NULL) {
 		return -ENOSYS;
 	};
 
