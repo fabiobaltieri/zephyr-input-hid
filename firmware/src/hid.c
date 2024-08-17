@@ -22,7 +22,7 @@ struct hid_report_cache {
 	bool updated;
 };
 
-struct hid_out_report {
+struct hid_dev_report {
 	const struct device *dev;
 	uint8_t report_id;
 };
@@ -34,9 +34,9 @@ struct hid_config {
 	uint8_t output_dev_count;
 	struct hid_report_cache *cache;
 	uint8_t cache_len;
-	const struct hid_out_report *out_report;
+	const struct hid_dev_report *out_report;
 	uint8_t out_report_len;
-	const struct hid_out_report *feat_report;
+	const struct hid_dev_report *feat_report;
 	uint8_t feat_report_len;
 };
 
@@ -274,7 +274,7 @@ void hid_out_report(const struct device *dev,
 	int ret;
 
 	for (uint8_t i = 0; i < cfg->out_report_len; i++) {
-		const struct hid_out_report *out_report = &cfg->out_report[i];
+		const struct hid_dev_report *out_report = &cfg->out_report[i];
 
 		if (out_report->report_id != report_id) {
 			continue;
@@ -298,7 +298,7 @@ int hid_set_feature(const struct device *dev,
 	int ret;
 
 	for (uint8_t i = 0; i < cfg->feat_report_len; i++) {
-		const struct hid_out_report *feat_report = &cfg->feat_report[i];
+		const struct hid_dev_report *feat_report = &cfg->feat_report[i];
 
 		if (feat_report->report_id != report_id) {
 			continue;
@@ -362,11 +362,11 @@ static int hid_init(const struct device *dev)
 		DT_FOREACH_CHILD_SEP(DT_INST_CHILD(n, output), DEVICE_DT_GET, (,))	\
 	};										\
 											\
-	static const struct hid_out_report hid_out_report_##n[] = {			\
+	static const struct hid_dev_report hid_out_report_##n[] = {			\
 		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), OUT_REPORT)			\
 	};										\
 											\
-	static const struct hid_out_report hid_feat_report_##n[] = {			\
+	static const struct hid_dev_report hid_feat_report_##n[] = {			\
 		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), FEAT_REPORT)			\
 	};										\
 											\
