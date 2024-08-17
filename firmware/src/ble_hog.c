@@ -143,7 +143,7 @@ static __maybe_unused ssize_t write_output_report(
 
 	if (next_attr->read != read_report) {
 		LOG_ERR("invalid next_attr: %p", next_attr);
-		return len;
+		return BT_GATT_ERR(BT_ATT_ERR_NOT_SUPPORTED);
 	}
 
 	const struct hids_report *hids_report = next_attr->user_data;
@@ -156,6 +156,38 @@ static __maybe_unused ssize_t write_output_report(
 	}
 
 	hid_out_report(cfg->hid_dev, hids_report->report.id, buf, len);
+
+	return len;
+}
+
+static __maybe_unused ssize_t write_feature_report(
+		struct bt_conn *conn,
+		const struct bt_gatt_attr *attr,
+		const void *buf,
+		uint16_t len, uint16_t offset, uint8_t flags)
+{
+	const struct bt_gatt_attr *next_attr = attr + 1;
+
+	if (next_attr->read != read_report) {
+		LOG_ERR("invalid next_attr: %p", next_attr);
+		return BT_GATT_ERR(BT_ATT_ERR_NOT_SUPPORTED);
+	}
+
+	const struct hids_report *hids_report = next_attr->user_data;
+	const struct device *dev = hids_report->dev;
+	const struct ble_hog_config *cfg = dev->config;
+	int ret;
+
+	if (offset != 0) {
+		LOG_ERR("unsupported offset: %d", offset);
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	ret = hid_set_feature(cfg->hid_dev, hids_report->report.id, buf, len);
+	if (ret < 0) {
+		LOG_WRN("hid_out_report error: %d", ret);
+		return BT_GATT_ERR(BT_ATT_ERR_NOT_SUPPORTED);
+	}
 
 	return len;
 }
@@ -190,6 +222,13 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 	 .report.type = HIDS_OUTPUT,				\
 	 })
 
+#define HIDS_REPORT_DEFINE_FEATURE(node_id, prop, idx, self)	\
+	(&(const struct hids_report){				\
+	 .dev = self,						\
+	 .report.id = DT_PROP_BY_IDX(node_id, prop, idx),	\
+	 .report.type = HIDS_FEATURE,				\
+	 })
+
 #define HOG_DEVICE_DEFINE_INPUT(node_id, prop, idx, self)				\
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,					\
 			       BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,			\
@@ -210,12 +249,24 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 			   read_report, NULL,						\
 			   (void *)HIDS_REPORT_DEFINE_OUTPUT(node_id, prop, idx, self)),
 
-#define HOG_DEVICE_DEFINE(node_id, self)						\
-	IF_ENABLED(DT_NODE_HAS_PROP(node_id, input_id), (				\
-	DT_FOREACH_PROP_ELEM_VARGS(node_id, input_id, HOG_DEVICE_DEFINE_INPUT, self)	\
-	))										\
-	IF_ENABLED(DT_NODE_HAS_PROP(node_id, output_id), (				\
-	DT_FOREACH_PROP_ELEM_VARGS(node_id, output_id, HOG_DEVICE_DEFINE_OUTPUT, self)	\
+#define HOG_DEVICE_DEFINE_FEATURE(node_id, prop, idx, self)				\
+	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,					\
+			       BT_GATT_CHRC_WRITE,					\
+			       BT_GATT_PERM_WRITE_ENCRYPT,				\
+			       NULL, write_feature_report, NULL),			\
+	BT_GATT_DESCRIPTOR(BT_UUID_HIDS_REPORT_REF, BT_GATT_PERM_READ,			\
+			   read_report, NULL,						\
+			   (void *)HIDS_REPORT_DEFINE_FEATURE(node_id, prop, idx, self)),
+
+#define HOG_DEVICE_DEFINE(node_id, self)							\
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, input_id), (					\
+	DT_FOREACH_PROP_ELEM_VARGS(node_id, input_id, HOG_DEVICE_DEFINE_INPUT, self)		\
+	))											\
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, output_id), (					\
+	DT_FOREACH_PROP_ELEM_VARGS(node_id, output_id, HOG_DEVICE_DEFINE_OUTPUT, self)		\
+	))											\
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, feature_id), (					\
+	DT_FOREACH_PROP_ELEM_VARGS(node_id, feature_id, HOG_DEVICE_DEFINE_FEATURE, self)	\
 	))
 
 #define HOG_SVC_DEFINE(n)								\
