@@ -57,7 +57,7 @@
 	IF_ENABLED(led, (HID_KBD_REPORT_LED))					\
 	HID_KBD_REPORT_TRAILER
 
-#define HID_MOUSE_REPORT(id)					\
+#define HID_MOUSE_REPORT_HEADER(id)				\
 	0x05 0x01	/* Usage Page (Generic Desktop) */	\
 	0x09 0x02	/* Usage (Mouse) */			\
 	0xa1 0x01	/* Collection (Application) */		\
@@ -81,17 +81,45 @@
 	0x95 0x02	/*   Report Count (2) */		\
 	0x09 0x30	/*   Usage (X) */			\
 	0x09 0x31	/*   Usage (Y) */			\
-	0x81 0x06	/*   Input (Data,Var,Rel) */		\
-								\
+	0x81 0x06	/*   Input (Data,Var,Rel) */
+
+#define HID_MOUSE_REPORT_TRAILER				\
+	0xc0		/*  End Collection */			\
+	0xc0		/* End Collection */
+
+#define HID_MOUSE_REPORT(id)					\
+	HID_MOUSE_REPORT_HEADER(id)				\
 	0x15 0x81	/*   Logical Minimum (-127) */		\
 	0x25 0x7f	/*   Logical Maximum (127) */		\
 	0x75 0x08	/*   Report Size (8) */			\
 	0x95 0x01	/*   Report Count (1) */		\
 	0x09 0x38	/*   Usage (Wheel) */			\
 	0x81 0x06	/*   Input (Data,Var,Rel) */		\
-								\
-	0xc0		/*  End Collection */			\
-	0xc0		/* End Collection */
+	HID_MOUSE_REPORT_TRAILER
+
+#define HID_MOUSE_REPORT_HI_RES_WHEEL(id, feat_id)		\
+	HID_MOUSE_REPORT_HEADER(id)				\
+	0xa1 0x02	/*   Collection (Logical) */		\
+	0x85 feat_id	/*    Report ID () */			\
+	0x09 0x48	/*    Usage (Resolution Multiplier) */	\
+	0x95 0x01	/*    Report Count (1) */		\
+	0x75 0x01	/*    Report Size (1) */		\
+	0x15 0x00	/*    Logical Minimum (0) */		\
+	0x25 0x01	/*    Logical Maximum (1) */		\
+	0x35 0x01	/*    Physical Minimum (1) */		\
+	0x45 0x78	/*    Physical Maximum (120) */		\
+	0xb1 0x02	/*    Feature (Data,Var,Abs) */		\
+	0x85 id		/*    Report ID () */			\
+	0x15 0x81	/*    Logical Minimum (-127) */		\
+	0x25 0x7f	/*    Logical Maximum (127) */		\
+	0x35 0x00	/*    Physical Minimum (0) */		\
+	0x45 0x00	/*    Physical Maximum (0) */		\
+	0x75 0x08	/*    Report Size (8) */		\
+	0x95 0x01	/*    Report Count (1) */		\
+	0x09 0x38	/*    Usage (Wheel) */			\
+	0x81 0x06	/*    Input (Data,Var,Rel) */		\
+	0xc0		/*   End Collection */			\
+	HID_MOUSE_REPORT_TRAILER
 
 #define HID_GAMEPAD_REPORT(id)							\
 	0x05 0x01		/* Usage Page (Generic Desktop) */		\
