@@ -44,9 +44,10 @@
 		input {
 			hid-mouse {
 				compatible = "hid-mouse";
-				input = <&paw &buttons>;
+				input = <&paw &buttons &pat>;
 				input-id = <1>;
-				report = <HID_MOUSE_REPORT(1)>;
+				feature-id = <2>;
+				report = <HID_MOUSE_REPORT_HI_RES_WHEEL(1, 2)>;
 			};
 		};
 		output {
@@ -103,6 +104,15 @@
 	pinctrl-names = "default";
 	status = "okay";
 	clock-frequency = <I2C_BITRATE_FAST>;
+
+	pat: pat@75 {
+		compatible = "pixart,pat912x";
+		reg = <0x75>;
+		motion-gpios = <&gpiob 7 GPIO_ACTIVE_LOW>;
+		zephyr,axis-x = <INPUT_REL_WHEEL>;
+		res-x-cpi = <50>;
+		res-y-cpi = <50>;
+	};
 };
 
 &spi1 {
