@@ -121,11 +121,6 @@ static int set_report(const struct device *dev,
 	const struct device *hid_dev;
 	const struct usb_hid_config *cfg;
 
-	if (type != HID_REPORT_TYPE_OUTPUT) {
-		LOG_WRN("unsupported report type: %d", type);
-		return -ENOTSUP;
-	}
-
 	if (len < 1) {
 		LOG_ERR("short write");
 		return -EIO;
@@ -143,7 +138,14 @@ static int set_report(const struct device *dev,
 
 	cfg = hid_dev->config;
 
-	hid_out_report(cfg->hid_dev, id, &buf[1], len - 1);
+	if (type == HID_REPORT_TYPE_OUTPUT) {
+		hid_out_report(cfg->hid_dev, id, &buf[1], len - 1);
+	} else if (type == HID_REPORT_TYPE_FEATURE) {
+		return hid_set_feature(cfg->hid_dev, id, &buf[1], len - 1);
+	} else {
+		LOG_WRN("unsupported report type: %d", type);
+		return -ENOTSUP;
+	}
 
 	return 0;
 }

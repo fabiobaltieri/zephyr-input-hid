@@ -36,6 +36,8 @@ struct hid_config {
 	uint8_t cache_len;
 	const struct hid_out_report *out_report;
 	uint8_t out_report_len;
+	const struct hid_out_report *feat_report;
+	uint8_t feat_report_len;
 };
 
 struct hid_data {
@@ -289,6 +291,33 @@ void hid_out_report(const struct device *dev,
 	LOG_WRN("unhandled report id: %d", report_id);
 }
 
+int hid_set_feature(const struct device *dev,
+		    uint8_t report_id, const uint8_t *buf, uint8_t len)
+{
+	const struct hid_config *cfg = dev->config;
+	int ret;
+
+	for (uint8_t i = 0; i < cfg->feat_report_len; i++) {
+		const struct hid_out_report *feat_report = &cfg->feat_report[i];
+
+		if (feat_report->report_id != report_id) {
+			continue;
+		}
+
+		ret = hid_input_set_feature(feat_report->dev, report_id, buf, len);
+		if (ret < 0) {
+			LOG_WRN("feat report %d handler error: %d", report_id, ret);
+			return ret;
+		}
+
+		return 0;
+	}
+
+	LOG_WRN("unhandled report id: %d", report_id);
+
+	return -ENOTSUP;
+}
+
 static int hid_init(const struct device *dev)
 {
 	struct hid_data *data = dev->data;
@@ -319,6 +348,11 @@ static int hid_init(const struct device *dev)
 	DT_FOREACH_PROP_ELEM(node_id, output_id, OUT_REPORT_INIT) \
 	))
 
+#define FEAT_REPORT(node_id) \
+	IF_ENABLED(DT_NODE_HAS_PROP(node_id, feature_id), ( \
+	DT_FOREACH_PROP_ELEM(node_id, feature_id, OUT_REPORT_INIT) \
+	))
+
 #define HID_INIT(n)									\
 	static const uint8_t hid_report_map_##n[] = {					\
 		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), HID_REPORT_DEVICE)		\
@@ -330,6 +364,10 @@ static int hid_init(const struct device *dev)
 											\
 	static const struct hid_out_report hid_out_report_##n[] = {			\
 		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), OUT_REPORT)			\
+	};										\
+											\
+	static const struct hid_out_report hid_feat_report_##n[] = {			\
+		DT_FOREACH_CHILD(DT_INST_CHILD(n, input), FEAT_REPORT)			\
 	};										\
 											\
 	static struct hid_report_cache hid_report_cache_##n[				\
@@ -345,6 +383,8 @@ static int hid_init(const struct device *dev)
 		.cache_len = ARRAY_SIZE(hid_report_cache_##n),				\
 		.out_report = hid_out_report_##n,					\
 		.out_report_len = ARRAY_SIZE(hid_out_report_##n),			\
+		.feat_report = hid_feat_report_##n,					\
+		.feat_report_len = ARRAY_SIZE(hid_feat_report_##n),			\
 	};										\
 											\
 	static struct hid_data hid_data_##n;						\

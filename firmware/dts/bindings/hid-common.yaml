@@ -15,5 +15,8 @@ properties:
   output-id:
     type: array
 
+  feature-id:
+    type: array
+
   input:
     type: phandles

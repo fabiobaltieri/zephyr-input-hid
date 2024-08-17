@@ -22,11 +22,16 @@ int hid_get_report(const struct device *dev,
 void hid_out_report(const struct device *dev,
 		    uint8_t report_id, const uint8_t *buf, uint8_t len);
 
+int hid_set_feature(const struct device *dev,
+		    uint8_t report_id, const uint8_t *buf, uint8_t len);
+
 __subsystem struct hid_input_api {
 	int (*clear_rel)(const struct device *dev,
 			 uint8_t *buf, uint8_t len);
 	int (*out_report)(const struct device *dev,
 			  uint8_t report_id, const uint8_t *buf, uint8_t len);
+	int (*set_feature)(const struct device *dev,
+			   uint8_t report_id, const uint8_t *buf, uint8_t len);
 };
 
 static inline int hid_has_clear_rel(const struct device *dev)
@@ -58,6 +63,18 @@ static inline int hid_input_out_report(const struct device *dev,
 	};
 
 	return api->out_report(dev, report_id, buf, len);
+}
+
+static inline int hid_input_set_feature(const struct device *dev,
+					uint8_t report_id, const uint8_t *buf, uint8_t len)
+{
+	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
+
+	if (api == NULL || api->out_report == NULL) {
+		return -ENOSYS;
+	};
+
+	return api->set_feature(dev, report_id, buf, len);
 }
 
 __subsystem struct hid_output_api {
