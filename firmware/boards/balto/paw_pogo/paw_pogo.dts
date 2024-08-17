@@ -109,9 +109,10 @@
 		compatible = "pixart,pat912x";
 		reg = <0x75>;
 		motion-gpios = <&gpiob 7 GPIO_ACTIVE_LOW>;
-		zephyr,axis-x = <INPUT_REL_WHEEL>;
+		zephyr,axis-y = <INPUT_REL_WHEEL>;
 		res-x-cpi = <50>;
 		res-y-cpi = <50>;
+		invert-y;
 	};
 };
 
