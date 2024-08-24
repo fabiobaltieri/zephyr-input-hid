@@ -68,9 +68,15 @@ static void auto_poweroff_handler(struct k_work *work)
 
 static K_WORK_DELAYABLE_DEFINE(auto_poweroff_dwork, auto_poweroff_handler);
 
+static bool auto_poweroff_hold;
+
 static void auto_poweroff_cb(struct input_event *evt, void *user_data)
 {
 	if (evt->type == INPUT_EV_ABS) {
+		return;
+	}
+
+	if (auto_poweroff_hold) {
 		return;
 	}
 
@@ -85,3 +91,22 @@ static int auto_poweroff_init(void)
 	return 0;
 }
 SYS_INIT(auto_poweroff_init, APPLICATION, 99);
+
+static void auto_poweroff_ev_cb(enum event_code code)
+{
+
+	switch (code) {
+	case EVENT_CHARGER_CHARGING:
+		auto_poweroff_hold = true;
+		k_work_cancel_delayable(&auto_poweroff_dwork);
+		break;
+	case EVENT_CHARGER_FULL:
+	case EVENT_CHARGER_DISCONNECTED:
+		auto_poweroff_hold = false;
+		k_work_reschedule(&auto_poweroff_dwork, AUTO_POWEROFF_TIME);
+		break;
+	default:
+		break;
+	}
+}
+EVENT_CALLBACK_DEFINE(auto_poweroff_ev_cb);
