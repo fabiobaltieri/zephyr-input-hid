@@ -15,13 +15,6 @@ config APP_BAS_FUEL_GAUGE
 	select SENSOR
 	select BT_BAS
 
-config APP_BAS_ADC
-	bool "BAS Vbatt ADC support"
-	default y
-	depends on "$(dt_nodelabel_enabled,vbatt)"
-	select ADC
-	select BT_BAS
-
 config APP_CHARGER
 	bool "Charger support"
 	default y
@@ -62,6 +55,9 @@ config APP_USB_MAX_POWER
 endif # USB_DEVICE_STACK_NEXT
 
 endmenu
+
+config FUEL_GAUGE_COMPOSITE
+	select BT_BAS
 
 configdefault INPUT_SHELL
 	default y

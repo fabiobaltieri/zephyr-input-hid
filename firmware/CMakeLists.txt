@@ -19,7 +19,7 @@ zephyr_linker_sources(ROM_SECTIONS src/event.ld)
 target_sources_ifdef(CONFIG_BT app PRIVATE src/ble.c src/ble_status.c src/ble_shell.c)
 
 target_sources_ifdef(CONFIG_APP_BAS_FUEL_GAUGE app PRIVATE src/bas_fuel_gauge.c)
-target_sources_ifdef(CONFIG_APP_BAS_ADC app PRIVATE src/bas_adc.c)
+target_sources_ifdef(CONFIG_FUEL_GAUGE_COMPOSITE app PRIVATE src/bas_adc.c)
 target_sources_ifdef(CONFIG_APP_CHARGER app PRIVATE src/charger.c)
 target_sources_ifdef(CONFIG_APP_CHARGER_GPIO app PRIVATE src/charger_gpio.c)
 target_sources_ifdef(CONFIG_APP_AUTO_POWEROFF app PRIVATE src/auto_poweroff.c)

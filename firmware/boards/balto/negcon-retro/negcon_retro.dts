@@ -1,5 +1,6 @@
 /dts-v1/;
 #include <nordic/nrf52832_qfaa.dtsi>
+#include <zephyr/dt-bindings/battery/battery.h>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
 #include "negcon_retro-pinctrl.dtsi"
 #include <dt-bindings/hid.h>
@@ -107,6 +108,13 @@
 		io-channels = <&adc 4>;
 		output-ohms = <100000>;
 		full-ohms = <200000>;
+	};
+
+	fuel_gauge_composite {
+		compatible = "zephyr,fuel-gauge-composite";
+		battery-voltage = <&vbatt>;
+		device-chemistry = "lithium-ion-polymer";
+		ocv-capacity-table-0 = <BATTERY_OCV_CURVE_LITHIUM_ION_POLYMER_DEFAULT>;
 	};
 
 	suspend-gpios {
