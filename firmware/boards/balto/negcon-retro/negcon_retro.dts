@@ -110,7 +110,7 @@
 		full-ohms = <200000>;
 	};
 
-	fuel_gauge_composite {
+	fuel_gauge: fuel_gauge_composite {
 		compatible = "zephyr,fuel-gauge-composite";
 		battery-voltage = <&vbatt>;
 		device-chemistry = "lithium-ion-polymer";
