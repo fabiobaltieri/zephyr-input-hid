@@ -277,7 +277,7 @@
 		int-gpios = <&gpio0 25 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 	};
 
-	fuel_gauge: max17055@36 {
+	fuel_gauge_sensor: max17055@36 {
 		compatible = "maxim,max17055";
 		reg = <0x36>;
 		design-capacity = <150>;

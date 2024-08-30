@@ -9,7 +9,7 @@ LOG_MODULE_REGISTER(bas_fuel_gauge, LOG_LEVEL_INF);
 
 #define SOC_UPDATE_SECS 10
 
-static const struct device *fuel_gauge = DEVICE_DT_GET(DT_NODELABEL(fuel_gauge));
+static const struct device *fuel_gauge = DEVICE_DT_GET(DT_NODELABEL(fuel_gauge_sensor));
 
 static void bas_fuel_gauge_handler(struct k_work *work);
 

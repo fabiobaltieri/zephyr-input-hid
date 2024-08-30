@@ -8,10 +8,10 @@ config APP_DEVICE_NAME
 	string "Device name"
 	default "zephyr-input"
 
-config APP_BAS_FUEL_GAUGE
-	bool "BAS fuel gauge support"
+config APP_BAS_FUEL_GAUGE_SENSOR
+	bool "BAS fuel gauge support (sensor)"
 	default y
-	depends on "$(dt_nodelabel_enabled,fuel_gauge)"
+	depends on "$(dt_nodelabel_enabled,fuel_gauge_sensor)"
 	select SENSOR
 	select BT_BAS
 
