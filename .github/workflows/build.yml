@@ -28,6 +28,7 @@ jobs:
           - nrf52dk/nrf52832
           - paw_pogo
           - paw_testboard
+          - ploopy_mouse_nrf
           - pmw_testboard
           - zalpakka
 

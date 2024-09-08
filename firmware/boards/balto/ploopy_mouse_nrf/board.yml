@@ -1,0 +1,5 @@
+board:
+  name: ploopy_mouse_nrf
+  vendor: balto
+  socs:
+    - name: nrf52833

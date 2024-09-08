@@ -1,0 +1,243 @@
+/dts-v1/;
+#include <nordic/nrf52833_qdaa.dtsi>
+#include "ploopy_mouse_nrf-pinctrl.dtsi"
+#include <zephyr/dt-bindings/battery/battery.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <dt-bindings/hid.h>
+
+/ {
+	model = "Ploopy Mouse nRF";
+	compatible = "balto,ploopy-mouse-nrf";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_status: led_a {
+			gpios = <&pcal6408a 3 GPIO_ACTIVE_HIGH>;
+		};
+		led_input_activity: led_b {
+			gpios = <&pcal6408a 2 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	buttons: buttons {
+		compatible = "gpio-keys";
+		debounce-interval-ms = <3>;
+
+		sw_0 {
+			gpios = <&pcal6408a 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_SIDE>;
+		};
+		sw_1 {
+			gpios = <&pcal6408a 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_FORWARD>;
+		};
+		sw_2 {
+			gpios = <&gpio0 31 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_LEFT>;
+		};
+		sw_3 {
+			gpios = <&pcal6408a 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_TASK>;
+		};
+		sw_4 {
+			gpios = <&gpio0 18 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_RIGHT>;
+		};
+		sw_5 {
+			gpios = <&pcal6408a 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_BACK>;
+		};
+		sw_6 {
+			gpios = <&pcal6408a 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_MIDDLE>;
+		};
+		sw_7 {
+			gpios = <&pcal6408a 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_EXTRA>;
+		};
+	};
+
+	gpio_qdec: qdec {
+		compatible = "gpio-qdec";
+		gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_HIGH)>,
+			<&gpio0 20 (GPIO_PULL_UP | GPIO_ACTIVE_HIGH)>;
+		steps-per-period = <2>;
+		zephyr,axis = <INPUT_REL_WHEEL>;
+		sample-time-us = <2000>;
+		idle-timeout-ms = <200>;
+	};
+
+
+	vbatt: vbatt {
+		compatible = "voltage-divider";
+		io-channels = <&adc 0>;
+		output-ohms = <(560 * 1000)>;
+		full-ohms = <(560 * 1000 * 2)>;
+	};
+
+	fuel_gauge: fuel_gauge_composite {
+		compatible = "zephyr,fuel-gauge-composite";
+		battery-voltage = <&vbatt>;
+		device-chemistry = "lithium-ion-polymer";
+		ocv-capacity-table-0 = <BATTERY_OCV_CURVE_LITHIUM_ION_POLYMER_DEFAULT>;
+	};
+
+	reg_1v8: reg_1v8{
+		compatible = "regulator-fixed";
+		regulator-name = "reg_1v8";
+		enable-gpios = <&gpio0 10 GPIO_ACTIVE_HIGH>;
+		regulator-boot-on;
+	};
+
+	hid {
+		compatible = "hid";
+		input {
+			hid-mouse {
+				compatible = "hid-mouse";
+				input = <&pmw &gpio_qdec &buttons>;
+				input-id = <1>;
+				report = <HID_MOUSE_REPORT(1)>;
+			};
+		};
+		output {
+			hid-hog {
+				compatible = "hid-hog";
+			};
+			usb-hid {
+				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_0>;
+			};
+		};
+	};
+
+	hid_dev_0: hid_dev_0 {
+		compatible = "zephyr,hid-device";
+		interface-name = "HID0";
+		in-report-size = <16>;
+		in-polling-period-us = <1000>;
+	};
+
+	ble-unpair {
+		input = <&buttons>;
+		compatible = "ble-unpair";
+		key-a = <INPUT_BTN_LEFT>;
+		key-b = <INPUT_BTN_RIGHT>;
+	};
+};
+
+&uicr {
+	nfct-pins-as-gpios;
+};
+
+&reg1 {
+	regulator-initial-mode = <NRF5X_REG_MODE_DCDC>;
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_6";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN2>;
+		zephyr,resolution = <10>;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	pcal6408a: pcal6408a@20 {
+		compatible = "nxp,pcal6408a";
+		status = "okay";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		ngpios = <8>;
+		reset-gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+		int-gpios = <&gpio1 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+	};
+
+	charger: bq25180@6a {
+		compatible = "ti,bq25180";
+		reg = <0x6a>;
+		constant-charge-current-max-microamp = <500000>;
+	};
+};
+
+&spi1 {
+	compatible = "nordic,nrf-spi";
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	cs-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+
+	sensor: pmw: pmw3610@0 {
+		compatible = "pixart,pmw3610";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(2)>;
+		motion-gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+		zephyr,axis-x = <INPUT_REL_X>;
+		zephyr,axis-y = <INPUT_REL_Y>;
+		res-cpi = <800>;
+		invert-y;
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0xC000>;
+		};
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000C000 0x37000>;
+		};
+		slot1_partition: partition@43000 {
+			label = "image-1";
+			reg = <0x00043000 0x37000>;
+		};
+		storage_partition: partition@7a000 {
+			label = "storage";
+			reg = <0x0007A000 0x00006000>;
+		};
+	};
+};
+
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+};
