@@ -1,0 +1,2 @@
+config BOARD_PAW_G3
+	select SOC_NRF52833_QDAA

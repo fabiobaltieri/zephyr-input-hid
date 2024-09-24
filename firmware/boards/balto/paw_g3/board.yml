@@ -1,0 +1,5 @@
+board:
+  name: paw_g3
+  vendor: balto
+  socs:
+    - name: nrf52833
