@@ -3,3 +3,9 @@ board:
   vendor: balto
   socs:
     - name: nrf52832
+  revision:
+    format: letter
+    default: B
+    revisions:
+      - name: B
+      - name: J

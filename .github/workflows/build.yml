@@ -19,6 +19,7 @@ jobs:
       matrix:
         board: 
           - ble_pulse_encoder
+          - ble_pulse_encoder@J
           - darfon
           - ds2_retrofit
           - kbd_matrix

@@ -1,0 +1,28 @@
+/ {
+	hid {
+		compatible = "hid";
+		input {
+			/delete-node/ hid-mouse;
+			hid-kbd {
+				compatible = "hid-kbd";
+				input = <&sequencer>;
+				input-id = <1>;
+				report = <HID_KBD_REPORT(1, 0)>;
+			};
+		};
+	};
+
+	longpress: longpress {
+		input = <&buttons>;
+		compatible = "zephyr,input-longpress";
+		input-codes = <INPUT_BTN_LEFT>;
+		short-codes = <INPUT_KEY_X>;
+		long-codes = <INPUT_KEY_U>;
+		long-delay-ms = <500>;
+	};
+
+	sequencer: sequencer {
+		compatible = "input-board-filter";
+		input = <&gpio_qdec &buttons &longpress>;
+	};
+};
