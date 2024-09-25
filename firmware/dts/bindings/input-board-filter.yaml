@@ -1,0 +1,8 @@
+description: Board specific input filter
+
+compatible: input-board-filter
+
+properties:
+  input:
+    type: phandles
+    required: true
