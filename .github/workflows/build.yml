@@ -74,3 +74,5 @@ jobs:
             build/zephyr/zephyr.elf
             build/zephyr/zephyr.hex
             build/zephyr/zephyr.bin
+            build/zephyr/zephyr.signed.hex
+            build/zephyr/zephyr.signed.bin
