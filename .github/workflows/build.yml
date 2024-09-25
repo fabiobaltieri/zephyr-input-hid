@@ -44,9 +44,13 @@ jobs:
           app-path: firmware
           toolchains: arm-zephyr-eabi
 
+      - name: Set the normalized board name
+        run: |
+          echo BOARD=$( echo ${{ matrix.board }} | sed 's/@.*$//' | tr '[:lower:]' '[:upper:]' ) >> $GITHUB_ENV
+
       - name: Save the MCUboot key
         env:
-          MCUBOOT_SIGNATURE_KEY: ${{ secrets[format('MCUBOOT_SIGNATURE_KEY_{0}', matrix.board)] }}
+          MCUBOOT_SIGNATURE_KEY: ${{ secrets[format('MCUBOOT_SIGNATURE_KEY_{0}', env.BOARD)] }}
         if: ${{ env.MCUBOOT_SIGNATURE_KEY != '' }}
         run: |
           cat > mcuboot-signature-key.pem <<< $MCUBOOT_SIGNATURE_KEY
