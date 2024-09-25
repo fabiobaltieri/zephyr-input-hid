@@ -97,6 +97,9 @@ config SHELL_CMDS_RETURN_VALUE
 config DEVMEM_SHELL
 	default n
 
+config LOG_PROCESS_THREAD_SLEEP_MS
+	default 100
+
 if BT
 
 config BT_SMP
