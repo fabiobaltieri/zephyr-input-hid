@@ -1,0 +1,15 @@
+#!/bin/sh
+
+BUILDDIR=build-mcuboot
+
+west build -p -d $BUILDDIR \
+	-b negcon_retro \
+	$HOME/zephyrproject/bootloader/mcuboot/boot/zephyr \
+	-- \
+	-DCONFIG_BOOT_SIGNATURE_KEY_FILE=\"$PWD/../keys/negcon-retro-key.pem\" \
+	-DBOARD_ROOT="$PWD" \
+	-DCONFIG_MCUBOOT_LOG_LEVEL_WRN=y \
+	-DCONFIG_I2C=n -DCONFIG_GPIO=n
+
+#west build -d $BUILDDIR -t menuconfig
+west flash -d $BUILDDIR -r nrfjprog
