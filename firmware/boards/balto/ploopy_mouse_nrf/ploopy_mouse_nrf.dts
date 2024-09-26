@@ -35,7 +35,7 @@
 		};
 		sw_1 {
 			gpios = <&pcal6408a 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_FORWARD>;
+			zephyr,code = <INPUT_KEY_P>;
 		};
 		sw_2 {
 			gpios = <&gpio0 31 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
@@ -43,7 +43,7 @@
 		};
 		sw_3 {
 			gpios = <&pcal6408a 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_TASK>;
+			zephyr,code = <INPUT_KEY_N>;
 		};
 		sw_4 {
 			gpios = <&gpio0 18 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
@@ -59,7 +59,7 @@
 		};
 		sw_7 {
 			gpios = <&pcal6408a 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_EXTRA>;
+			zephyr,code = <INPUT_KEY_HOME>;
 		};
 	};
 
@@ -103,6 +103,12 @@
 				input = <&pmw &gpio_qdec &buttons>;
 				input-id = <1>;
 				report = <HID_MOUSE_REPORT(1)>;
+			};
+			hid-kbd {
+				compatible = "hid-kbd";
+				input = <&buttons>;
+				input-id = <2>;
+				report = <HID_KBD_REPORT(2, 0)>;
 			};
 		};
 		output {
