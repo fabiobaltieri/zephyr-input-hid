@@ -100,6 +100,9 @@ config DEVMEM_SHELL
 config LOG_PROCESS_THREAD_SLEEP_MS
 	default 100
 
+configdefault MCUMGR_GRP_IMG_ALLOW_ERASE_PENDING
+	default y
+
 if BT
 
 config BT_SMP
