@@ -62,8 +62,8 @@ jobs:
             EXTRA_ARGS=-DCONFIG_MCUBOOT_SIGNATURE_KEY_FILE="\"mcuboot-signature-key.pem\""
           fi
 
-          echo west build -b ${{ matrix.board }} firmware $EXTRA_ARGS
-          west build -b ${{ matrix.board }} firmware $EXTRA_ARGS
+          echo west build -b ${{ matrix.board }} firmware -DCONFIG_COMPILER_WARNINGS_AS_ERRORS=y $EXTRA_ARGS
+          west build -b ${{ matrix.board }} firmware -DCONFIG_COMPILER_WARNINGS_AS_ERRORS=y $EXTRA_ARGS
 
       - name: Firmware artifact
         uses: actions/upload-artifact@v4
