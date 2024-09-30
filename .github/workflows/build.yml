@@ -46,11 +46,12 @@ jobs:
 
       - name: Set the normalized board name
         run: |
-          echo BOARD=$( echo ${{ matrix.board }} | sed 's/@.*$//' | tr '[:lower:]' '[:upper:]' ) >> $GITHUB_ENV
+          echo "BOARD_NORM=$( echo ${{ matrix.board }} | sed 's/@.*$//' | tr '[:lower:]' '[:upper:]' )" >> $GITHUB_ENV
+          echo "BOARD=$(sed 's/\//_/' <<< ${{ matrix.board }})" >> $GITHUB_ENV
 
       - name: Save the MCUboot key
         env:
-          MCUBOOT_SIGNATURE_KEY: ${{ secrets[format('MCUBOOT_SIGNATURE_KEY_{0}', env.BOARD)] }}
+          MCUBOOT_SIGNATURE_KEY: ${{ secrets[format('MCUBOOT_SIGNATURE_KEY_{0}', env.BOARD_NORM)] }}
         if: ${{ env.MCUBOOT_SIGNATURE_KEY != '' }}
         run: |
           cat > mcuboot-signature-key.pem <<< $MCUBOOT_SIGNATURE_KEY
@@ -63,8 +64,6 @@ jobs:
 
           echo west build -b ${{ matrix.board }} firmware $EXTRA_ARGS
           west build -b ${{ matrix.board }} firmware $EXTRA_ARGS
-
-          echo "BOARD=$(sed 's/\//_/' <<< ${{ matrix.board }})" >> $GITHUB_ENV
 
       - name: Firmware artifact
         uses: actions/upload-artifact@v4
