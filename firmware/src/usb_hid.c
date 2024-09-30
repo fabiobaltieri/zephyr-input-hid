@@ -175,7 +175,7 @@ static void usb_hid_notify(const struct device *dev)
 		return;
 	}
 
-	size = hid_get_report(cfg->hid_dev, dev, &data->buf[0], &data->buf[1], USB_HID_REPORT_BUF_SIZE);
+	size = hid_get_report(cfg->hid_dev, dev, &data->buf[0], &data->buf[1], USB_HID_REPORT_BUF_SIZE - 1);
 	if (size == -EAGAIN) {
 		return;
 	} else if (size < 0) {
