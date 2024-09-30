@@ -19,6 +19,10 @@ int hid_get_report(const struct device *dev,
 		   const struct device *output_dev,
 		   uint8_t *report_id, uint8_t *buf, uint8_t size);
 
+int hid_get_report_id(const struct device *dev,
+		      const struct device *output_dev,
+		      uint8_t report_id, uint8_t *buf, uint8_t size);
+
 void hid_out_report(const struct device *dev,
 		    uint8_t report_id, const uint8_t *buf, uint8_t len);
 

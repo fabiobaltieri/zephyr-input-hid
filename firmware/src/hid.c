@@ -267,6 +267,43 @@ int hid_get_report(const struct device *dev,
 	return out;
 }
 
+int hid_get_report_id(const struct device *dev,
+		      const struct device *output_dev,
+		      uint8_t report_id, uint8_t *buf, uint8_t size)
+{
+	const struct hid_config *cfg = dev->config;
+	struct hid_data *data = dev->data;
+	int out = -EAGAIN;
+
+	k_sem_take(&data->lock, K_FOREVER);
+
+	for (uint8_t i = 0; i < cfg->cache_len; i++) {
+		struct hid_report_cache *entry = &cfg->cache[i];
+
+		if (entry->output_dev != output_dev || entry->report_id != report_id) {
+			continue;
+		}
+
+		if (size < entry->size) {
+			LOG_ERR("buffer too small: %d < %d", size, entry->size);
+			break;
+		}
+
+		memcpy(buf, entry->data, entry->size);
+		out = entry->size;
+
+		entry->updated = false;
+
+		hid_clear_rel(entry->input_dev, entry->data, entry->size);
+
+		break;
+	}
+
+	k_sem_give(&data->lock);
+
+	return out;
+}
+
 void hid_out_report(const struct device *dev,
 		    uint8_t report_id, const uint8_t *buf, uint8_t len)
 {

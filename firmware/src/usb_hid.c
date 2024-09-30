@@ -88,9 +88,28 @@ static int get_report(const struct device *dev,
 		      const uint8_t type, const uint8_t id,
 		      const uint16_t len, uint8_t *const buf)
 {
-	LOG_WRN("%s unimplemented", __func__);
+	const struct device *hid_dev;
+	const struct usb_hid_config *cfg;
+	int size;
 
-	return 0;
+	if (type != HID_REPORT_TYPE_INPUT) {
+		return 0;
+	}
+
+	hid_dev = find_hid_dev(dev);
+	if (hid_dev == NULL) {
+		return -EIO;
+	}
+
+	cfg = hid_dev->config;
+
+	size = hid_get_report_id(cfg->hid_dev, hid_dev, id, buf, len);
+	if (size < 0) {
+		LOG_WRN("hid_get_report error: %d", size);
+		return 0;
+	}
+
+	return size;
 }
 
 static void output_report(const struct device *dev,
