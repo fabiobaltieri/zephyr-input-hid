@@ -126,11 +126,33 @@ static void input_ccc_changed(const struct bt_gatt_attr *attr, uint16_t value)
 	LOG_INF("notify_enabled: dev=%s report_id=%d enabled=%d", dev->name, hids_report->report.id, enabled);
 }
 
+struct read_input_report_data {
+	const struct device *dev;
+	uint8_t id;
+};
+
 static ssize_t read_input_report(struct bt_conn *conn,
 				 const struct bt_gatt_attr *attr, void *buf,
 				 uint16_t len, uint16_t offset)
 {
-	return bt_gatt_attr_read(conn, attr, buf, len, offset, NULL, 0);
+	const struct read_input_report_data *data = attr->user_data;
+	const struct device *dev = data->dev;
+	const struct ble_hog_config *cfg = dev->config;
+	uint8_t report_buf[HOG_REPORT_BUF_SIZE];
+	int size;
+
+	if (offset != 0) {
+		LOG_ERR("unsupported offset: %d", offset);
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	size = hid_get_report_id(cfg->hid_dev, dev, data->id, report_buf, HOG_REPORT_BUF_SIZE);
+	if (size < 0) {
+		LOG_WRN("hid_get_report error: %d", size);
+		return BT_GATT_ERR(BT_ATT_ERR_NOT_SUPPORTED);
+	}
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, report_buf, size);
 }
 
 static __maybe_unused ssize_t write_output_report(
@@ -208,6 +230,12 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 	return len;
 }
 
+#define READ_INPUT_REPORT_DATA_DEFINE(node_id, prop, idx, self)	\
+	(&(const struct read_input_report_data){		\
+	 .dev = self,						\
+	 .id = DT_PROP_BY_IDX(node_id, prop, idx),		\
+	 })
+
 #define HIDS_REPORT_DEFINE_INPUT(node_id, prop, idx, self)	\
 	(&(const struct hids_report){				\
 	 .dev = self,						\
@@ -233,7 +261,9 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 	BT_GATT_CHARACTERISTIC(BT_UUID_HIDS_REPORT,					\
 			       BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,			\
 			       BT_GATT_PERM_READ_ENCRYPT,				\
-			       read_input_report, NULL, NULL),				\
+			       read_input_report, NULL,					\
+			       (void *)READ_INPUT_REPORT_DATA_DEFINE(			\
+					node_id, prop, idx, self)),			\
 	BT_GATT_CCC(input_ccc_changed,							\
 		    BT_GATT_PERM_READ_ENCRYPT | BT_GATT_PERM_WRITE_ENCRYPT),		\
 	BT_GATT_DESCRIPTOR(BT_UUID_HIDS_REPORT_REF, BT_GATT_PERM_READ,			\
