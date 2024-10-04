@@ -124,10 +124,10 @@
 		compatible = "pixart,pat912x";
 		reg = <0x75>;
 		motion-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
-		zephyr,axis-y = <INPUT_REL_WHEEL>;
+		zephyr,axis-x = <INPUT_REL_WHEEL>;
 		res-x-cpi = <50>;
 		res-y-cpi = <50>;
-		invert-y;
+		invert-x;
 	};
 
 	charger: bq25180@6a {
