@@ -19,14 +19,25 @@ static void bas_fuel_gauge_handler(struct k_work *work)
 {
 	union fuel_gauge_prop_val val1;
 	union fuel_gauge_prop_val val2;
+	int ret;
 
-	fuel_gauge_get_prop(fuel_gauge, FUEL_GAUGE_RELATIVE_STATE_OF_CHARGE, &val1);
-	fuel_gauge_get_prop(fuel_gauge, FUEL_GAUGE_VOLTAGE, &val2);
+	ret = fuel_gauge_get_prop(fuel_gauge, FUEL_GAUGE_RELATIVE_STATE_OF_CHARGE, &val1);
+	if (ret < 0) {
+		LOG_ERR("get_prop error: %d", ret);
+		goto out;
+	}
+
+	ret = fuel_gauge_get_prop(fuel_gauge, FUEL_GAUGE_VOLTAGE, &val2);
+	if (ret < 0) {
+		LOG_ERR("get_prop error: %d", ret);
+		goto out;
+	}
 
 	LOG_DBG("vbatt_mv=%d soc=%d", val2.voltage / 1000, val1.relative_state_of_charge);
 
 	bt_bas_set_battery_level(val1.relative_state_of_charge);
 
+out:
 	k_work_schedule(&fuel_gauge_dwork, K_SECONDS(SOC_UPDATE_SECS));
 }
 

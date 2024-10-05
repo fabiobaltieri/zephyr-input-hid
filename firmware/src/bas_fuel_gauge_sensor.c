@@ -18,14 +18,25 @@ K_WORK_DELAYABLE_DEFINE(fuel_gauge_dwork, bas_fuel_gauge_handler);
 static void bas_fuel_gauge_handler(struct k_work *work)
 {
 	struct sensor_value val;
+	int ret;
 
-	sensor_sample_fetch_chan(fuel_gauge, SENSOR_CHAN_GAUGE_STATE_OF_CHARGE);
-	sensor_channel_get(fuel_gauge, SENSOR_CHAN_GAUGE_STATE_OF_CHARGE, &val);
+	ret = sensor_sample_fetch_chan(fuel_gauge, SENSOR_CHAN_GAUGE_STATE_OF_CHARGE);
+	if (ret < 0) {
+		LOG_ERR("sample_fetch error: %d", ret);
+		goto out;
+	}
+
+	ret = sensor_channel_get(fuel_gauge, SENSOR_CHAN_GAUGE_STATE_OF_CHARGE, &val);
+	if (ret < 0) {
+		LOG_ERR("channel_get error: %d", ret);
+		goto out;
+	}
 
 	LOG_DBG("soc: %d", val.val1);
 
 	bt_bas_set_battery_level(val.val1);
 
+out:
 	k_work_schedule(&fuel_gauge_dwork, K_SECONDS(SOC_UPDATE_SECS));
 }
 
