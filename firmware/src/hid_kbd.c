@@ -47,6 +47,10 @@ static void hid_kbd_update_modifiers(uint8_t *modifiers, struct input_event *evt
 {
 	uint8_t modifier;
 
+	if (evt->type != INPUT_EV_KEY) {
+		return;
+	}
+
 	modifier = input_to_hid_modifier(evt->code);
 	if (modifier != 0) {
 		if (evt->value) {
@@ -62,6 +66,10 @@ static int hid_kbd_update_bits(uint8_t bits[], struct input_event *evt)
 	uint8_t off;
 	uint8_t bit;
 	int hid_code;
+
+	if (evt->type != INPUT_EV_KEY) {
+		return 0;
+	}
 
 	hid_code = input_to_hid_code(evt->code);
 
