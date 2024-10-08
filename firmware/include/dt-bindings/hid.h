@@ -89,9 +89,9 @@
 
 #define HID_MOUSE_REPORT(id)					\
 	HID_MOUSE_REPORT_HEADER(id)				\
-	0x15 0x81	/*   Logical Minimum (-127) */		\
-	0x25 0x7f	/*   Logical Maximum (127) */		\
-	0x75 0x08	/*   Report Size (8) */			\
+	0x16 0x01 0x80	/*   Logical Minimum (-32767) */	\
+	0x26 0xff 0x7f	/*   Logical Maximum (32767) */		\
+	0x75 0x10	/*   Report Size (16) */		\
 	0x95 0x01	/*   Report Count (1) */		\
 	0x09 0x38	/*   Usage (Wheel) */			\
 	0x81 0x06	/*   Input (Data,Var,Rel) */		\
@@ -110,11 +110,11 @@
 	0x45 0x78	/*    Physical Maximum (120) */		\
 	0xb1 0x02	/*    Feature (Data,Var,Abs) */		\
 	0x85 id		/*    Report ID () */			\
-	0x15 0x81	/*    Logical Minimum (-127) */		\
-	0x25 0x7f	/*    Logical Maximum (127) */		\
+	0x16 0x01 0x80	/*    Logical Minimum (-32767) */	\
+	0x26 0xff 0x7f	/*    Logical Maximum (32767) */	\
 	0x35 0x00	/*    Physical Minimum (0) */		\
 	0x45 0x00	/*    Physical Maximum (0) */		\
-	0x75 0x08	/*    Report Size (8) */		\
+	0x75 0x10	/*    Report Size (16) */		\
 	0x95 0x01	/*    Report Count (1) */		\
 	0x09 0x38	/*    Usage (Wheel) */			\
 	0x81 0x06	/*    Input (Data,Var,Rel) */		\

@@ -16,7 +16,7 @@ struct hid_mouse_report {
 	uint8_t buttons;
 	int16_t x;
 	int16_t y;
-	int8_t wheel;
+	int16_t wheel;
 } __packed;
 
 struct hid_mouse_config {
@@ -80,7 +80,7 @@ static void hid_mouse_set_rel(struct hid_mouse_report *report,
 		break;
 	case INPUT_REL_WHEEL:
 		report->wheel = CLAMP(report->wheel + value,
-				      INT8_MIN, INT8_MAX);
+				      INT16_MIN, INT16_MAX);
 		break;
 	default:
 		return;
