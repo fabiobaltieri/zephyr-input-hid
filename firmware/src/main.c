@@ -173,6 +173,12 @@ EVENT_CALLBACK_DEFINE(blinker_cb);
 
 static void blink_input_cb(struct input_event *evt, void *user_data)
 {
+#if CONFIG_APP_EVT_BLINK_TIMEOUT
+	if (k_uptime_get() > 60 * 1000) {
+		return;
+	}
+#endif
+
 	if (!evt->sync) {
 		return;
 	}

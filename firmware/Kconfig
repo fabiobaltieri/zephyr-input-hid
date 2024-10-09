@@ -45,6 +45,9 @@ config APP_USB_REMOTE_WAKEUP
 	bool "USB Remote Wakeup"
 	depends on USB_DEVICE_STACK_NEXT
 
+config APP_EVT_BLINK_TIMEOUT
+	bool "Disable the activity blink after 1 minute"
+
 if USB_DEVICE_STACK_NEXT
 
 config APP_USB_VID
