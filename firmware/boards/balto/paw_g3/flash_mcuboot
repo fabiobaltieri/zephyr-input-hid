@@ -1,0 +1,15 @@
+#!/bin/sh
+
+BUILDDIR=build-mcuboot
+
+west build -p -d $BUILDDIR \
+	-b paw_g3 \
+	$HOME/zephyrproject/bootloader/mcuboot/boot/zephyr \
+	-- \
+	-DCONFIG_BOOT_SIGNATURE_KEY_FILE=\"$PWD/../keys/paw-g3-key.pem\" \
+	-DBOARD_ROOT="$PWD" \
+	-DCONFIG_MCUBOOT_LOG_LEVEL_INF=y \
+	-DCONFIG_I2C=n -DCONFIG_GPIO=n
+
+#west build -d $BUILDDIR -t menuconfig
+west flash -d $BUILDDIR -r nrfjprog
