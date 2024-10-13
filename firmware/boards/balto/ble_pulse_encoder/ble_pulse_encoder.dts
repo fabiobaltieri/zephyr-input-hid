@@ -41,7 +41,7 @@
 		};
 	};
 
-	sensor: gpio_qdec: gpio-qdec {
+	gpio_qdec: gpio-qdec {
 		compatible = "gpio-qdec";
 		gpios = <&gpio0 17 GPIO_ACTIVE_LOW>,
 			<&gpio0 13 GPIO_ACTIVE_LOW>;
@@ -96,6 +96,12 @@
 		compatible = "ble-unpair";
 		key-a = <INPUT_BTN_LEFT>;
 		key-b = <INPUT_BTN_RIGHT>;
+	};
+
+	pm-control {
+		compatible = "pm-control";
+		always-on = <&buttons>;
+		connect-on = <&gpio_qdec>;
 	};
 };
 

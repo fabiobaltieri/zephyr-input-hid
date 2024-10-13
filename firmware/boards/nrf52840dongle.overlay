@@ -76,6 +76,12 @@
 		compatible = "xinput";
 		input = <&buttons>;
 	};
+
+	pm-control {
+		compatible = "pm-control";
+		always-on = <&buttons>;
+		connect-on = <&buttons>;
+	};
 };
 
 led_input_activity: &led1_red {};

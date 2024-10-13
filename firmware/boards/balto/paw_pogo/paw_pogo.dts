@@ -64,6 +64,12 @@
 		in-report-size = <16>;
 		in-polling-period-us = <1000>;
 	};
+
+	pm-control {
+		compatible = "pm-control";
+		always-on = <&buttons>;
+		connect-on = <&paw &pat>;
+	};
 };
 
 &clk_lsi {

@@ -87,6 +87,12 @@
 			};
 		};
 	};
+
+	pm-control {
+		compatible = "pm-control";
+		always-on = <&buttons>;
+		connect-on = <&buttons_2>;
+	};
 };
 
 led_status: &led0 {};

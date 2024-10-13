@@ -1,0 +1,10 @@
+description: PM control node
+
+compatible: pm-control
+
+properties:
+  always-on:
+    type: phandles
+
+  connect-on:
+    type: phandles

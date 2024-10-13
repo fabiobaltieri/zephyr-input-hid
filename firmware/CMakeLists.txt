@@ -16,7 +16,7 @@ target_sources(app PRIVATE
 
 zephyr_linker_sources(ROM_SECTIONS src/event.ld)
 
-target_sources_ifdef(CONFIG_BT app PRIVATE src/ble.c src/ble_status.c src/ble_shell.c)
+target_sources_ifdef(CONFIG_BT app PRIVATE src/ble.c src/ble_shell.c)
 
 target_sources_ifdef(CONFIG_APP_BAS_FUEL_GAUGE app PRIVATE src/bas_fuel_gauge.c)
 target_sources_ifdef(CONFIG_APP_BAS_FUEL_GAUGE_SENSOR app PRIVATE src/bas_fuel_gauge_sensor.c)
@@ -34,5 +34,6 @@ target_sources_ifdef(CONFIG_DT_HAS_USB_HID_ENABLED app PRIVATE src/usb_hid.c)
 target_sources_ifdef(CONFIG_DT_HAS_BLE_UNPAIR_ENABLED app PRIVATE src/ble_unpair.c)
 target_sources_ifdef(CONFIG_DT_HAS_XINPUT_ENABLED app PRIVATE src/xinput.c)
 target_sources_ifdef(CONFIG_DT_HAS_TI_DRV8830_ENABLED app PRIVATE src/drv8830.c)
+target_sources_ifdef(CONFIG_DT_HAS_PM_CONTROL_ENABLED app PRIVATE src/pm_control.c)
 
 target_sources_ifdef(CONFIG_USB_DEVICE_STACK_NEXT app PRIVATE src/usbd.c)

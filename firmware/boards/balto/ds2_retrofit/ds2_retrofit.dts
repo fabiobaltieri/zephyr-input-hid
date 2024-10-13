@@ -185,6 +185,12 @@
 		key-a = <INPUT_BTN_MODE>;
 		key-b = <INPUT_BTN_START>;
 	};
+
+	pm-control {
+		compatible = "pm-control";
+		always-on = <&buttons>;
+		connect-on = <&aa &button_scan>;
+	};
 };
 
 &uicr {
@@ -260,7 +266,7 @@
 };
 
 &i2c0 {
-	compatible = "nordic,nrf-twi";
+	compatible = "nordic,nrf-twim";
 	status = "okay";
 	clock-frequency = <I2C_BITRATE_FAST>;
 	pinctrl-0 = <&i2c0_default>;
