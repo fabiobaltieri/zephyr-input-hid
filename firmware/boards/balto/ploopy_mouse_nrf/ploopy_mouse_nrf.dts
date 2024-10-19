@@ -28,6 +28,7 @@
 	buttons: buttons {
 		compatible = "gpio-keys";
 		debounce-interval-ms = <3>;
+		no-disconnect;
 
 		sw_0 {
 			gpios = <&pcal6408a 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;

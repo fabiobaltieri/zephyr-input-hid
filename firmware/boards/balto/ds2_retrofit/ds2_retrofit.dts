@@ -30,6 +30,7 @@
 	buttons: buttons {
 		compatible = "gpio-keys";
 		debounce-interval-ms = <3>;
+		no-disconnect;
 
 		wkup: button_analog {
 			gpios = <&gpio0 20 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
