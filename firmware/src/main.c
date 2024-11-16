@@ -12,21 +12,8 @@ static struct k_sem blink_sem = Z_SEM_INITIALIZER(blink_sem, 0, 4);
 #define BLINKER_NODE DT_NODELABEL(led_input_activity)
 #define STATUS_NODE DT_NODELABEL(led_status)
 
-static const struct {
-	const struct device *activity_leds;
-	const uint32_t activity_idx;
-	const struct device *status_leds;
-	const uint32_t status_idx;
-} cfg = {
-#if DT_NODE_EXISTS(BLINKER_NODE)
-	.activity_leds = DEVICE_DT_GET_OR_NULL(DT_PARENT(BLINKER_NODE)),
-	.activity_idx = DT_NODE_CHILD_IDX(BLINKER_NODE),
-#endif
-#if DT_NODE_EXISTS(STATUS_NODE)
-	.status_leds = DEVICE_DT_GET(DT_PARENT(STATUS_NODE)),
-	.status_idx = DT_NODE_CHILD_IDX(STATUS_NODE),
-#endif
-};
+const struct led_dt_spec activity_led = LED_DT_SPEC_GET_OR(BLINKER_NODE, {0});
+const struct led_dt_spec status_led = LED_DT_SPEC_GET_OR(STATUS_NODE, {0});
 
 #define BLINKER_QUEUE_SZ 10
 
@@ -36,30 +23,30 @@ static bool led_invert;
 
 static void led_status(bool on)
 {
-	if (cfg.status_leds == NULL) {
+	if (!led_is_ready_dt(&status_led)) {
 		return;
 	}
 
 	if (on) {
-		led_set_brightness(cfg.status_leds, cfg.status_idx,
-				   (cfg.activity_leds == NULL && led_invert) ? 0 : 100);
+		led_set_brightness_dt(&status_led,
+				      (activity_led.dev == NULL && led_invert) ? 0 : 100);
 	} else {
-		led_set_brightness(cfg.status_leds, cfg.status_idx,
-				   (cfg.activity_leds == NULL && led_invert) ? 100 : 0);
+		led_set_brightness_dt(&status_led,
+				      (activity_led.dev == NULL && led_invert) ? 100 : 0);
 	}
 }
 
 static void led_activity(bool on)
 {
-	if (cfg.activity_leds == NULL) {
+	if (!led_is_ready_dt(&activity_led)) {
 		led_status(on);
 		return;
 	}
 
 	if (on) {
-		led_set_brightness(cfg.activity_leds, cfg.activity_idx, led_invert ? 0 : 100);
+		led_set_brightness_dt(&activity_led, led_invert ? 0 : 100);
 	} else {
-		led_set_brightness(cfg.activity_leds, cfg.activity_idx, led_invert ? 100 : 0);
+		led_set_brightness_dt(&activity_led, led_invert ? 100 : 0);
 	}
 }
 
@@ -77,7 +64,7 @@ int main(void)
 			continue;
 		}
 
-		if (cfg.status_leds == NULL && cfg.activity_leds == NULL) {
+		if (!led_is_ready_dt(&status_led) && !led_is_ready_dt(&activity_led)) {
 			continue;
 		}
 
