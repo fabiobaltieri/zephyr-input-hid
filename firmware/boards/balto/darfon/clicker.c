@@ -4,9 +4,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/reboot.h>
 
-#define LED_CLICKER_NODE DT_NODELABEL(led_clicker)
-#define LED_CLICKER DT_NODE_CHILD_IDX(LED_CLICKER_NODE)
-static const struct device *leds = DEVICE_DT_GET(DT_PARENT(LED_CLICKER_NODE));
+static const struct led_dt_spec clicker_led = LED_DT_SPEC_GET(DT_NODELABEL(led_clicker));
 
 static bool clicker_enabled;
 
@@ -61,7 +59,7 @@ static void input_cb(struct input_event *evt, void *user_data)
 		sys_reboot(SYS_REBOOT_COLD);
 	} else if (row == 4 && col == 16 && val == 1) {
 		clicker_enabled = !clicker_enabled;
-		led_set_brightness(leds, LED_CLICKER, clicker_enabled ? 100: 0);
+		led_set_brightness_dt(&clicker_led, clicker_enabled ? 100: 0);
 	}
 }
 INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_NODELABEL(kbd)), input_cb, NULL);
