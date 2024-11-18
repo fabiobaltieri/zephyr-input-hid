@@ -48,6 +48,9 @@
 		//idle-mode = "scan";
 		//poll-timeout-ms = <0>;
 		no-ghostkey-check;
+		settle-time-us = <10>;
+		poll-period-ms = <1>;
+		stable-poll-period-ms = <5>;
 
 		keymap: keymap {
 			compatible = "input-keymap";
