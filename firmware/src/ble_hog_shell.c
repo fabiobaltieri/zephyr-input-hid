@@ -6,9 +6,16 @@
 #include "ble_hog.h"
 
 #if CONFIG_SHELL
+extern const struct Z_DEVICE_API_TYPE(hid_output) ble_hog_api;
+
+static bool hog_device_filter(const struct device *dev)
+{
+	return dev->api == &ble_hog_api;
+}
+
 static void device_name_get(size_t idx, struct shell_static_entry *entry)
 {
-	const struct device *dev = shell_device_lookup(idx, NULL);
+	const struct device *dev = shell_device_filter(idx, hog_device_filter);
 
 	entry->syntax = (dev != NULL) ? dev->name : NULL;
 	entry->handler = NULL;

@@ -443,7 +443,7 @@ static int ble_hog_init(const struct device *dev)
 	return 0;
 }
 
-static DEVICE_API(hid_output, ble_hog_api) = {
+DEVICE_API(hid_output, ble_hog_api) = {
 	.notify = ble_hog_notify,
 };
 
