@@ -210,7 +210,7 @@ static int hid_kbd_out_report(const struct device *dev,
 	return 0;
 }
 
-static const struct hid_input_api hid_kbd_api = {
+static DEVICE_API(hid_input, hid_kbd_api) = {
 	.out_report = hid_kbd_out_report,
 };
 

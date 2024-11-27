@@ -29,7 +29,7 @@ void hid_out_report(const struct device *dev,
 int hid_set_feature(const struct device *dev,
 		    uint8_t report_id, const uint8_t *buf, uint8_t len);
 
-__subsystem struct hid_input_api {
+__subsystem struct hid_input_driver_api {
 	int (*clear_rel)(const struct device *dev,
 			 uint8_t *buf, uint8_t len);
 	int (*out_report)(const struct device *dev,
@@ -40,7 +40,9 @@ __subsystem struct hid_input_api {
 
 static inline int hid_has_clear_rel(const struct device *dev)
 {
-	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
+	const struct hid_input_driver_api *api = DEVICE_API_GET(hid_input, dev);
+
+	__ASSERT_NO_MSG(DEVICE_API_IS(hid_input, dev));
 
 	return api != NULL && api->clear_rel != NULL;
 }
@@ -48,7 +50,9 @@ static inline int hid_has_clear_rel(const struct device *dev)
 static inline int hid_clear_rel(const struct device *dev,
 				uint8_t *buf, uint8_t len)
 {
-	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
+	const struct hid_input_driver_api *api = DEVICE_API_GET(hid_input, dev);
+
+	__ASSERT_NO_MSG(DEVICE_API_IS(hid_input, dev));
 
 	if (api == NULL || api->clear_rel == NULL) {
 		return -ENOSYS;
@@ -60,7 +64,9 @@ static inline int hid_clear_rel(const struct device *dev,
 static inline int hid_input_out_report(const struct device *dev,
 				       uint8_t report_id, const uint8_t *buf, uint8_t len)
 {
-	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
+	const struct hid_input_driver_api *api = DEVICE_API_GET(hid_input, dev);
+
+	__ASSERT_NO_MSG(DEVICE_API_IS(hid_input, dev));
 
 	if (api == NULL || api->out_report == NULL) {
 		return -ENOSYS;
@@ -72,7 +78,9 @@ static inline int hid_input_out_report(const struct device *dev,
 static inline int hid_input_set_feature(const struct device *dev,
 					uint8_t report_id, const uint8_t *buf, uint8_t len)
 {
-	const struct hid_input_api *api = (const struct hid_input_api *)dev->api;
+	const struct hid_input_driver_api *api = DEVICE_API_GET(hid_input, dev);
+
+	__ASSERT_NO_MSG(DEVICE_API_IS(hid_input, dev));
 
 	if (api == NULL || api->set_feature == NULL) {
 		return -ENOSYS;
@@ -81,13 +89,15 @@ static inline int hid_input_set_feature(const struct device *dev,
 	return api->set_feature(dev, report_id, buf, len);
 }
 
-__subsystem struct hid_output_api {
+__subsystem struct hid_output_driver_api {
 	void (*notify)(const struct device *dev);
 };
 
 static inline void hid_output_notify(const struct device *dev)
 {
-	const struct hid_output_api *api = (const struct hid_output_api *)dev->api;
+	const struct hid_output_driver_api *api = DEVICE_API_GET(hid_output, dev);
+
+	__ASSERT_NO_MSG(DEVICE_API_IS(hid_output, dev));
 
 	api->notify(dev);
 }

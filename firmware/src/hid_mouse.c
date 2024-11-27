@@ -160,7 +160,7 @@ static int hid_mouse_set_feature(const struct device *dev,
 	return data->feat_cb(dev, report_id, buf, len);
 }
 
-static const struct hid_input_api hid_mouse_api = {
+static DEVICE_API(hid_input, hid_mouse_api) = {
 	.clear_rel = hid_mouse_clear_rel,
 	.set_feature = hid_mouse_set_feature,
 };
