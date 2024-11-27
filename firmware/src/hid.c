@@ -46,11 +46,18 @@ struct hid_data {
 	struct k_work_delayable notify_dwork;
 };
 
+const struct hid_dummy_api {} dummy_api;
+
 #if CONFIG_SHELL
+
+static bool hid_device_filter(const struct device *dev)
+{
+	return dev->api == &dummy_api;
+}
 
 static void device_name_get(size_t idx, struct shell_static_entry *entry)
 {
-	const struct device *dev = shell_device_lookup(idx, NULL);
+	const struct device *dev = shell_device_filter(idx, hid_device_filter);
 
 	entry->syntax = (dev != NULL) ? dev->name : NULL;
 	entry->handler = NULL;
@@ -428,6 +435,6 @@ static int hid_init(const struct device *dev)
 											\
 	DEVICE_DT_INST_DEFINE(n, hid_init, NULL,					\
 			      &hid_data_##n, &hid_cfg_##n,				\
-			      POST_KERNEL, 55, NULL);
+			      POST_KERNEL, 55, &dummy_api);
 
 DT_INST_FOREACH_STATUS_OKAY(HID_INIT)
