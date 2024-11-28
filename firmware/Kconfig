@@ -146,6 +146,9 @@ config BT_MAX_CONN
 config BT_MAX_PAIRED
 	default 1
 
+config BT_ASSERT
+	default n
+
 endif # BT
 
 source "Kconfig.zephyr"
