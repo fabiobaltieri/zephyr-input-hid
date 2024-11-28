@@ -17,5 +17,4 @@ manifest:
           - mcuboot
           - segger
           - mbedtls
-          - tinycrypt
           - zcbor
