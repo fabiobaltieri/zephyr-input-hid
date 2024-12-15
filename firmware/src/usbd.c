@@ -20,9 +20,10 @@ USBD_DESC_SERIAL_NUMBER_DEFINE(app_usb_sn);
 static const uint8_t attributes = (
 		IS_ENABLED(CONFIG_APP_USB_REMOTE_WAKEUP) ? USB_SCD_REMOTE_WAKEUP : 0);
 
-USBD_CONFIGURATION_DEFINE(app_usb_fs_config, attributes, CONFIG_APP_USB_MAX_POWER, NULL);
-
-USBD_CONFIGURATION_DEFINE(app_usb_hs_config, attributes, CONFIG_APP_USB_MAX_POWER, NULL);
+USBD_DESC_CONFIG_DEFINE(fs_cfg_desc, "FS Configuration");
+USBD_DESC_CONFIG_DEFINE(hs_cfg_desc, "HS Configuration");
+USBD_CONFIGURATION_DEFINE(app_usb_fs_config, attributes, CONFIG_APP_USB_MAX_POWER, &fs_cfg_desc);
+USBD_CONFIGURATION_DEFINE(app_usb_hs_config, attributes, CONFIG_APP_USB_MAX_POWER, &hs_cfg_desc);
 
 static void usbd_msg_cb(struct usbd_context *const usbd_ctx,
 			const struct usbd_msg *const msg)
