@@ -1,6 +1,0 @@
-if BOARD_NEGCON_RETRO
-
-config BT_CTLR
-	default BT
-
-endif

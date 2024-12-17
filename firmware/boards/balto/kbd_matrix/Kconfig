@@ -1,6 +1,0 @@
-if BOARD_KBD_MATRIX
-
-config BT_CTLR
-	default BT
-
-endif

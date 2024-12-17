@@ -1,6 +1,0 @@
-if BOARD_PAW_G3
-
-config BT_CTLR
-	default BT
-
-endif

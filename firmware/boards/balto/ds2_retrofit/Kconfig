@@ -1,6 +1,0 @@
-if BOARD_DS2_RETROFIT
-
-config BT_CTLR
-	default BT
-
-endif

@@ -1,6 +1,0 @@
-if BOARD_PLOOPY_MOUSE_NRF
-
-config BT_CTLR
-	default BT
-
-endif
