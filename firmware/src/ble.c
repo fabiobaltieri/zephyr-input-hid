@@ -45,17 +45,57 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	event(EVENT_BT_DISCONNECTED);
 }
 
+static void bond_count(const struct bt_bond_info *info, void *user_data)
+{
+	int *count = user_data;
+
+	(*count)++;
+}
+
 static void adv_work_handler(struct k_work *work)
 {
 	int ret;
+	int count = 0;
 
-	ret = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
+	bt_foreach_bond(BT_ID_DEFAULT, bond_count, &count);
+
+	if (!IS_ENABLED(CONFIG_APP_BT_EMPTY_AD_BONDED)) {
+		ret = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
+	} else if (count == CONFIG_BT_MAX_PAIRED) {
+		LOG_INF("bonds full, empty ad");
+		ret = bt_le_adv_start(&ad_param, NULL, 0, NULL, 0);
+	} else {
+		LOG_INF("bondable, normal ad");
+		ret = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
+	}
 	if (ret) {
 		LOG_ERR("bt_le_adv_start failed: %d", ret);
 		return;
 	}
 }
 K_WORK_DEFINE(adv_work, adv_work_handler);
+
+static void unpair_cb(enum event_code code)
+{
+	int ret;
+
+	if (code != EVENT_BT_UNPAIRED) {
+		return;
+	}
+
+	ret = bt_unpair(BT_ID_DEFAULT, NULL);
+	if (ret) {
+		LOG_ERR("Failed to clear pairings ret=%d", ret);
+		return;
+	}
+
+	LOG_INF("All bonds cleared");
+
+	bt_le_adv_stop();
+
+	k_work_submit(&adv_work);
+}
+EVENT_CALLBACK_DEFINE(unpair_cb);
 
 static void recycled(void)
 {

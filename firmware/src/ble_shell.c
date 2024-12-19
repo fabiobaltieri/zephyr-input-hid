@@ -8,17 +8,6 @@
 
 static int cmd_ble_unpair(const struct shell *sh, size_t argc, char **argv)
 {
-	int err;
-
-	err = bt_unpair(BT_ID_DEFAULT, NULL);
-	if (err) {
-		shell_error(sh, "Failed to clear pairings (err %d)",
-			    err);
-		return err;
-	}
-
-	shell_print(sh, "Pairing successfully cleared");
-
 	event(EVENT_BT_UNPAIRED);
 
 	return 0;

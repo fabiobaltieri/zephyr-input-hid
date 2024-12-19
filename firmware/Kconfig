@@ -48,6 +48,10 @@ config APP_USB_REMOTE_WAKEUP
 config APP_EVT_BLINK_TIMEOUT
 	bool "Disable the activity blink after 1 minute"
 
+config APP_BT_EMPTY_AD_BONDED
+	bool "Send an empty ad when bonded"
+	depends on BT
+
 if USB_DEVICE_STACK_NEXT
 
 config APP_USB_VID

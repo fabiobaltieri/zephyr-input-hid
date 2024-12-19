@@ -16,8 +16,6 @@ LOG_MODULE_REGISTER(ble_unpair, LOG_LEVEL_INF);
 
 static void unpair_handler(struct k_work *work)
 {
-	bt_unpair(BT_ID_DEFAULT, NULL);
-
 	event(EVENT_BT_UNPAIRED);
 }
 
