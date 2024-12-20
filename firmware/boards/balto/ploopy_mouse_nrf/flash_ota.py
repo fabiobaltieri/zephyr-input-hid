@@ -4,7 +4,7 @@ import os
 import time
 
 HOME = os.environ["HOME"]
-MCUMGR = f"sudo {HOME}/go/bin/mcumgr --conntype ble --connstring peer_name='Ploopy Mouse nRF'"
+MCUMGR = f"sudo {HOME}/go/bin/mcumgr --conntype ble --connstring peer_id=f8:d9:e0:78:08:ae" # peer_name='Ploopy Mouse nRF'
 IMAGE_PATH = "build/zephyr/zephyr.signed.bin"
 OFFSET = -328
 
