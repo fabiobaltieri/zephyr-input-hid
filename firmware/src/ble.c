@@ -28,6 +28,12 @@ static struct bt_le_adv_param ad_param = BT_LE_ADV_PARAM_INIT(
 		BT_LE_ADV_OPT_CONN,
 		BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX, NULL);
 
+static bt_addr_le_t bond_addr;
+static struct bt_le_adv_param bond_ad_param = BT_LE_ADV_PARAM_INIT(
+		BT_LE_ADV_OPT_CONN | BT_LE_ADV_OPT_DIR_MODE_LOW_DUTY,
+		BT_GAP_ADV_FAST_INT_MIN_2, BT_GAP_ADV_FAST_INT_MAX_2,
+		&bond_addr);
+
 static void connected(struct bt_conn *conn, uint8_t err)
 {
 	int ret;
@@ -50,6 +56,8 @@ static void bond_count(const struct bt_bond_info *info, void *user_data)
 	int *count = user_data;
 
 	(*count)++;
+
+	bt_addr_le_copy(&bond_addr, &info->addr);
 }
 
 static void adv_work_handler(struct k_work *work)
@@ -61,6 +69,9 @@ static void adv_work_handler(struct k_work *work)
 
 	if (!IS_ENABLED(CONFIG_APP_BT_EMPTY_AD_BONDED)) {
 		ret = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
+	} else if (IS_ENABLED(CONFIG_APP_BT_DIRECTED_AD) && count == 1) {
+		LOG_INF("one bond, directed ad");
+		ret = bt_le_adv_start(&bond_ad_param, NULL, 0, NULL, 0);
 	} else if (count == CONFIG_BT_MAX_PAIRED) {
 		LOG_INF("bonds full, empty ad");
 		ret = bt_le_adv_start(&ad_param, NULL, 0, NULL, 0);
