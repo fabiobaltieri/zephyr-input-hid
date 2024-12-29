@@ -24,12 +24,12 @@ static const struct bt_data ad[] = {
 	BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN),
 };
 
-static struct bt_le_adv_param ad_param = BT_LE_ADV_PARAM_INIT(
+static const struct bt_le_adv_param ad_param = BT_LE_ADV_PARAM_INIT(
 		BT_LE_ADV_OPT_CONN,
 		BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX, NULL);
 
 static bt_addr_le_t bond_addr;
-static struct bt_le_adv_param bond_ad_param = BT_LE_ADV_PARAM_INIT(
+static const struct bt_le_adv_param bond_ad_param = BT_LE_ADV_PARAM_INIT(
 		BT_LE_ADV_OPT_CONN | BT_LE_ADV_OPT_DIR_MODE_LOW_DUTY,
 		BT_GAP_ADV_FAST_INT_MIN_2, BT_GAP_ADV_FAST_INT_MAX_2,
 		&bond_addr);
