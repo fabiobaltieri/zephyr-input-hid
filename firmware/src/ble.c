@@ -69,7 +69,8 @@ static void adv_work_handler(struct k_work *work)
 
 	if (!IS_ENABLED(CONFIG_APP_BT_EMPTY_AD_BONDED)) {
 		ret = bt_le_adv_start(&ad_param, ad, ARRAY_SIZE(ad), NULL, 0);
-	} else if (IS_ENABLED(CONFIG_APP_BT_DIRECTED_AD) && count == 1) {
+	} else if (CONFIG_BT_MAX_PAIRED == 1 &&
+		   IS_ENABLED(CONFIG_APP_BT_DIRECTED_AD) && count == 1) {
 		LOG_INF("one bond, directed ad");
 		ret = bt_le_adv_start(&bond_ad_param, NULL, 0, NULL, 0);
 	} else if (count == CONFIG_BT_MAX_PAIRED) {
