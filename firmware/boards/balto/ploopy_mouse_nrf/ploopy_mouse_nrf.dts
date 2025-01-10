@@ -89,7 +89,7 @@
 		ocv-capacity-table-0 = <BATTERY_OCV_CURVE_LITHIUM_ION_POLYMER_DEFAULT>;
 	};
 
-	reg_1v8: reg_1v8{
+	reg_1v8: reg_1v8 {
 		compatible = "regulator-fixed";
 		regulator-name = "reg_1v8";
 		enable-gpios = <&gpio0 10 GPIO_ACTIVE_HIGH>;
