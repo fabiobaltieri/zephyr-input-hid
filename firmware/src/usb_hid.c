@@ -67,7 +67,8 @@ static void iface_ready(const struct device *dev, const bool ready)
 	data->connected = ready;
 }
 
-static void input_report_done(const struct device *dev)
+static void input_report_done(const struct device *dev,
+			      const uint8_t *const report)
 {
 	const struct device *hid_dev;
 	struct usb_hid_data *data;
