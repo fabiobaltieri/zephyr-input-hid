@@ -56,6 +56,11 @@ config APP_BT_DIRECTED_AD
 	bool "Send an direct ad if there's only one bond"
 	depends on BT
 
+config APP_BT_DISCONNECT_BONDED
+	bool "Disconnect unknown peers when fully bonded"
+	default y
+	depends on BT
+
 if USB_DEVICE_STACK_NEXT
 
 config APP_USB_VID

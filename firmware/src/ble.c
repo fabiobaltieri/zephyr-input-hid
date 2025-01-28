@@ -34,21 +34,21 @@ static const struct bt_le_adv_param bond_ad_param = BT_LE_ADV_PARAM_INIT(
 		BT_GAP_ADV_FAST_INT_MIN_2, BT_GAP_ADV_FAST_INT_MAX_2,
 		&bond_addr);
 
-static void connected(struct bt_conn *conn, uint8_t err)
-{
-	int ret;
+struct conn_bonded_arg {
+	const bt_addr_le_t *addr;
+	bool found;
+};
 
-	ret = bt_conn_set_security(conn, BT_SECURITY_L2);
-	if (ret) {
-		LOG_WRN("Failed to set security");
+static void bond_match(const struct bt_bond_info *info, void *user_data)
+{
+	struct conn_bonded_arg *arg = user_data;
+	const bt_addr_le_t *addr = &info->addr;
+
+	if (!bt_addr_le_eq(addr, arg->addr)) {
+		return;
 	}
 
-	event(EVENT_BT_CONNECTED);
-}
-
-static void disconnected(struct bt_conn *conn, uint8_t reason)
-{
-	event(EVENT_BT_DISCONNECTED);
+	arg->found = true;
 }
 
 static void bond_count(const struct bt_bond_info *info, void *user_data)
@@ -58,6 +58,49 @@ static void bond_count(const struct bt_bond_info *info, void *user_data)
 	(*count)++;
 
 	bt_addr_le_copy(&bond_addr, &info->addr);
+}
+
+static void connected(struct bt_conn *conn, uint8_t err)
+{
+	char addr[BT_ADDR_LE_STR_LEN];
+	int count = 0;
+	int ret;
+
+	event(EVENT_BT_CONNECTED);
+
+	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+
+	LOG_INF("connected: %s", addr);
+
+	bt_foreach_bond(BT_ID_DEFAULT, bond_count, &count);
+
+	if (IS_ENABLED(CONFIG_APP_BT_DISCONNECT_BONDED) &&
+	    CONFIG_BT_MAX_PAIRED == count) {
+		struct conn_bonded_arg arg;
+
+		arg.addr = bt_conn_get_dst(conn);
+		arg.found = false;
+		bt_foreach_bond(BT_ID_DEFAULT, bond_match, &arg);
+
+		if (!arg.found) {
+			LOG_INF("fully bonded, go away");
+
+			bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+			return;
+		} else {
+			LOG_INF("bonded peer");
+		}
+	}
+
+	ret = bt_conn_set_security(conn, BT_SECURITY_L2);
+	if (ret) {
+		LOG_WRN("Failed to set security");
+	}
+}
+
+static void disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	event(EVENT_BT_DISCONNECTED);
 }
 
 static void adv_work_handler(struct k_work *work)
