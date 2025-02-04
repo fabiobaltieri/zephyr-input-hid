@@ -111,7 +111,7 @@ static struct usbd_context *usbd_init_device(void)
 			return NULL;
 		}
 
-		err = usbd_register_all_classes(&app_usbd, USBD_SPEED_HS, 1);
+		err = usbd_register_all_classes(&app_usbd, USBD_SPEED_HS, 1, NULL);
 		if (err) {
 			LOG_ERR("Failed to add register classes");
 			return NULL;
@@ -126,7 +126,7 @@ static struct usbd_context *usbd_init_device(void)
 		return NULL;
 	}
 
-	err = usbd_register_all_classes(&app_usbd, USBD_SPEED_FS, 1);
+	err = usbd_register_all_classes(&app_usbd, USBD_SPEED_FS, 1, NULL);
 	if (err) {
 		LOG_ERR("Failed to add register classes");
 		return NULL;
