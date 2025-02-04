@@ -199,7 +199,7 @@ void hid_update_buffers(const struct device *dev,
 
 		entry = find_cache_idx(dev, input_dev, output_dev, input_id);
 		if (entry == NULL) {
-			continue;
+			goto unlock;
 		}
 
 		last_size = entry->size;
