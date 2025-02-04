@@ -9,9 +9,6 @@
 
 LOG_MODULE_REGISTER(pm_control, LOG_LEVEL_INF);
 
-#define DEVICE_DT_GET_BY_IDX(node, prop, idx) \
-	DEVICE_DT_GET(DT_PHANDLE_BY_IDX(node, prop, idx))
-
 static const struct device *always_on[] = {
 #if DT_INST_NODE_HAS_PROP(0, always_on)
 	DT_INST_FOREACH_PROP_ELEM_SEP(0, always_on, DEVICE_DT_GET_BY_IDX, (,))
