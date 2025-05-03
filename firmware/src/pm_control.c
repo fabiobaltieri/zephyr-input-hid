@@ -16,7 +16,9 @@ static const struct device *always_on[] = {
 };
 
 static const struct device *connect_on[] = {
+#if DT_INST_NODE_HAS_PROP(0, connect_on)
 	DT_INST_FOREACH_PROP_ELEM_SEP(0, connect_on, DEVICE_DT_GET_BY_IDX, (,))
+#endif
 };
 
 static void pm_control_cb(enum event_code code)
