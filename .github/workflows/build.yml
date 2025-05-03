@@ -22,6 +22,7 @@ jobs:
           - ble_pulse_encoder@J
           - darfon
           - ds2_retrofit
+          - big_stick
           - kbd_matrix
           - mimxrt1010_evk
           - negcon_retro

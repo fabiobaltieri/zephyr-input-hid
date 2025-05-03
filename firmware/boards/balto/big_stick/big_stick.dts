@@ -1,0 +1,218 @@
+/dts-v1/;
+#include <nordic/nrf52833_qdaa.dtsi>
+#include "big_stick-pinctrl.dtsi"
+#include <zephyr/dt-bindings/battery/battery.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/sensor/tmag5273.h>
+#include <dt-bindings/hid.h>
+
+/ {
+	model = "Big stick";
+	compatible = "balto,big-stick";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_input_activity: led_b {
+			gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+		};
+		led_status: led_a {
+			gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	buttons: buttons {
+		compatible = "gpio-keys";
+		debounce-interval-ms = <3>;
+
+		sw_a {
+			gpios = <&gpio0 31 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_SELECT>;
+		};
+		sw_0 {
+			gpios = <&gpio0 28 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_SOUTH>;
+		};
+		sw_1 {
+			gpios = <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_EAST>;
+		};
+		sw_2 {
+			gpios = <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_NORTH>;
+		};
+		sw_3 {
+			gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			zephyr,code = <INPUT_BTN_WEST>;
+		};
+	};
+
+	vbatt: vbatt {
+		compatible = "voltage-divider";
+		io-channels = <&adc 0>;
+		output-ohms = <(560 * 1000)>;
+		full-ohms = <(560 * 1000 * 2)>;
+	};
+
+	fuel_gauge: fuel_gauge_composite {
+		compatible = "zephyr,fuel-gauge-composite";
+		battery-voltage = <&vbatt>;
+		device-chemistry = "lithium-ion-polymer";
+		ocv-capacity-table-0 = <BATTERY_OCV_CURVE_LITHIUM_ION_POLYMER_DEFAULT>;
+	};
+
+	hid {
+		compatible = "hid";
+		input {
+			hid-gamepad {
+				compatible = "hid-gamepad";
+				input = <&buttons &tmag0 &tmag1>;
+				input-id = <1>;
+				report = <HID_GAMEPAD_REPORT(1)>;
+			};
+		};
+		output {
+			hid-hog {
+				compatible = "hid-hog";
+			};
+			usb-hid {
+				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_0>;
+			};
+		};
+	};
+
+	hid_dev_0: hid_dev_0 {
+		compatible = "zephyr,hid-device";
+		interface-name = "HID0";
+		in-report-size = <16>;
+		in-polling-period-us = <1000>;
+	};
+
+	ble-unpair {
+		input = <&buttons>;
+		compatible = "ble-unpair";
+		key-a = <INPUT_BTN_LEFT>;
+		key-b = <INPUT_BTN_RIGHT>;
+	};
+
+	pm-control {
+		compatible = "pm-control";
+		always-on = <&buttons>;
+		//connect-on = <>;
+	};
+};
+
+&uicr {
+	nfct-pins-as-gpios;
+};
+
+&reg1 {
+	regulator-initial-mode = <NRF5X_REG_MODE_DCDC>;
+};
+
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_6";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN2>;
+		zephyr,resolution = <10>;
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	charger: bq25180@6a {
+		compatible = "ti,bq25180";
+		reg = <0x6a>;
+		constant-charge-current-max-microamp = <500000>;
+	};
+
+	tmag0: tmag0@35 {
+		compatible = "ti,tmag5273";
+		reg = <0x35>;
+		int-gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+
+		axis = <TMAG5273_DT_AXIS_XY>;
+		operation-mode = <TMAG5273_DT_OPER_MODE_CONTINUOUS>;
+		angle-magnitude-axis = <TMAG5273_DT_ANGLE_MAG_XY>;
+		average-mode = <TMAG5273_DT_AVERAGING_32X>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-1 = <&i2c1_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	tmag1: tmag0@35 {
+		compatible = "ti,tmag5273";
+		reg = <0x35>;
+		int-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
+
+		axis = <TMAG5273_DT_AXIS_XY>;
+		operation-mode = <TMAG5273_DT_OPER_MODE_CONTINUOUS>;
+		angle-magnitude-axis = <TMAG5273_DT_ANGLE_MAG_XY>;
+		average-mode = <TMAG5273_DT_AVERAGING_32X>;
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0xC000>;
+		};
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000C000 0x37000>;
+		};
+		slot1_partition: partition@43000 {
+			label = "image-1";
+			reg = <0x00043000 0x37000>;
+		};
+		storage_partition: partition@7a000 {
+			label = "storage";
+			reg = <0x0007A000 0x00006000>;
+		};
+	};
+};
+
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+};
