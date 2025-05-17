@@ -97,8 +97,8 @@
 	ble-unpair {
 		input = <&buttons>;
 		compatible = "ble-unpair";
-		key-a = <INPUT_BTN_LEFT>;
-		key-b = <INPUT_BTN_RIGHT>;
+		key-a = <INPUT_BTN_SELECT>;
+		key-b = <INPUT_BTN_SOUTH>;
 	};
 
 	pm-control {
