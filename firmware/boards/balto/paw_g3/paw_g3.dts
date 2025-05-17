@@ -13,6 +13,8 @@
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
+		zephyr,console = &nus_console;
+		zephyr,shell-uart = &nus_console;
 	};
 
 	leds {
@@ -96,6 +98,12 @@
 		compatible = "pm-control";
 		always-on = <&buttons>;
 		connect-on = <&paw &pat>;
+	};
+
+	nus_console: nus_console {
+		compatible = "zephyr,nus-uart";
+		rx-fifo-size = <1024>;
+		tx-fifo-size = <1024>;
 	};
 };
 
