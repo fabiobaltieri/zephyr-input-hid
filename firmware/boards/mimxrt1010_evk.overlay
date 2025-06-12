@@ -39,7 +39,7 @@
 
 	hid_dev_0: hid_dev_0 {
 		compatible = "zephyr,hid-device";
-		interface-name = "HID0";
+		label = "HID0";
 		in-report-size = <16>;
 		in-polling-period-us = <125>;
 		out-report-size = <8>;

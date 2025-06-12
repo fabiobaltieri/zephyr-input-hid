@@ -52,7 +52,7 @@
 
 	hid_dev_0: hid_dev_0 {
 		compatible = "zephyr,hid-device";
-		interface-name = "HID0";
+		label = "HID0";
 		protocol-code = "keyboard";
 		in-report-size = <16>;
 		in-polling-period-us = <2000>;
@@ -62,7 +62,7 @@
 
 	hid_dev_1: hid_dev_1 {
 		compatible = "zephyr,hid-device";
-		interface-name = "HID1";
+		label = "HID1";
 		in-report-size = <32>;
 		in-polling-period-us = <1000>;
 	};
