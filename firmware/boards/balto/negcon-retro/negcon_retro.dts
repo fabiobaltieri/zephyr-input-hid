@@ -112,7 +112,7 @@
 
 	fuel_gauge: fuel_gauge_composite {
 		compatible = "zephyr,fuel-gauge-composite";
-		battery-voltage = <&vbatt>;
+		source-primary = <&vbatt>;
 		device-chemistry = "lithium-ion-polymer";
 		ocv-capacity-table-0 = <BATTERY_OCV_CURVE_LITHIUM_ION_POLYMER_DEFAULT>;
 	};
