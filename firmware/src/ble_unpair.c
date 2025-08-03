@@ -19,7 +19,7 @@ static void unpair_handler(struct k_work *work)
 	event(EVENT_BT_UNPAIRED);
 }
 
-K_WORK_DELAYABLE_DEFINE(unpair_dwork, unpair_handler);
+static K_WORK_DELAYABLE_DEFINE(unpair_dwork, unpair_handler);
 
 static void unpair_cb(struct input_event *evt, void *user_data)
 {

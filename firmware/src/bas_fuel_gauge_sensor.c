@@ -13,7 +13,7 @@ static const struct device *fuel_gauge = DEVICE_DT_GET(DT_NODELABEL(fuel_gauge_s
 
 static void bas_fuel_gauge_handler(struct k_work *work);
 
-K_WORK_DELAYABLE_DEFINE(fuel_gauge_dwork, bas_fuel_gauge_handler);
+static K_WORK_DELAYABLE_DEFINE(fuel_gauge_dwork, bas_fuel_gauge_handler);
 
 static void bas_fuel_gauge_handler(struct k_work *work)
 {

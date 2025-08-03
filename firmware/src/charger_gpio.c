@@ -12,7 +12,7 @@ static const struct gpio_dt_spec chg_gpio = GPIO_DT_SPEC_INST_GET(0, gpios);
 
 static void charging_handler(struct k_work *work);
 
-K_WORK_DELAYABLE_DEFINE(charging_dwork, charging_handler);
+static K_WORK_DELAYABLE_DEFINE(charging_dwork, charging_handler);
 
 static void charging_handler(struct k_work *work)
 {

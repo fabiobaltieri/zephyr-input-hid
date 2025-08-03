@@ -10,7 +10,7 @@ static const struct device *charger = DEVICE_DT_GET(DT_NODELABEL(charger));
 
 static void charging_handler(struct k_work *work);
 
-K_WORK_DELAYABLE_DEFINE(charging_dwork, charging_handler);
+static K_WORK_DELAYABLE_DEFINE(charging_dwork, charging_handler);
 
 static void charging_handler(struct k_work *work)
 {
