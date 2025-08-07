@@ -5,7 +5,6 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/pm/device.h>
-#include <zephyr/usb/class/usb_hid.h>
 #include <zephyr/usb/class/usbd_hid.h>
 #include <zephyr/usb/usbd.h>
 
@@ -246,8 +245,6 @@ static int usb_hid_out_init(const struct device *dev)
 	uint16_t report_len = hid_report_len(cfg->hid_dev);
 
 	hid_device_register(cfg->usb_hid_dev, report, report_len, &usb_hid_ops);
-
-	usb_hid_init(cfg->usb_hid_dev);
 
 	return 0;
 }
