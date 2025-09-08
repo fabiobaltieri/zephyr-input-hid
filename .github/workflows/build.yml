@@ -44,6 +44,7 @@ jobs:
         with:
           app-path: firmware
           toolchains: arm-zephyr-eabi
+          ccache-cache-key: ${{ matrix.board }}
 
       - name: Set the normalized board name
         run: |
