@@ -1,0 +1,143 @@
+/dts-v1/;
+#include <st/c0/stm32c071Xb.dtsi>
+#include <st/c0/stm32c071gbux-pinctrl.dtsi>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/led/led.h>
+#include <dt-bindings/hid.h>
+
+/ {
+	model = "WASD Keyboard";
+	compatible = "balto,wasd-kbd";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led_input_activity: led_a {
+			gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	gpio_keys: gpio_keys {
+		compatible = "gpio-keys";
+		debounce-interval-ms = <1>;
+
+		key_w {
+			gpios = <&gpioa 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			zephyr,code = <INPUT_KEY_W>;
+		};
+		key_a {
+			gpios = <&gpioa 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			zephyr,code = <INPUT_KEY_A>;
+		};
+		key_s {
+			gpios = <&gpioa 0 GPIO_ACTIVE_HIGH>;
+			zephyr,code = <INPUT_KEY_S>;
+		};
+		key_d {
+			gpios = <&gpioc 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			zephyr,code = <INPUT_KEY_D>;
+		};
+	};
+
+	hid {
+		compatible = "hid";
+		input {
+			hid-kbd {
+				compatible = "hid-kbd";
+				input = <&gpio_keys>;
+				input-id = <1>;
+				output-id = <1>;
+				report = <HID_KBD_REPORT(1, 0)>;
+			};
+		};
+		output {
+			usb-hid {
+				compatible = "usb-hid";
+				usb-hid-dev = <&hid_dev_0>;
+			};
+		};
+	};
+
+	hid_dev_0: hid_dev_0 {
+		compatible = "zephyr,hid-device";
+		label = "HID0";
+		protocol-code = "keyboard";
+		in-report-size = <16>;
+		in-polling-period-us = <2000>;
+		out-report-size = <8>;
+		out-polling-period-us = <5000>;
+	};
+
+	usb-wakeup {
+		compatible = "usb-wakeup";
+		input = <&gpio_keys>;
+		key-codes = <INPUT_KEY_S>;
+	};
+};
+
+&clk_hsi {
+	status = "okay";
+};
+
+&clk_hsi48 {
+	status = "okay";
+	crs-usb-sof;
+};
+
+&rcc {
+	clocks = <&clk_hsi>;
+	clock-frequency = <DT_FREQ_M(48)>;
+	ahb-prescaler = <1>;
+	apb1-prescaler = <1>;
+};
+
+&iwdg {
+	status = "okay";
+};
+
+&spi1 {
+	pinctrl-0 = <&spi1_mosi_pa7 &spi1_sck_pa5>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	led_strip: ws2812@0 {
+		compatible = "worldsemi,ws2812-spi";
+
+		reg = <0>;
+		spi-max-frequency = <4000000>;
+
+		chain-length = <10>;
+		color-mapping = <LED_COLOR_ID_GREEN
+				 LED_COLOR_ID_RED
+				 LED_COLOR_ID_BLUE>;
+		spi-one-frame = <0x70>;
+		spi-zero-frame = <0x40>;
+	};
+};
+
+#if 0
+zephyr_i2c: &i2c1 {
+	pinctrl-0 = <&i2c1_scl_pb6 &i2c1_sda_pb7>;
+	pinctrl-names = "default";
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_FAST>;
+};
+#endif
+
+&die_temp {
+	status = "okay";
+};
+
+zephyr_udc0: &usb {
+	clocks = <&rcc STM32_CLOCK(APB1, 13)>,
+		 <&rcc STM32_SRC_HSI48 USB_SEL(0)>;
+
+	pinctrl-0 = <&usb_dm_pa11 &usb_dp_pa12>;
+	pinctrl-names = "default";
+	status = "okay";
+};

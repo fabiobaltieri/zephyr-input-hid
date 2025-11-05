@@ -1,0 +1,2 @@
+config BOARD_WASD_KBD
+	select SOC_STM32C071XX
