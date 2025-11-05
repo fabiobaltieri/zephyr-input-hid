@@ -18,11 +18,11 @@ jobs:
       fail-fast: false
       matrix:
         board: 
+          - big_stick
           - ble_pulse_encoder
           - ble_pulse_encoder@J
           - darfon
           - ds2_retrofit
-          - big_stick
           - kbd_matrix
           - mimxrt1010_evk
           - negcon_retro
@@ -33,6 +33,7 @@ jobs:
           - paw_testboard
           - ploopy_mouse_nrf
           - pmw_testboard
+          - wasd_kbd
           - zalpakka
 
     steps:
