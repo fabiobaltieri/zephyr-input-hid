@@ -65,7 +65,6 @@ static void leds_thread(void)
 	}
 
 	while (1) {
-
 		for (uint8_t i = 0; i < STRIP_NUM_PIXELS; i++) {
 			uint8_t color = sys_rand8_get() % ARRAY_SIZE(colors);
 
@@ -77,7 +76,6 @@ static void leds_thread(void)
 				step_pixel(&pixels[i], &pixels_target[i]);
 			}
 
-
 			ret = led_strip_update_rgb(led_strip, pixels, STRIP_NUM_PIXELS);
 			if (ret) {
 				LOG_ERR("led_strip_update_rgb error: %d", ret);
@@ -86,8 +84,6 @@ static void leds_thread(void)
 			k_sleep(K_MSEC(DELAY_TIME_MS));
 		}
 	}
-
-	return;
 }
 
 K_THREAD_DEFINE(leds, 1024, leds_thread, NULL, NULL, NULL, 1, 0, 0);
