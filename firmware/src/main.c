@@ -12,8 +12,8 @@ static struct k_sem blink_sem = Z_SEM_INITIALIZER(blink_sem, 0, 4);
 #define BLINKER_NODE DT_NODELABEL(led_input_activity)
 #define STATUS_NODE DT_NODELABEL(led_status)
 
-const struct led_dt_spec activity_led = LED_DT_SPEC_GET_OR(BLINKER_NODE, {0});
-const struct led_dt_spec status_led = LED_DT_SPEC_GET_OR(STATUS_NODE, {0});
+static const struct led_dt_spec activity_led = LED_DT_SPEC_GET_OR(BLINKER_NODE, {0});
+static const struct led_dt_spec status_led = LED_DT_SPEC_GET_OR(STATUS_NODE, {0});
 
 #define BLINKER_QUEUE_SZ 10
 
