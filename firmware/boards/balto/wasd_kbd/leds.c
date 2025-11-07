@@ -31,7 +31,7 @@ static struct led_rgb pixels[STRIP_NUM_PIXELS];
 static struct led_rgb pixels_target[STRIP_NUM_PIXELS];
 
 #define DELAY_TIME_MS 25
-#define CYCLES 20
+#define CYCLES 40
 #define STEP (LEVEL / CYCLES)
 
 static void step_pixel(struct led_rgb *value, struct led_rgb *target)
