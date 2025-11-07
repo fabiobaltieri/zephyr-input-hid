@@ -105,6 +105,10 @@
 	pinctrl-names = "default";
 	status = "okay";
 
+	dmas = <&dmamux1 0 17 (STM32_DMA_PERIPH_TX | STM32_DMA_PRIORITY_LOW)>,
+	       <&dmamux1 1 16 (STM32_DMA_PERIPH_RX | STM32_DMA_PRIORITY_LOW)>;
+	dma-names = "tx", "rx";
+
 	led_strip: ws2812@0 {
 		compatible = "worldsemi,ws2812-spi";
 
@@ -118,6 +122,14 @@
 		spi-one-frame = <0x70>;
 		spi-zero-frame = <0x40>;
 	};
+};
+
+&dma1 {
+	status = "okay";
+};
+
+&dmamux1 {
+	status = "okay";
 };
 
 #if 0
