@@ -4,6 +4,8 @@
 #include <zephyr/random/random.h>
 #include <zephyr/sys/util.h>
 
+#include "event.h"
+
 LOG_MODULE_REGISTER(leds, LOG_LEVEL_INF);
 
 #define LEDSTRIP_NODE DT_NODELABEL(led_strip)
@@ -55,6 +57,22 @@ static void step_pixel(struct led_rgb *value, struct led_rgb *target)
 	}
 }
 
+static bool suspended;
+
+static void led_suspend_cb(enum event_code code)
+{
+        switch (code) {
+        case EVENT_HID_SUSPENDED:
+		suspended = true;
+                break;
+        case EVENT_HID_RESUMED:
+		suspended = false;
+                break;
+        default:
+        }
+}
+EVENT_CALLBACK_DEFINE(led_suspend_cb);
+
 static void leds_thread(void)
 {
 	int ret;
@@ -66,7 +84,14 @@ static void leds_thread(void)
 
 	while (1) {
 		for (uint8_t i = 0; i < STRIP_NUM_PIXELS; i++) {
-			uint8_t color = sys_rand8_get() % ARRAY_SIZE(colors);
+			uint8_t color;
+
+			if (suspended) {
+				memset(&pixels_target[i], 0, sizeof(struct led_rgb));
+				continue;
+			}
+
+			color = sys_rand8_get() % ARRAY_SIZE(colors);
 
 			memcpy(&pixels_target[i], &colors[color], sizeof(struct led_rgb));
 		}
