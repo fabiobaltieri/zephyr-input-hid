@@ -4,7 +4,7 @@ set(BOARD_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(BOARD kbd_matrix)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(keyboard-matrix-testboard)
+project(zephyr-input-hid)
 
 zephyr_include_directories(include)
 
