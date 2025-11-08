@@ -174,7 +174,7 @@ static int app_usbd_enable(void)
 
 	return 0;
 }
-SYS_INIT(app_usbd_enable, APPLICATION, 0);
+SYS_INIT(app_usbd_enable, APPLICATION, 10);
 
 #if CONFIG_DT_HAS_USB_WAKEUP_ENABLED
 #define USB_WAKEUP_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(usb_wakeup)
