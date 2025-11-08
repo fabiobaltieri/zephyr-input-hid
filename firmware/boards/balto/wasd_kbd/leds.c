@@ -61,15 +61,15 @@ static bool suspended;
 
 static void led_suspend_cb(enum event_code code)
 {
-        switch (code) {
-        case EVENT_HID_SUSPENDED:
+	switch (code) {
+	case EVENT_HID_SUSPENDED:
 		suspended = true;
-                break;
-        case EVENT_HID_RESUMED:
+		break;
+	case EVENT_HID_RESUMED:
 		suspended = false;
-                break;
-        default:
-        }
+		break;
+	default:
+	}
 }
 EVENT_CALLBACK_DEFINE(led_suspend_cb);
 
