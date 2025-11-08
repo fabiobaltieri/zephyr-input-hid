@@ -68,7 +68,7 @@
 		label = "HID0";
 		protocol-code = "keyboard";
 		in-report-size = <16>;
-		in-polling-period-us = <2000>;
+		in-polling-period-us = <1000>;
 		out-report-size = <8>;
 		out-polling-period-us = <5000>;
 	};
