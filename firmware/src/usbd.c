@@ -35,6 +35,17 @@ static void usbd_msg_cb(struct usbd_context *const usbd_ctx,
 	LOG_INF("USBD message: %s", usbd_msg_type_string(msg->type));
 
 	if (!usbd_can_detect_vbus(usbd_ctx)) {
+		switch (msg->type) {
+		case USBD_MSG_RESUME:
+			event(EVENT_USB_CONNECTED);
+			break;
+		case USBD_MSG_SUSPEND:
+			event(EVENT_USB_DISCONNECTED);
+			break;
+		default:
+			break;
+		}
+
 		return;
 	}
 

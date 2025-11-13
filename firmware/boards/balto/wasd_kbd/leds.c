@@ -62,10 +62,10 @@ static bool suspended;
 static void led_suspend_cb(enum event_code code)
 {
 	switch (code) {
-	case EVENT_HID_SUSPENDED:
+	case EVENT_USB_DISCONNECTED:
 		suspended = true;
 		break;
-	case EVENT_HID_RESUMED:
+	case EVENT_USB_CONNECTED:
 		suspended = false;
 		break;
 	default:
