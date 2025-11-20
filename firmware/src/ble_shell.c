@@ -49,7 +49,7 @@ static void connection_status(struct bt_conn *conn, void *user_data)
 	shell_print(sh, "  %s %s: interval=%u latency=%u timeout=%u security=%d",
 		    info.role == BT_CONN_ROLE_CENTRAL ? "central" : "peripheral",
 		    addr,
-		    info.le.interval,
+		    info.le.interval_us,
 		    info.le.latency,
 		    info.le.timeout,
 		    info.security.level);
