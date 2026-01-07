@@ -1,5 +1,6 @@
 board:
   name: wasd_kbd
+  full_name: WASD keyboard
   vendor: balto
   socs:
     - name: stm32c071xx

@@ -1,5 +1,6 @@
 board:
   name: darfon
+  full_name: Darfon
   vendor: balto
   socs:
     - name: stm32f103xe

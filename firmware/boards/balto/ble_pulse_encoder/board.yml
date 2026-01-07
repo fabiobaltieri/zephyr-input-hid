@@ -1,5 +1,6 @@
 board:
   name: ble_pulse_encoder
+  full_name: BLE pulse encoder
   vendor: balto
   socs:
     - name: nrf52832

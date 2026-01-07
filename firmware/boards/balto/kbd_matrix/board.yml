@@ -1,5 +1,6 @@
 board:
   name: kbd_matrix
+  full_name: Keyboard matrix
   vendor: balto
   socs:
     - name: nrf52832

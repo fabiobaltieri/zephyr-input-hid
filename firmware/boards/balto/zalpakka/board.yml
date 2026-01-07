@@ -1,5 +1,6 @@
 board:
   name: zalpakka
+  full_name: Zalpakka
   vendor: balto
   socs:
     - name: nrf52832

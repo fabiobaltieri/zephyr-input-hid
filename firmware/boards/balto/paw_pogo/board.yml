@@ -1,5 +1,6 @@
 board:
   name: paw_pogo
+  full_name: PAW pogo
   vendor: balto
   socs:
     - name: stm32f411xe

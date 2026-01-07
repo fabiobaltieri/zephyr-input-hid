@@ -1,5 +1,6 @@
 board:
   name: ds2_retrofit
+  full_name: DS2 retrofit
   vendor: balto
   socs:
     - name: nrf52832
