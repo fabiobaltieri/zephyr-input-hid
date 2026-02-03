@@ -100,6 +100,14 @@
 		connect-on = <&paw &pat>;
 	};
 
+	reboot: longpress {
+		input = <&buttons>;
+		compatible = "zephyr,input-longpress";
+		input-codes = <INPUT_BTN_TASK>;
+		long-codes = <INPUT_KEY_SYSRQ>;
+		long-delay-ms = <5000>;
+	};
+
 	nus_console: nus_console {
 		compatible = "zephyr,nus-uart";
 		rx-fifo-size = <1024>;

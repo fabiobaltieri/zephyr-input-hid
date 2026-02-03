@@ -9,9 +9,10 @@ project(zephyr-input-hid)
 zephyr_include_directories(include)
 
 target_sources(app PRIVATE
-	src/main.c
 	src/event.c
+	src/main.c
 	src/panic.c
+	src/reboot.c
 	src/watchdog.c
 )
 
