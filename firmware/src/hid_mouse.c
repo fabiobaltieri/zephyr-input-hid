@@ -1,7 +1,8 @@
 #define DT_DRV_COMPAT hid_mouse
 
-#include <stdint.h>
 #include <hid_mouse.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <zephyr/input/input.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/pm/device.h>
@@ -11,6 +12,15 @@
 #include "hid.h"
 
 LOG_MODULE_REGISTER(hid_mouse, LOG_LEVEL_INF);
+
+#define WHEEL_TH 30
+#define DEBOUNCE_TIMEOUT_MS 500
+
+enum debounce_state {
+	DEBOUNCE_IDLE,
+	DEBOUNCE_UP,
+	DEBOUNCE_DOWN,
+};
 
 struct hid_mouse_report {
 	uint8_t buttons;
@@ -27,6 +37,11 @@ struct hid_mouse_config {
 
 struct hid_mouse_data {
 	hid_mouse_feat_cb feat_cb;
+
+	bool debounce_enabled;
+	int32_t debounce_value;
+	enum debounce_state debounce_state;
+	struct k_work_delayable debounce_dwork;
 };
 
 static void hid_mouse_set_key_mouse(struct hid_mouse_report *report,
@@ -66,7 +81,54 @@ static void hid_mouse_set_key_mouse(struct hid_mouse_report *report,
 	WRITE_BIT(report->buttons, bit, value);
 }
 
-static void hid_mouse_set_rel(struct hid_mouse_report *report,
+static void debounce_worker(struct k_work *work)
+{
+	struct k_work_delayable *dwork = k_work_delayable_from_work(work);
+	struct hid_mouse_data *data = CONTAINER_OF(dwork, struct hid_mouse_data, debounce_dwork);
+
+	data->debounce_state = DEBOUNCE_IDLE;
+}
+
+static void hid_mouse_wheel_debounce(const struct device *dev,
+				     struct input_event *evt)
+{
+	struct hid_mouse_data *data = dev->data;
+
+	if (!(evt->type == INPUT_EV_REL && evt->code == INPUT_REL_WHEEL)) {
+		return;
+	}
+
+	if (!data->debounce_enabled) {
+		return;
+	}
+
+	data->debounce_value += evt->value;
+
+	if ((data->debounce_state == DEBOUNCE_UP && data->debounce_value > 0) ||
+	    (data->debounce_state == DEBOUNCE_DOWN && data->debounce_value < 0)) {
+		evt->value = data->debounce_value;
+		data->debounce_value = 0;
+	} else if (abs(data->debounce_value) >= WHEEL_TH) {
+		data->debounce_state = data->debounce_value > 0 ?
+			DEBOUNCE_UP : DEBOUNCE_DOWN;
+		evt->value = data->debounce_value;
+		data->debounce_value = 0;
+	} else {
+		evt->value = 0;
+	}
+
+	k_work_reschedule(&data->debounce_dwork, K_MSEC(DEBOUNCE_TIMEOUT_MS));
+}
+
+void hid_mouse_wheel_debounce_set(const struct device *dev, bool enabled)
+{
+	struct hid_mouse_data *data = dev->data;
+
+	data->debounce_enabled = enabled;
+}
+
+static void hid_mouse_set_rel(const struct device *dev,
+			      struct hid_mouse_report *report,
 			      uint16_t code, int32_t value)
 {
 	switch (code) {
@@ -88,8 +150,8 @@ static void hid_mouse_set_rel(struct hid_mouse_report *report,
 }
 
 static int hid_mouse_input_process(const struct device *dev,
-				    uint8_t *buf, uint8_t len,
-				    void *user_data)
+				   uint8_t *buf, uint8_t len,
+				   void *user_data)
 {
 	struct hid_mouse_report *report = (struct hid_mouse_report *)buf;
 	struct input_event *evt = user_data;
@@ -102,7 +164,7 @@ static int hid_mouse_input_process(const struct device *dev,
 	if (evt->type == INPUT_EV_KEY) {
 		hid_mouse_set_key_mouse(report, evt->code, evt->value);
 	} else if (evt->type == INPUT_EV_REL) {
-		hid_mouse_set_rel(report, evt->code, evt->value);
+		hid_mouse_set_rel(dev, report, evt->code, evt->value);
 	}
 
 	return sizeof(*report);
@@ -112,6 +174,9 @@ static void hid_mouse_cb(struct input_event *evt, void *user_data)
 {
 	const struct device *dev = user_data;
         const struct hid_mouse_config *cfg = dev->config;
+
+	/* process once for all the reports */
+	hid_mouse_wheel_debounce(dev, evt);
 
 	hid_update_buffers(cfg->hid_dev, dev, cfg->input_id,
 			   hid_mouse_input_process, evt);
@@ -160,6 +225,15 @@ static int hid_mouse_set_feature(const struct device *dev,
 	return data->feat_cb(dev, report_id, buf, len);
 }
 
+static int hid_mouse_init(const struct device *dev)
+{
+	struct hid_mouse_data *data = dev->data;
+
+	k_work_init_delayable(&data->debounce_dwork, debounce_worker);
+
+	return 0;
+}
+
 static DEVICE_API(hid_input, hid_mouse_api) = {
 	.clear_rel = hid_mouse_clear_rel,
 	.set_feature = hid_mouse_set_feature,
@@ -185,7 +259,7 @@ static DEVICE_API(hid_input, hid_mouse_api) = {
 											\
 	struct hid_mouse_data hid_mouse_data_##inst;					\
 											\
-	DEVICE_DT_INST_DEFINE(inst, NULL, NULL,						\
+	DEVICE_DT_INST_DEFINE(inst, hid_mouse_init, NULL,				\
 			      &hid_mouse_data_##inst, &hid_mouse_config_##inst,		\
 			      POST_KERNEL, CONFIG_INPUT_INIT_PRIORITY, &hid_mouse_api);
 

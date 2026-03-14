@@ -27,9 +27,11 @@ static int feat_cb(const struct device *dev,
 	if (buf[0] == 1) {
 		LOG_INF("enabling hi-res on %s", pat->name);
 		pat912x_set_resolution(pat, 1275, 1275);
+		hid_mouse_wheel_debounce_set(dev, true);
 	} else {
 		LOG_INF("disabling hi-res on %s", pat->name);
 		pat912x_set_resolution(pat, 50, 50);
+		hid_mouse_wheel_debounce_set(dev, false);
 	}
 
 	return 0;
