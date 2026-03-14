@@ -8,6 +8,14 @@ config APP_DEVICE_NAME
 	string "Device name"
 	default "zephyr-input"
 
+config APP_VID
+	hex "USB VID"
+	default 0x2fe3
+
+config APP_PID
+	hex "USB PID"
+	default 0x0007
+
 config APP_BAS_FUEL_GAUGE
 	bool "BAS fuel gauge support (subsys)"
 	default y
@@ -62,14 +70,6 @@ config APP_BT_DISCONNECT_BONDED
 	depends on BT
 
 if USB_DEVICE_STACK_NEXT
-
-config APP_USB_VID
-	hex "USB VID"
-	default 0x2fe3
-
-config APP_USB_PID
-	hex "USB PID"
-	default 0x0007
 
 config APP_USB_MAX_POWER
         int "USB bMaxPower (2mA units)"
@@ -161,6 +161,15 @@ config BT_MAX_PAIRED
 
 config BT_ASSERT
 	default n
+
+config BT_DIS_MANUF_NAME_STR
+	default APP_MANUFACTURER_NAME
+
+config BT_DIS_PNP_VID
+	default APP_VID
+
+config BT_DIS_PNP_PID
+	default APP_PID
 
 endif # BT
 
