@@ -13,8 +13,6 @@
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
-		zephyr,console = &nus_console;
-		zephyr,shell-uart = &nus_console;
 	};
 
 	leds {
@@ -106,12 +104,6 @@
 		input-codes = <INPUT_BTN_TASK>;
 		long-codes = <INPUT_KEY_SYSRQ>;
 		long-delay-ms = <5000>;
-	};
-
-	nus_console: nus_console {
-		compatible = "zephyr,nus-uart";
-		rx-fifo-size = <1024>;
-		tx-fifo-size = <1024>;
 	};
 };
 
