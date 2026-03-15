@@ -94,6 +94,12 @@ static void hid_mouse_wheel_debounce(const struct device *dev,
 {
 	struct hid_mouse_data *data = dev->data;
 
+	if (evt->type == INPUT_EV_KEY && evt->code == INPUT_BTN_MIDDLE) {
+		data->debounce_state = DEBOUNCE_IDLE;
+		data->debounce_value = 0;
+		return;
+	}
+
 	if (!(evt->type == INPUT_EV_REL && evt->code == INPUT_REL_WHEEL)) {
 		return;
 	}
