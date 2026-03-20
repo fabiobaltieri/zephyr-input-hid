@@ -46,11 +46,11 @@
 		col-drive-inactive;
 		//idle-mode = "poll";
 		//idle-mode = "scan";
-		//poll-timeout-ms = <0>;
+		//poll-timeout-us = <0>;
 		no-ghostkey-check;
 		settle-time-us = <10>;
-		poll-period-ms = <1>;
-		stable-poll-period-ms = <5>;
+		poll-period-us = <1000>;
+		stable-poll-period-us = <5000>;
 
 		keymap: keymap {
 			compatible = "input-keymap";
