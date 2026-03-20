@@ -14,7 +14,8 @@ manifest:
           - hal_nxp
           - hal_st
           - hal_stm32
+          - mbedtls
           - mcuboot
           - segger
-          - mbedtls
+          - tf-psa-crypto
           - zcbor
