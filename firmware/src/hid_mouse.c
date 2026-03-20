@@ -13,7 +13,7 @@
 
 LOG_MODULE_REGISTER(hid_mouse, LOG_LEVEL_INF);
 
-#define WHEEL_TH 30
+#define WHEEL_TH 45
 #define DEBOUNCE_TIMEOUT_MS 500
 
 enum debounce_state {
