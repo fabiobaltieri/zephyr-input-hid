@@ -24,7 +24,7 @@ LOG_MODULE_REGISTER(DRV8830, CONFIG_SENSOR_LOG_LEVEL);
 
 #define DRV8830_VSET_MAX 0x3f
 
-#define DRV8830_VREF 1.285f
+#define DRV8830_VREF 1.285
 
 struct drv8830_config {
 	struct i2c_dt_spec i2c;
