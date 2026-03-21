@@ -69,6 +69,7 @@ static void led_suspend_cb(enum event_code code)
 		suspended = false;
 		break;
 	default:
+		break;
 	}
 }
 EVENT_CALLBACK_DEFINE(led_suspend_cb);

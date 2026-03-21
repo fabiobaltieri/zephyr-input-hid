@@ -44,6 +44,7 @@ static void pm_control_cb(enum event_code code)
 		}
 		break;
 	default:
+		break;
 	}
 }
 EVENT_CALLBACK_DEFINE(pm_control_cb);

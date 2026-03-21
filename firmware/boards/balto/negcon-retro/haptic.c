@@ -43,6 +43,7 @@ static void haptic_cb(enum event_code code)
 		pwm_set_pulse_dt(&pwm_phase, 0);
 		break;
 	default:
+		break;
 	}
 }
 EVENT_CALLBACK_DEFINE(haptic_cb);
