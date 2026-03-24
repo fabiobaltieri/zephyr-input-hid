@@ -57,7 +57,7 @@ static void tmag_handler(struct k_work *work)
 
 		int32_t deg = val.val1 * 10 + val.val2 / 1000000;
 		int32_t range = devs[i].max - devs[i].min;
-		int32_t out = CLAMP((deg - devs[i].min) * 0xff / range, 0, 0xff);
+		int32_t out = clamp((deg - devs[i].min) * 0xff / range, 0, 0xff);
 
 		if (devs[i].last_val != out) {
 			input_report_abs(dev, devs[i].axis, out, true, K_FOREVER);

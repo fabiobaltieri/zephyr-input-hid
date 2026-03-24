@@ -132,16 +132,16 @@ static void hid_gamepad_set_abs(struct hid_gamepad_report *report,
 {
 	switch (code) {
 	case INPUT_ABS_X:
-		report->x = CLAMP(value, 0, UINT8_MAX);
+		report->x = clamp(value, 0, UINT8_MAX);
 		break;
 	case INPUT_ABS_Y:
-		report->y = CLAMP(value, 0, UINT8_MAX);
+		report->y = clamp(value, 0, UINT8_MAX);
 		break;
 	case INPUT_ABS_RX:
-		report->rx = CLAMP(value, 0, UINT8_MAX);
+		report->rx = clamp(value, 0, UINT8_MAX);
 		break;
 	case INPUT_ABS_RY:
-		report->ry = CLAMP(value, 0, UINT8_MAX);
+		report->ry = clamp(value, 0, UINT8_MAX);
 		break;
 	default:
 		return;

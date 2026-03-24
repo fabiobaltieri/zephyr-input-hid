@@ -77,7 +77,7 @@ static void imu_read_gyros(struct vector *v)
 	v1.y = v1.y * INT16_MAX / 125;
 	v1.z = v1.z * INT16_MAX / 125;
 
-	weight = MAX(abs(v1.x), abs(v1.y)) / 32768.0;
+	weight = max(abs(v1.x), abs(v1.y)) / 32768.0;
 	weight_0 = ramp_mid(weight, 0.2);
 	weight_1 = 1 - weight_0;
 

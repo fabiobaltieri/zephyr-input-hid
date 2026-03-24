@@ -139,15 +139,15 @@ static void hid_mouse_set_rel(const struct device *dev,
 {
 	switch (code) {
 	case INPUT_REL_X:
-		report->x = CLAMP(report->x + value,
+		report->x = clamp(report->x + value,
 				  INT16_MIN, INT16_MAX);
 		break;
 	case INPUT_REL_Y:
-		report->y = CLAMP(report->y + value,
+		report->y = clamp(report->y + value,
 				  INT16_MIN, INT16_MAX);
 		break;
 	case INPUT_REL_WHEEL:
-		report->wheel = CLAMP(report->wheel + value,
+		report->wheel = clamp(report->wheel + value,
 				      INT16_MIN, INT16_MAX);
 		break;
 	default:

@@ -136,7 +136,7 @@ static int xinput_control_to_host(struct usbd_class_data *c_data,
 		uint8_t dummy[20];
 		memset(dummy, 0, sizeof(dummy));
 		net_buf_add_mem(buf, dummy,
-				MIN(sizeof(dummy), setup->wLength));
+				min(sizeof(dummy), setup->wLength));
 	}
 
 	LOG_INF("%s", __func__);
