@@ -374,15 +374,17 @@ zephyr_udc0: &usb {
 
 &flash0 {
 	partitions {
-		compatible = "fixed-partitions";
 		#address-cells = <1>;
 		#size-cells = <1>;
+		ranges;
 
 		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
 			label = "bootloader";
 			reg = <0x00000000 0x2000>;
 		};
 		slot0_partition: partition@2000 {
+			compatible = "zephyr,mapped-partition";
 			label = "image-0";
 			reg = <0x00002000 0x3e000>;
 		};
