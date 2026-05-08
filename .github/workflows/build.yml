@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Zephyr project
         uses: zephyrproject-rtos/action-zephyr-setup@main
@@ -69,7 +69,7 @@ jobs:
           west build -b ${{ matrix.board }} firmware -DCONFIG_COMPILER_WARNINGS_AS_ERRORS=y $EXTRA_ARGS
 
       - name: Firmware artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: firmware_${{ env.BOARD }}
           path: |
