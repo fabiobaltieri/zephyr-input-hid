@@ -4,6 +4,7 @@
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/minmax.h>
 
 LOG_MODULE_REGISTER(hall_axes, LOG_LEVEL_INF);
 

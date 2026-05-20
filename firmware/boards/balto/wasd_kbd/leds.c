@@ -3,6 +3,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/random/random.h>
 #include <zephyr/sys/util.h>
+#include <zephyr/sys/minmax.h>
 
 #include "event.h"
 

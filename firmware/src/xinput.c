@@ -5,6 +5,7 @@
 #include <zephyr/input/input.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/minmax.h>
 #include <zephyr/usb/usbd.h>
 
 LOG_MODULE_REGISTER(xinput, LOG_LEVEL_INF);

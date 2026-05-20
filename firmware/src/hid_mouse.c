@@ -6,6 +6,7 @@
 #include <zephyr/input/input.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/pm/device.h>
+#include <zephyr/sys/minmax.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/toolchain.h>
 
