@@ -44,15 +44,15 @@
 
 		sw_3 {
 			gpios = <&gpio0 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_EXTRA>;
+			zephyr,code = <INPUT_BTN_EXTRA>; /* right */
 		};
 		sw_4 {
 			gpios = <&gpio0 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_TASK>;
+			zephyr,code = <INPUT_BTN_TASK>; /* top */
 		};
 		sw_5 {
 			gpios = <&gpio0 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			zephyr,code = <INPUT_BTN_SIDE>;
+			zephyr,code = <INPUT_BTN_SIDE>; /* left */
 		};
 	};
 
