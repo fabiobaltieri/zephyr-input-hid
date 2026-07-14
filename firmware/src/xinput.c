@@ -127,10 +127,16 @@ static void xinput_update(struct usbd_class_data *c_data,
 	LOG_INF("%s", __func__);
 }
 
-static int xinput_control_to_host(struct usbd_class_data *c_data,
-				  const struct usb_setup_packet *const setup,
-				  struct net_buf *const buf)
+static struct net_buf *xinput_control_to_host(struct usbd_class_data *c_data,
+				  const struct usb_setup_packet *const setup)
 {
+	struct net_buf *buf;
+
+	buf = usbd_ep_ctrl_data_in_alloc(usbd_class_get_ctx(c_data), setup->wLength);
+	if (buf == NULL) {
+		return NULL;
+	}
+
 	if (setup->bRequest == 0x01 &&
 	    setup->wValue == 0x100 &&
 	    setup->wIndex == 0x00) {

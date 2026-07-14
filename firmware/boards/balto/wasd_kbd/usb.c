@@ -11,11 +11,10 @@ extern void jump_to_bootloader(void);
 #define USB_REQ_BOOTLOADER 0xfffe
 #define USB_REQ_REBOOT 0xffff
 
-static int to_host_cb(const struct usbd_context *const ctx,
-		      const struct usb_setup_packet *const setup,
-		      struct net_buf *const buf)
+static struct net_buf *to_host_cb(const struct usbd_context *const ctx,
+				  const struct usb_setup_packet *const setup)
 {
-	return 0;
+	return NULL;
 }
 
 static int to_dev_cb(const struct usbd_context *const ctx,
