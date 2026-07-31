@@ -8,6 +8,7 @@
 #include <zephyr/usb/class/usbd_hid.h>
 #include <zephyr/usb/usbd.h>
 
+#include "event.h"
 #include "hid.h"
 
 LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
@@ -17,6 +18,7 @@ LOG_MODULE_REGISTER(usb_hid_app, LOG_LEVEL_INF);
 struct usb_hid_config {
 	const struct device *hid_dev;
 	const struct device *usb_hid_dev;
+	uint8_t boot_report_id;
 };
 
 struct usb_hid_data {
@@ -24,6 +26,7 @@ struct usb_hid_data {
 	bool busy;
 	bool connected;
 	bool suspended;
+	bool boot_protocol;
 };
 
 #define DEVICE_DT_GET_COMMA(n) DEVICE_DT_INST_GET(n),
@@ -171,8 +174,36 @@ static int set_report(const struct device *dev,
 
 static void set_protocol(const struct device *dev, const uint8_t proto)
 {
-	LOG_WRN("%s unimplemented", __func__);
+	const struct device *hid_dev;
+	struct usb_hid_data *data;
+
+	hid_dev = find_hid_dev(dev);
+	if (hid_dev == NULL) {
+		return;
+	}
+
+	data = hid_dev->data;
+
+	LOG_INF("protocol=%d", proto);
+
+	data->boot_protocol = proto == 0;
 }
+
+static void hid_reset_cb(enum event_code code)
+{
+	if (code != EVENT_USB_RESET) {
+		return;
+	}
+
+	for (uint8_t i = 0; i < USB_HID_DEV_COUNT; i++) {
+		struct usb_hid_data *data = usb_hid_devs[i]->data;
+
+		LOG_INF("protocol reset");
+
+		data->boot_protocol = false;
+	}
+}
+EVENT_CALLBACK_DEFINE(hid_reset_cb);
 
 static const struct hid_device_ops usb_hid_ops = {
 	.iface_ready = iface_ready,
@@ -212,7 +243,14 @@ static void usb_hid_notify(const struct device *dev)
 
 	data->busy = true;
 
-	ret = hid_device_submit_report(cfg->usb_hid_dev, size + 1, data->buf);
+	if (data->boot_protocol && data->buf[0] != cfg->boot_report_id) {
+		LOG_WRN("boot protocol, discarding report_id=%d", data->buf[0]);
+		return;
+	} else if (data->boot_protocol) {
+		ret = hid_device_submit_report(cfg->usb_hid_dev, size, &data->buf[1]);
+	} else {
+		ret = hid_device_submit_report(cfg->usb_hid_dev, size + 1, data->buf);
+	}
 	if (ret) {
 		LOG_ERR("HID write error, %d", ret);
 		return;
@@ -257,6 +295,7 @@ static DEVICE_API(hid_output, usb_hid_api) = {
 	static const struct usb_hid_config usb_hid_cfg_##n = {			\
 		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(n)),			\
 		.usb_hid_dev = DEVICE_DT_GET(DT_INST_PHANDLE(n, usb_hid_dev)),	\
+		.boot_report_id = DT_INST_PROP_OR(n, boot_report_id, 0),	\
 	};									\
 										\
 	static struct usb_hid_data usb_hid_data_##n;				\

@@ -10,3 +10,5 @@ properties:
   usb-hid-dev:
     type: phandle
     required: true
+  boot-report-id:
+    type: int

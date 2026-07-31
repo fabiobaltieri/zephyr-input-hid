@@ -59,6 +59,7 @@
 			usb-hid {
 				compatible = "usb-hid";
 				usb-hid-dev = <&hid_dev_0>;
+				boot-report-id = <1>;
 			};
 		};
 	};
