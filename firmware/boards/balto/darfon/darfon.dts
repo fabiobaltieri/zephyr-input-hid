@@ -84,11 +84,11 @@
 		keymap: keymap {
 			compatible = "input-keymap";
 			keymap = <
+				MATRIX_KEY(7, 16, INPUT_KEY_SLEEP)
+				MATRIX_KEY(7, 1, INPUT_KEY_VOLUMEDOWN)
+				MATRIX_KEY(7, 17, INPUT_KEY_VOLUMEUP)
+				MATRIX_KEY(7, 14, INPUT_KEY_MUTE)
 				/*
-				MATRIX_KEY(7, 16, media1) -- sleep
-				MATRIX_KEY(7, 1, media2)
-				MATRIX_KEY(7, 17, media3)
-				MATRIX_KEY(7, 14, media4)
 				MATRIX_KEY(4, 16, media5) -- clicker
 				MATRIX_KEY(5, 0, media6) -- reset
 				*/
@@ -216,9 +216,10 @@
 			hid-kbd {
 				compatible = "hid-kbd";
 				input = <&keymap>;
-				input-id = <1>;
+				input-id = <1 2>;
 				output-id = <1>;
-				report = <HID_KBD_REPORT(1, 1)>;
+				report = <HID_KBD_REPORT(1, 1)
+					  HID_KBD_MEDIA_REPORT(2)>;
 			};
 		};
 		output {
