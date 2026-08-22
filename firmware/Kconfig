@@ -83,6 +83,9 @@ endmenu
 config FUEL_GAUGE_COMPOSITE
 	select BT_BAS
 
+configdefault PM_DEVICE_RUNTIME_DEFAULT_ENABLE
+	default n
+
 configdefault INPUT_SHELL
 	default y
 
