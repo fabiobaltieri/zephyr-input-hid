@@ -57,6 +57,20 @@
 	IF_ENABLED(led, (HID_KBD_REPORT_LED))					\
 	HID_KBD_REPORT_TRAILER
 
+#define HID_KBD_MEDIA_REPORT(id)						\
+	0x05 0x0c                    /* Usage Page (Consumer Devices) */	\
+	0x09 0x01                    /* Usage (Consumer Control) */		\
+	0xa1 0x01                    /* Collection (Application) */		\
+	0x85 id                      /*  Report ID (id) */			\
+	0x15 0x00                    /*  Logical Minimum (0) */			\
+	0x25 0xff                    /*  Logical Maximum (255) */		\
+	0x19 0x00                    /*  Usage Minimum (0) */			\
+	0x29 0xff                    /*  Usage Maximum (255) */			\
+	0x75 0x08                    /*  Report Size (8) */			\
+	0x95 0x01                    /*  Report Count (1) */			\
+	0x81 0x00                    /*  Input (Data,Arr,Abs) */		\
+	0xc0                         /* End Collection */
+
 #define HID_MOUSE_REPORT_HEADER(id)				\
 	0x05 0x01	/* Usage Page (Generic Desktop) */	\
 	0x09 0x02	/* Usage (Mouse) */			\

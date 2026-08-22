@@ -35,12 +35,14 @@ struct hid_kbd_report_nkro {
 struct hid_kbd_config {
 	const struct device *hid_dev;
 	uint8_t input_id;
+	uint8_t media_id;
 	uint8_t output_id;
 	struct hid_kbd_report_data *report_data;
 };
 
 struct hid_kbd_data {
 	hid_kbd_led_cb led_cb;
+	uint8_t media_code;
 };
 
 static void hid_kbd_update_modifiers(uint8_t *modifiers, struct input_event *evt)
@@ -136,6 +138,42 @@ static int hid_kbd_input_process(const struct device *dev,
 	return sizeof(*report);
 }
 
+static int hid_kbd_input_process_media(const struct device *dev,
+				       uint8_t *buf, uint8_t len,
+				       void *user_data)
+{
+	struct input_event *evt = user_data;
+	struct hid_kbd_data *data = dev->data;
+
+	if (len < sizeof(data->media_code)) {
+		LOG_ERR("buffer too small %d < %d", len, sizeof(data->media_code));
+		return -EINVAL;
+	}
+
+	if (evt->type != INPUT_EV_KEY) {
+		return -EINVAL;
+	}
+
+	switch (evt->code) {
+	case INPUT_KEY_SLEEP:
+		data->media_code = evt->value ? 0x32 : 0;
+		break;
+	case INPUT_KEY_VOLUMEUP:
+		data->media_code = evt->value ? 0xe9 : 0;
+		break;
+	case INPUT_KEY_VOLUMEDOWN:
+		data->media_code = evt->value ? 0xea : 0;
+		break;
+	case INPUT_KEY_MUTE:
+		data->media_code = evt->value ? 0xe2 : 0;
+		break;
+	}
+
+	memcpy(buf, &data->media_code, sizeof(data->media_code));
+
+	return sizeof(data->media_code);
+}
+
 static int hid_kbd_input_process_nkro(const struct device *dev,
 				       uint8_t *buf, uint8_t len,
 				       void *user_data)
@@ -174,6 +212,11 @@ static void hid_kbd_cb(struct input_event *evt, void *user_data)
 	} else {
 		hid_update_buffers(cfg->hid_dev, dev, cfg->input_id,
 				   hid_kbd_input_process_nkro, evt);
+	}
+
+	if (cfg->media_id) {
+		hid_update_buffers(cfg->hid_dev, dev, cfg->media_id,
+				   hid_kbd_input_process_media, evt);
 	}
 }
 
@@ -231,6 +274,9 @@ static DEVICE_API(hid_input, hid_kbd_api) = {
 	static const struct hid_kbd_config hid_kbd_config_##inst = {			\
 		.hid_dev = DEVICE_DT_GET(DT_INST_GPARENT(inst)),			\
 		.input_id = DT_INST_PROP_BY_IDX(inst, input_id, 0),			\
+		IF_ENABLED(DT_INST_PROP_HAS_IDX(inst, input_id, 1), (			\
+		.media_id = DT_INST_PROP_BY_IDX(inst, input_id, 1),			\
+		))									\
 		IF_ENABLED(DT_INST_NODE_HAS_PROP(inst, output_id), (			\
 		.output_id = DT_INST_PROP_BY_IDX(inst, output_id, 0),			\
 		))									\
