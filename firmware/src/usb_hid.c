@@ -29,10 +29,10 @@ struct usb_hid_data {
 	bool boot_protocol;
 };
 
-#define DEVICE_DT_GET_COMMA(n) DEVICE_DT_INST_GET(n),
+#define DEVICE_DT_INST_GET_COMMA(n) DEVICE_DT_INST_GET(n),
 
 static const struct device *usb_hid_devs[] = {
-	DT_INST_FOREACH_STATUS_OKAY(DEVICE_DT_GET_COMMA)
+	DT_INST_FOREACH_STATUS_OKAY(DEVICE_DT_INST_GET_COMMA)
 };
 
 #define USB_HID_DEV_COUNT ARRAY_SIZE(usb_hid_devs)
