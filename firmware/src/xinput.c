@@ -235,12 +235,12 @@ static void xinput_send_report(const struct device *dev,
 	struct udc_buf_info *bi;
 	int ret;
 
-	buf = net_buf_alloc_with_data(cfg->pool_in,
-				      report, sizeof(*report), K_NO_WAIT);
+	buf = net_buf_alloc(cfg->pool_in, K_NO_WAIT);
 	if (!buf) {
 		LOG_ERR("net_buf_alloc_with_data failed");
 		return;
 	}
+	net_buf_add_mem(buf, report, sizeof(*report));
 
 	bi = udc_get_buf_info(buf);
 	memset(bi, 0, sizeof(struct udc_buf_info));
@@ -334,8 +334,9 @@ static int xinput_init(const struct device *dev)
 			  (void *)DEVICE_DT_GET(DT_DRV_INST(n)),			\
 			  &xinput_vregs);						\
 											\
-	NET_BUF_POOL_DEFINE(xinput_buf_pool_in_##n, XINPUT_BUF_COUNT, 0,		\
-		    sizeof(struct udc_buf_info), NULL);					\
+	NET_BUF_POOL_DEFINE(xinput_buf_pool_in_##n, XINPUT_BUF_COUNT,			\
+			   sizeof(struct xinput_report),				\
+			   sizeof(struct udc_buf_info), NULL);				\
 	NET_BUF_POOL_DEFINE(xinput_buf_pool_out_##n, XINPUT_BUF_COUNT, 32,		\
 		    sizeof(struct udc_buf_info), NULL);					\
 											\
