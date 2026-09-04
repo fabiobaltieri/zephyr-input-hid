@@ -144,10 +144,10 @@ static struct net_buf *xinput_control_to_host(struct usbd_class_data *c_data,
 		memset(dummy, 0, sizeof(dummy));
 		net_buf_add_mem(buf, dummy,
 				min(sizeof(dummy), setup->wLength));
+		return buf;
 	}
 
-	LOG_INF("%s", __func__);
-	return 0;
+	return NULL;
 }
 
 static int xinput_control_to_dev(struct usbd_class_data *c_data,
@@ -238,6 +238,7 @@ static void xinput_send_report(const struct device *dev,
 	buf = net_buf_alloc_with_data(cfg->pool_in,
 				      report, sizeof(*report), K_NO_WAIT);
 	if (!buf) {
+		LOG_ERR("net_buf_alloc_with_data failed");
 		return;
 	}
 
@@ -249,6 +250,7 @@ static void xinput_send_report(const struct device *dev,
 	ret = usbd_ep_enqueue(cfg->c_data, buf);
 	if (ret) {
 		net_buf_unref(buf);
+		LOG_ERR("Failed to enqueue buffer");
 		return;
 	}
 }
@@ -265,6 +267,7 @@ static void xinput_out_handler(struct k_work *work)
 
 	buf = net_buf_alloc(cfg->pool_out, K_NO_WAIT);
         if (!buf) {
+		LOG_ERR("net_buf_alloc failed");
                 return;
         }
 
