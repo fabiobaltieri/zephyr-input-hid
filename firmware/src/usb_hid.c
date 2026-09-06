@@ -201,6 +201,7 @@ static void hid_reset_cb(enum event_code code)
 		LOG_INF("protocol reset");
 
 		data->boot_protocol = false;
+		data->busy = false;
 	}
 }
 EVENT_CALLBACK_DEFINE(hid_reset_cb);
