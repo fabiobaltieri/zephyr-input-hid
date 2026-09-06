@@ -241,12 +241,14 @@ static void usb_hid_notify(const struct device *dev)
 		return;
 	}
 
-	data->busy = true;
-
 	if (data->boot_protocol && data->buf[0] != cfg->boot_report_id) {
 		LOG_WRN("boot protocol, discarding report_id=%d", data->buf[0]);
 		return;
-	} else if (data->boot_protocol) {
+	}
+
+	data->busy = true;
+
+	if (data->boot_protocol) {
 		ret = hid_device_submit_report(cfg->usb_hid_dev, size, &data->buf[1]);
 	} else {
 		ret = hid_device_submit_report(cfg->usb_hid_dev, size + 1, data->buf);
