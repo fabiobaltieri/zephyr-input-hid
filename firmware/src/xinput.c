@@ -182,8 +182,8 @@ static int xinput_request_handler(struct usbd_class_data *c_data,
 	return usbd_ep_buf_free(uds_ctx, buf);
 }
 
-static void *xinput_get_desc(struct usbd_class_data *const c_data,
-			     const enum usbd_speed speed)
+static const void *xinput_get_desc(struct usbd_class_data *const c_data,
+				   const enum usbd_speed speed)
 {
 	const struct device *dev = usbd_class_get_private(c_data);
 	const struct xinput_config *cfg = dev->config;
@@ -214,7 +214,7 @@ static int xinput_usb_init(struct usbd_class_data *c_data)
 	return 0;
 }
 
-struct usbd_class_api xinput_api = {
+static const struct usbd_class_api xinput_api = {
 	.update = xinput_update,
 	.enable = xinput_enable,
 	.disable = xinput_disable,
