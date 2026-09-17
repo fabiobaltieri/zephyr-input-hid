@@ -28,6 +28,12 @@ struct ble_hog_data {
 	bt_addr_le_t peer;
 };
 
+static const struct device *ble_hog_devs[] = {
+	DT_INST_FOREACH_STATUS_OKAY(DEVICE_DT_INST_GET_COMMA)
+};
+
+#define BLE_HOG_DEV_COUNT ARRAY_SIZE(ble_hog_devs)
+
 #define HOG_REPORT_BUF_SIZE 32
 
 enum {
@@ -445,6 +451,19 @@ static int ble_hog_init(const struct device *dev)
 
 DEVICE_API(hid_output, ble_hog_api) = {
 	.notify = ble_hog_notify,
+};
+
+static void ble_hog_disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	for (uint8_t i = 0; i < BLE_HOG_DEV_COUNT; i++) {
+		struct ble_hog_data *data = ble_hog_devs[i]->data;
+
+		data->hog_busy = false;
+	}
+}
+
+BT_CONN_CB_DEFINE(conn_callbacks) = {
+	.disconnected = ble_hog_disconnected,
 };
 
 #define BLE_HOG_INIT(n)							\
