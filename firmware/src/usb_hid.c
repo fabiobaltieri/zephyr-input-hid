@@ -245,8 +245,6 @@ static void usb_hid_notify(const struct device *dev)
 		return;
 	}
 
-	data->busy = true;
-
 	if (data->boot_protocol) {
 		ret = hid_device_submit_report(cfg->usb_hid_dev, size, &data->buf[1]);
 	} else {
@@ -256,6 +254,8 @@ static void usb_hid_notify(const struct device *dev)
 		LOG_ERR("HID write error, %d", ret);
 		return;
 	}
+
+	data->busy = true;
 }
 
 static int usb_hid_pm_action(const struct device *dev,
